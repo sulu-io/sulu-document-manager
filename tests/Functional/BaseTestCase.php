@@ -22,12 +22,9 @@ abstract class BaseTestCase extends \PHPUnit_Framework_TestCase
 
     protected function initPhpcr()
     {
-        $session = $this->getContainer()->get('doctrine_phpcr.default_session');
-
-        if ($session->getRootNode()->hasNode(self::BASE_NAME)) {
-            $session->removeItem(self::BASE_PATH);
-            $session->save();
-        }
+        $nodeManager = $this->getContainer()->get('sulu_document_manager.node_manager');
+        $nodeManager->purgeWorkspace();
+        $nodeManager->save();
     }
 
     protected function getContainer()

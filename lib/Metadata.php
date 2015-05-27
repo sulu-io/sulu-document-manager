@@ -75,4 +75,12 @@ class Metadata
     {
         $this->phpcrType = $phpcrType;
     }
+
+    /**
+     * @return ReflectionClass
+     */
+    public function getReflection()
+    {
+        return new \ReflectionClass($this->class);
+    }
 }

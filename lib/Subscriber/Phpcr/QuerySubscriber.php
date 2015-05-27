@@ -11,14 +11,15 @@
 
 namespace Sulu\Component\DocumentManager\Subscriber\Phpcr;
 
+use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 use PHPCR\Query\QueryInterface;
-use PHPCR\Query\QueryManagerInterface;
 use PHPCR\SessionInterface;
 use Sulu\Component\DocumentManager\Collection\QueryResultCollection;
 use Sulu\Component\DocumentManager\Event\QueryCreateBuilderEvent;
 use Sulu\Component\DocumentManager\Event\QueryCreateEvent;
 use Sulu\Component\DocumentManager\Event\QueryExecuteEvent;
 use Sulu\Component\DocumentManager\Events;
+use Sulu\Component\DocumentManager\Query\ConverterSulu;
 use Sulu\Component\DocumentManager\Query\Query;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -39,13 +40,19 @@ class QuerySubscriber implements EventSubscriberInterface
     private $eventDispatcher;
 
     /**
+     * @var ConverterSulu
+     */
+    private $builderConverter;
+
+    /**
      * @param SessionInterface $session
      * @param EventDispatcherInterface $eventDispatcher
      */
-    public function __construct(SessionInterface $session, EventDispatcherInterface $eventDispatcher)
+    public function __construct(SessionInterface $session, EventDispatcherInterface $eventDispatcher, ConverterSulu $builderConverter)
     {
         $this->session = $session;
         $this->eventDispatcher = $eventDispatcher;
+        $this->builderConverter = $builderConverter;
     }
 
     /**
@@ -100,7 +107,9 @@ class QuerySubscriber implements EventSubscriberInterface
      */
     public function handleCreateBuilder(QueryCreateBuilderEvent $event)
     {
-        throw new \Exception('Not implemented');
+        $builder = new QueryBuilder();
+        $builder->setConverter($this->builderConverter);
+        $event->setQueryBuilder($builder);
     }
 
     /**
@@ -117,10 +126,7 @@ class QuerySubscriber implements EventSubscriberInterface
         $event->setResult(new QueryResultCollection($phpcrResult, $this->eventDispatcher, $locale));
     }
 
-    /**
-     * @return QueryManagerInterface
-     */
-    private function getQueryManager()
+    protected function getQueryManager()
     {
         return $this->session->getWorkspace()->getQueryManager();
     }

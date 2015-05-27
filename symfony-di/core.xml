@@ -58,6 +58,12 @@
             <argument type="service" id="sulu_document_manager.metadata_factory.base"/>
         </service>
 
+        <service id="sulu_document_manager.query.builder_converter" class="Sulu\Component\DocumentManager\Query\ConverterSulu" public="false">
+            <argument type="service" id="doctrine_phpcr.default_session" />
+            <argument type="service" id="sulu_document_manager.event_dispatcher" />
+            <argument type="service" id="sulu_document_manager.metadata_factory" />
+        </service>
+
         <!-- Utilities -->
         <service id="sulu_document_manager.path_segment_registry" class="Sulu\Component\DocumentManager\PathSegmentRegistry">
             <argument type="collection">
