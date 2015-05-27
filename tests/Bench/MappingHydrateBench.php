@@ -2,8 +2,6 @@
 
 namespace Sulu\Component\DocumentManager\Tests\Bench;
 
-use PHPCR\ImportUUIDBehaviorInterface;
-
 /**
  * @processIsolation iteration
  * @group mapping_hydrate
@@ -13,8 +11,7 @@ class MappingHydrateBench extends BaseBench
     public function setUp()
     {
         $this->initPhpcr();
-        $this->getSession()->importXML(self::BASE_PATH, __DIR__ . '/test.xml', ImportUUIDBehaviorInterface::IMPORT_UUID_COLLISION_REMOVE_EXISTING);
-        $this->getSession()->save();
+        $this->loadDump('20-nodes.xml');
     }
 
     /**

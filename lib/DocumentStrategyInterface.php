@@ -12,6 +12,8 @@
 namespace Sulu\Component\DocumentManager;
 
 use PHPCR\NodeInterface;
+use Sulu\Component\DocumentManager\Metadata;
+use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
 
 /**
  * Document strategies determine how documents are managed.
@@ -30,7 +32,6 @@ interface DocumentStrategyInterface
      * @param object $document
      * @param NodeInterface $parentNode
      * @param string $name
-     *
      * @return NodeInterface
      */
     public function createNodeForDocument($document, NodeInterface $parentNode, $name);
@@ -48,4 +49,43 @@ interface DocumentStrategyInterface
      * @return Metadata|NULL
      */
     public function resolveMetadataForNode(NodeInterface $node);
+
+    /**
+     * Return the primary node type from the given document metadata.
+     *
+     * For example:
+     *
+     * ````
+     * return 'nt:unstructured';
+     * ````
+     *
+     * @param string $classFqn
+     * @return string
+     */
+    public function getPrimaryNodeType($classFqn);
+
+    /**
+     * Create a source constraint for a source document.
+     *
+     * For example:
+     *
+     * ````
+     * return $qomf->comparison(
+     *     $qomf->propertyValue(
+     *         $sourceNode->getAlias(),
+     *         'jcr:mixinTypes'
+     *     ),
+     *     QOMConstants::JCR_OPERATOR_EQUAL_TO,
+     *     $qomf->literal('foo')
+     * );
+     * ````
+     *
+     * Can return NULL if no constraints should be added. This may be required
+     * if the primary type already represents the document class.
+     *
+     * @param QueryObjectModelFactoryInterface $qomf
+     * @param string $sourceAlias
+     * @param string $classFqn
+     */
+    public function createSourceConstraint(QueryObjectModelFactoryInterface $qomf, $sourceAlias, $classFqn);
 }

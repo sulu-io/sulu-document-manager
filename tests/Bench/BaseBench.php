@@ -12,6 +12,7 @@
 namespace Sulu\Component\DocumentManager\Tests\Bench;
 
 use PhpBench\Benchmark;
+use PHPCR\ImportUUIDBehaviorInterface;
 use Sulu\Component\DocumentManager\Tests\Bootstrap;
 
 abstract class BaseBench implements Benchmark
@@ -31,6 +32,12 @@ abstract class BaseBench implements Benchmark
         }
 
         $session->getRootNode()->addNode(self::BASE_NAME);
+    }
+
+    protected function loadDump($name)
+    {
+        $this->getSession()->importXML(self::BASE_PATH, __DIR__ . '/../Dumps/' . $name, ImportUUIDBehaviorInterface::IMPORT_UUID_COLLISION_REMOVE_EXISTING);
+        $this->getSession()->save();
     }
 
     protected function getContainer()

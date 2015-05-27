@@ -19,7 +19,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * Lazily hydrate query results.
  *
- * TODO: Performance -- try fetch depth like in teh PHPCR-ODM ChildrenCollection
+ * TODO: Performance -- try fetch depth like in the PHPCR-ODM ChildrenCollection
  */
 class ChildrenCollection extends AbstractLazyCollection
 {

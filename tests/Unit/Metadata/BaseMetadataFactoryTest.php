@@ -106,7 +106,7 @@ class BaseMetadataFactoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * It should say if it has metadata for a class
+     * It should say if it has metadata for a class.
      */
     public function testHasMetadataForClass()
     {
@@ -114,7 +114,7 @@ class BaseMetadataFactoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * It should say if it has metadata for a class
+     * It should say if it has metadata for a class.
      */
     public function testHasMetadataForProxyClass()
     {

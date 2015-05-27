@@ -14,11 +14,11 @@ namespace Sulu\Component\DocumentManager\Tests\Functional\Model;
 use Sulu\Component\DocumentManager\Behavior\Audit\BlameBehavior;
 use Sulu\Component\DocumentManager\Behavior\Audit\TimestampBehavior;
 use Sulu\Component\DocumentManager\Behavior\Mapping\ChildrenBehavior;
+use Sulu\Component\DocumentManager\Behavior\Mapping\LocaleBehavior;
 use Sulu\Component\DocumentManager\Behavior\Mapping\NodeNameBehavior;
 use Sulu\Component\DocumentManager\Behavior\Mapping\ParentBehavior;
 use Sulu\Component\DocumentManager\Behavior\Mapping\PathBehavior;
 use Sulu\Component\DocumentManager\Behavior\Mapping\UuidBehavior;
-use Sulu\Component\DocumentManager\Behavior\Mapping\LocaleBehavior;
 
 /**
  * This functional test document should implement as many behaviors as possible.
@@ -171,11 +171,11 @@ class FullDocument implements
         $this->status = $status;
     }
 
-    public function getReference() 
+    public function getReference()
     {
         return $this->reference;
     }
-    
+
     public function setReference($reference)
     {
         $this->reference = $reference;

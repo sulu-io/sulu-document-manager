@@ -13,13 +13,13 @@ namespace Sulu\Component\DocumentManager\Subscriber\Behavior\Audit;
 
 use Sulu\Component\DocumentManager\Behavior\Audit\BlameBehavior;
 use Sulu\Component\DocumentManager\Event\ConfigureOptionsEvent;
+use Sulu\Component\DocumentManager\Event\MetadataLoadEvent;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\Security\Authentication\UserInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Security\Core\Authentication\Token\AnonymousToken;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
-use Sulu\Component\DocumentManager\Event\MetadataLoadEvent;
 
 /**
  * Manages user blame (log who creator the document and who updated it last).

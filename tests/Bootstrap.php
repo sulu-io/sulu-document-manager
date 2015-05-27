@@ -19,6 +19,8 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher;
+use Symfony\Component\Stopwatch\Stopwatch;
+use Sulu\Component\DocumentManager\EventDispatcher\DebugEventDispatcher;
 
 class Bootstrap
 {
@@ -32,10 +34,14 @@ class Bootstrap
 
         $container = new ContainerBuilder();
         $container->set('doctrine_phpcr.default_session', self::createSession());
-        $logger = new Logger('test');
-        $logger->pushHandler(new StreamHandler($logDir . '/test.log'));
 
-        $dispatcher = new ContainerAwareEventDispatcher($container);
+        if (getenv('SULU_DM_DEBUG')) {
+            $logger = new Logger('test');
+            $logger->pushHandler(new StreamHandler($logDir . '/test.log'));
+            $dispatcher = new DebugEventDispatcher($container, new Stopwatch(), $logger);
+        } else {
+            $dispatcher = new ContainerAwareEventDispatcher($container);
+        }
         $container->set('sulu_document_manager.event_dispatcher', $dispatcher);
 
         $config = array(
@@ -89,6 +95,19 @@ class Bootstrap
                         'eight' => array(),
                         'nine' => array(),
                         'ten' => array(),
+                    ),
+                ),
+                'issue' => array(
+                    'alias' => 'issue',
+                    'phpcr_type' => 'mix:issue',
+                    'class' => 'Sulu\Component\DocumentManager\Tests\Functional\Model\IssueDocument',
+                    'mapping' => array(
+                        'name' => array(
+                            'encoding' => 'content',
+                        ),
+                        'status' => array(
+                            'encoding' => 'content',
+                        ),
                     ),
                 ),
             ),
@@ -164,13 +183,14 @@ class Bootstrap
         $session = $repository->login($credentials, 'default');
 
         $nodeTypeManager = $session->getWorkspace()->getNodeTypeManager();
-        if (!$nodeTypeManager->hasNodeType('mix:test')) {
-            $nodeTypeManager->registerNodeTypesCnd(<<<EOT
-[mix:test] > mix:referenceable mix
-[mix:mapping5] > mix:referenceable mix
-[mix:mapping10] > mix:referenceable mix
+
+        foreach (array('mix:issue', 'mix:test', 'mix:mapping5', 'mix:mapping10') as $mixinType) {
+            if (!$nodeTypeManager->hasNodeType($mixinType)) {
+                $nodeTypeManager->registerNodeTypesCnd(sprintf(<<<EOT
+    [%s] > mix:referenceable mix
 EOT
-            , true);
+                , $mixinType), true);
+            }
         }
 
         $namespaceRegistry = $session->getWorkspace()->getNamespaceRegistry();

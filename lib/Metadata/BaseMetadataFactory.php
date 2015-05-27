@@ -115,6 +115,7 @@ class BaseMetadataFactory implements MetadataFactoryInterface
     public function hasMetadataForClass($class)
     {
         $class = ClassNameInflector::getUserClassName($class);
+
         return isset($this->classMap[$class]);
     }
 

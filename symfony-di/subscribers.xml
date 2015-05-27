@@ -91,9 +91,10 @@
         </service>
 
         <service id="sulu_document_manager.subscriber.phpcr.query" class="Sulu\Component\DocumentManager\Subscriber\Phpcr\QuerySubscriber">
-            <argument type="service" id="doctrine_phpcr.default_session"/>
-            <argument type="service" id="sulu_document_manager.event_dispatcher"/>
-            <tag name="sulu_document_manager.event_subscriber"/>
+            <argument type="service" id="doctrine_phpcr.default_session" />
+            <argument type="service" id="sulu_document_manager.event_dispatcher" />
+            <argument type="service" id="sulu_document_manager.query.builder_converter" />
+            <tag name="sulu_document_manager.event_subscriber" />
         </service>
 
         <service id="sulu_document_manager.subscriber.phpcr.general" class="Sulu\Component\DocumentManager\Subscriber\Phpcr\GeneralSubscriber">

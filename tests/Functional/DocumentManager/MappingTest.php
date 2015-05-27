@@ -48,7 +48,7 @@ class MappingTest extends BaseTestCase
     }
 
     /**
-     * It should map reference fields
+     * It should map reference fields.
      */
     public function testMappingReference()
     {
@@ -76,6 +76,5 @@ class MappingTest extends BaseTestCase
             $reference->getUuid(),
             $document->getReference()->getUuid()
         );
-
     }
 }

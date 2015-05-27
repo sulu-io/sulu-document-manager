@@ -53,7 +53,7 @@ class FindTest extends BaseTestCase
     }
 
     /**
-     * It can persist and find without any locales
+     * It can persist and find without any locales.
      */
     public function testPersistFindNoLocales()
     {

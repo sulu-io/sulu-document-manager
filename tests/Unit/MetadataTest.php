@@ -40,4 +40,29 @@ class MetadataTest extends \PHPUnit_Framework_TestCase
         $this->metadata->setClass('\stdClass');
         $this->assertNotSame($reflection, $this->metadata->getReflectionClass());
     }
+
+    /**
+     * It should get a field mapping
+     * It should say if it has a field mapping.
+     */
+    public function testGetHasFieldMapping()
+    {
+        $mapping = array('class' => 'stdClass');
+        $this->metadata->addFieldMapping('foobar', $mapping);
+        $this->assertTrue($this->metadata->hasFieldMapping('foobar'));
+        $this->assertFalse($this->metadata->hasFieldMapping('foobar_not'));
+        $mapping = $this->metadata->getFieldMapping('foobar');
+        $this->assertEquals('stdClass', $mapping['class']);
+    }
+
+    /**
+     * It should throw an exception if an unknown field mapping is requested.
+     *
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage not known
+     */
+    public function testUnknownFieldMapping()
+    {
+        $this->metadata->getFieldMapping('foobar');
+    }
 }

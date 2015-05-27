@@ -36,10 +36,10 @@ class Metadata
     /**
      * @var array
      */
-    private $fieldMappings;
+    private $fieldMappings = array();
 
     /**
-     * Add a field mapping for field with given name, for example:
+     * Add a field mapping for field with given name, for example:.
      *
      * ````
      * $metadata->addFieldMapping(array(
@@ -50,10 +50,11 @@ class Metadata
      *
      * @param string $name Name of field/property in the mapped class.
      * @param array $mapping {
-     *   @var string $encoding Encoding type to use, @see \Sulu\Component\DocumentManager\PropertyEncoder::encode()
-     *   @var string $property PHPCR property name (excluding the prefix)
-     *   @var string $type Type of field (leave blank to determine automatically)
-     *   @var boolean $mapped If the field should be mapped. Set to false to manually persist and hydrate the data.
+     *
+     *   @var string Encoding type to use, @see \Sulu\Component\DocumentManager\PropertyEncoder::encode()
+     *   @var string PHPCR property name (excluding the prefix)
+     *   @var string Type of field (leave blank to determine automatically)
+     *   @var bool If the field should be mapped. Set to false to manually persist and hydrate the data.
      * }
      */
     public function addFieldMapping($name, $mapping)
@@ -71,7 +72,38 @@ class Metadata
     }
 
     /**
-     * Return all field mappings
+     * Return the mapping for the named field.
+     *
+     * @see Metadata::addFieldMapping
+     *
+     * @return array
+     */
+    public function getFieldMapping($name)
+    {
+        if (!isset($this->fieldMappings[$name])) {
+            throw new \InvalidArgumentException(sprintf(
+                'Field mapping "%s" not known in metadata for document type "%s". Known mappings: "%s"',
+                $name, $this->alias, implode('", "', array_keys($this->fieldMappings))
+            ));
+        }
+
+        return $this->fieldMappings[$name];
+    }
+
+    /**
+     * Return true if the named field is mapped.
+     *
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function hasFieldMapping($name)
+    {
+        return isset($this->fieldMappings[$name]);
+    }
+
+    /**
+     * Return all field mappings.
      *
      * @return array
      */
@@ -147,5 +179,13 @@ class Metadata
     public function setPhpcrType($phpcrType)
     {
         $this->phpcrType = $phpcrType;
+    }
+
+    /**
+     * @return ReflectionClass
+     */
+    public function getReflection()
+    {
+        return new \ReflectionClass($this->class);
     }
 }

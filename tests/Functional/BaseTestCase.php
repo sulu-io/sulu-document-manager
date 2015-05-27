@@ -22,12 +22,15 @@ abstract class BaseTestCase extends \PHPUnit_Framework_TestCase
 
     protected function initPhpcr()
     {
-        $session = $this->getSession();
+        $nodeManager = $this->getContainer()->get('sulu_document_manager.node_manager');
+        $nodeManager->purgeWorkspace();
+        $nodeManager->save();
+    }
 
-        if ($session->getRootNode()->hasNode(self::BASE_NAME)) {
-            $session->removeItem(self::BASE_PATH);
-            $session->save();
-        }
+    protected function loadDump($name)
+    {
+        $this->getSession()->importXML(self::BASE_PATH, __DIR__ . '/../Dumps/' . $name, ImportUUIDBehaviorInterface::IMPORT_UUID_COLLISION_REMOVE_EXISTING);
+        $this->getSession()->save();
     }
 
     protected function getSession()
