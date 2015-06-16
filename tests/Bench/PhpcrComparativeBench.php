@@ -13,7 +13,10 @@ namespace Sulu\Component\DocumentManager\Tests\Bench;
 
 use PhpBench\Benchmark\Iteration;
 
-class BenchmarkBench extends BaseBench
+/**
+ * @group phpcr_comparison
+ */
+class PhpcrComparativeBench extends BaseBench
 {
     public function init()
     {
@@ -26,6 +29,7 @@ class BenchmarkBench extends BaseBench
      * @paramProvider provideNodeTotals
      * @paramProvider provideLocales
      * @beforeMethod init
+     * @group phpcr_comparison
      */
     public function benchCreatePersist(Iteration $iteration)
     {

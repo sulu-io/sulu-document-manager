@@ -76,17 +76,13 @@ class ProxyFactory
      */
     public function createProxyForNode($fromDocument, NodeInterface $targetNode)
     {
-        $eventDispatcher = $this->dispatcher;
-        $registry = $this->registry;
-        $targetMetadata = $this->metadataFactory->getMetadataForPhpcrNode($targetNode);
-
         // if node is already registered then just return the registered document
         if ($this->registry->hasNode($targetNode)) {
             $document = $this->registry->getDocumentForNode($targetNode);
-            $locale = $registry->getOriginalLocaleForDocument($fromDocument);
+            $locale = $this->registry->getOriginalLocaleForDocument($fromDocument);
 
             // If the parent is not loaded in the correct locale, reload it in the correct locale.
-            if ($registry->getOriginalLocaleForDocument($document) !== $locale) {
+            if ($this->registry->getOriginalLocaleForDocument($document) !== $locale) {
                 $hydrateEvent = new HydrateEvent($targetNode, $locale);
                 $hydrateEvent->setDocument($document);
                 $this->dispatcher->dispatch(Events::HYDRATE, $hydrateEvent);
@@ -94,6 +90,9 @@ class ProxyFactory
 
             return $document;
         }
+
+        $eventDispatcher = $this->dispatcher;
+        $registry = $this->registry;
 
         $initializer = function (LazyLoadingInterface $document, $method, array $parameters, &$initializer) use (
             $fromDocument,
@@ -110,6 +109,7 @@ class ProxyFactory
             $initializer = null;
         };
 
+        $targetMetadata = $this->metadataFactory->getMetadataForPhpcrNode($targetNode);
         $proxy = $this->proxyFactory->createProxy($targetMetadata->getClass(), $initializer);
         $locale = $registry->getOriginalLocaleForDocument($fromDocument);
         $this->registry->registerDocument($proxy, $targetNode, $locale);

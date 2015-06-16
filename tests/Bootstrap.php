@@ -45,13 +45,58 @@ class Bootstrap
                     'alias' => 'full',
                     'phpcr_type' => 'mix:test',
                     'class' => 'Sulu\Component\DocumentManager\Tests\Functional\Model\FullDocument',
+                    'mapping' => array(
+                        'title' => array(
+                            'encoding' => 'content_localized',
+                        ),
+                        'body' => array(
+                            'encoding' => 'content_localized',
+                        ),
+                        'status' => array(
+                            'encoding' => 'system',
+                            'property' => 'my_status',
+                        ),
+                        'reference' => array(
+                            'encoding' => 'content',
+                            'type' => 'reference',
+                        ),
+                    ),
+                ),
+                'mapping_5' => array(
+                    'alias' => 'mapping_5',
+                    'phpcr_type' => 'mix:mapping5',
+                    'class' => 'Sulu\Component\DocumentManager\Tests\Functional\Model\Mapping5Document',
+                    'mapping' => array(
+                        'one' => array(),
+                        'two' => array(),
+                        'three' => array(),
+                        'four' => array(),
+                        'five' => array(),
+                    ),
+                ),
+                'mapping_10' => array(
+                    'alias' => 'mapping_10',
+                    'phpcr_type' => 'mix:mapping10',
+                    'class' => 'Sulu\Component\DocumentManager\Tests\Functional\Model\Mapping10Document',
+                    'mapping' => array(
+                        'one' => array(),
+                        'two' => array(),
+                        'three' => array(),
+                        'four' => array(),
+                        'five' => array(),
+                        'six' => array(),
+                        'seven' => array(),
+                        'eight' => array(),
+                        'nine' => array(),
+                        'ten' => array(),
+                    ),
                 ),
             ),
             'sulu_document_manager.namespace_mapping' => array(
                 'system' => 'nsys',
                 'system_localized' => 'lsys',
-                'content' => 'ncont',
-                'content_localized' => 'lcont',
+                'content' => 'ncon',
+                'content_localized' => 'lcon',
             ),
         );
 
@@ -122,6 +167,8 @@ class Bootstrap
         if (!$nodeTypeManager->hasNodeType('mix:test')) {
             $nodeTypeManager->registerNodeTypesCnd(<<<EOT
 [mix:test] > mix:referenceable mix
+[mix:mapping5] > mix:referenceable mix
+[mix:mapping10] > mix:referenceable mix
 EOT
             , true);
         }

@@ -61,6 +61,15 @@ class DocumentAccessor
         $property->setValue($this->document, $value);
     }
 
+    public function get($field)
+    {
+        $property = $this->reflection->getProperty($field);
+        // TODO: Can be cached? Makes a performance diff?
+        $property->setAccessible(true);
+
+        return $property->getValue($this->document);
+    }
+
     /**
      * @param $field
      *

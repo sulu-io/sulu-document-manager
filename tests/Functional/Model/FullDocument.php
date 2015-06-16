@@ -40,6 +40,10 @@ class FullDocument implements
     protected $uuid;
     protected $children;
     protected $path;
+    protected $title;
+    protected $body;
+    protected $status;
+    protected $reference;
 
     public function __construct()
     {
@@ -132,5 +136,45 @@ class FullDocument implements
     public function getPath()
     {
         return $this->path;
+    }
+
+    public function getTitle()
+    {
+        return $this->title;
+    }
+
+    public function setTitle($title)
+    {
+        $this->title = $title;
+    }
+
+    public function getBody()
+    {
+        return $this->body;
+    }
+
+    public function setBody($body)
+    {
+        $this->body = $body;
+    }
+
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    public function setStatus($status)
+    {
+        $this->status = $status;
+    }
+
+    public function getReference() 
+    {
+        return $this->reference;
+    }
+    
+    public function setReference($reference)
+    {
+        $this->reference = $reference;
     }
 }

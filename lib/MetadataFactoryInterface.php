@@ -60,6 +60,16 @@ interface MetadataFactoryInterface
     public function getMetadataForClass($class);
 
     /**
+     * Return true if the document has metadata for the given fully qualified
+     * class name.
+     *get_class($event->getDocument())get_class($event->getDocument())
+     t @param string
+     *
+     * @return boolean
+     */
+    public function hasMetadataForClass($class);
+
+    /**
      * Return true if the given alias exists.
      *
      * @param string $alias

@@ -34,6 +34,52 @@ class Metadata
     private $reflection;
 
     /**
+     * @var array
+     */
+    private $fieldMappings;
+
+    /**
+     * Add a field mapping for field with given name, for example:
+     *
+     * ````
+     * $metadata->addFieldMapping(array(
+     *     'encoding' => 'content',
+     *     'property' => 'phpcr_property_name',
+     * ));
+     * ````
+     *
+     * @param string $name Name of field/property in the mapped class.
+     * @param array $mapping {
+     *   @var string $encoding Encoding type to use, @see \Sulu\Component\DocumentManager\PropertyEncoder::encode()
+     *   @var string $property PHPCR property name (excluding the prefix)
+     *   @var string $type Type of field (leave blank to determine automatically)
+     *   @var boolean $mapped If the field should be mapped. Set to false to manually persist and hydrate the data.
+     * }
+     */
+    public function addFieldMapping($name, $mapping)
+    {
+        $mapping = array_merge(array(
+            'encoding' => 'content',
+            'property' => $name,
+            'type' => null,
+            'mapped' => true,
+            'multiple' => false,
+        ), $mapping);
+
+        $this->fieldMappings[$name] = $mapping;
+    }
+
+    /**
+     * Return all field mappings
+     *
+     * @return array
+     */
+    public function getFieldMappings()
+    {
+        return $this->fieldMappings;
+    }
+
+    /**
      * @return string
      */
     public function getClass()
