@@ -18,6 +18,7 @@ use Sulu\Component\DocumentManager\Behavior\Mapping\NodeNameBehavior;
 use Sulu\Component\DocumentManager\Behavior\Mapping\ParentBehavior;
 use Sulu\Component\DocumentManager\Behavior\Mapping\PathBehavior;
 use Sulu\Component\DocumentManager\Behavior\Mapping\UuidBehavior;
+use Sulu\Component\DocumentManager\Behavior\Mapping\LocaleBehavior;
 
 /**
  * This functional test document should implement as many behaviors as possible.
@@ -29,7 +30,8 @@ class FullDocument implements
     ParentBehavior,
     UuidBehavior,
     ChildrenBehavior,
-    PathBehavior
+    PathBehavior,
+    LocaleBehavior
 {
     protected $nodeName;
     protected $created;
@@ -44,6 +46,7 @@ class FullDocument implements
     protected $body;
     protected $status;
     protected $reference;
+    protected $locale;
 
     public function __construct()
     {

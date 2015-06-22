@@ -51,4 +51,27 @@ class FindTest extends BaseTestCase
         $document = $manager->find(self::BASE_PATH);
         $this->assertNotNull($document);
     }
+
+    /**
+     * It can persist and find without any locales
+     */
+    public function testPersistFindNoLocales()
+    {
+        $manager = $this->getDocumentManager();
+        $document = $manager->create('full');
+        $document->setTitle('Hello');
+        $document->setBody('This is Hello');
+        $document->setStatus('open');
+        $manager->persist($document, null, array(
+            'path' => '/test/foo',
+            'auto_create' => true,
+        ));
+        $manager->flush();
+
+        $manager->clear();
+        $persistedDocument = $manager->find($document->getUuid());
+        $this->assertNotSame($document, $persistedDocument);
+        $document = $persistedDocument;
+        $this->assertEquals('en', $document->getLocale());
+    }
 }
