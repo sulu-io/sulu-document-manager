@@ -73,5 +73,7 @@ class FindTest extends BaseTestCase
         $this->assertNotSame($document, $persistedDocument);
         $document = $persistedDocument;
         $this->assertEquals('en', $document->getLocale());
+        $this->assertEquals('Hello', $document->getTitle());
+        $this->assertEquals('open', $document->getStatus());
     }
 }

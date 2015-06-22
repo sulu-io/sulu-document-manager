@@ -49,7 +49,7 @@ class RegistratorSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->registry->getDefaultLocale()->willReturn('de');
         $this->hydrateEvent->setLocale('de')->shouldBeCalled();
 
-        $this->subscriber->handleDefaultLocale($this->hydrateEvent->reveal());
+        $this->subscriber->handleDefaultLocaleHydrate($this->hydrateEvent->reveal());
     }
 
     /**
