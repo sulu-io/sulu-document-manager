@@ -64,6 +64,7 @@ class Metadata
             'type' => null,
             'mapped' => true,
             'multiple' => false,
+            'default' => null,
         ), $mapping);
 
         $this->fieldMappings[$name] = $mapping;

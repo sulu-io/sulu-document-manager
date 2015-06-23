@@ -206,6 +206,10 @@ class MappingSubscriber implements EventSubscriberInterface
 
     private function getDefaultValue(array $fieldMapping)
     {
+        if ($fieldMapping['default']) {
+            return $fieldMapping['default'];
+        }
+
         return $fieldMapping['multiple'] ? array() : null;
     }
 

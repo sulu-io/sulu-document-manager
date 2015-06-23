@@ -58,6 +58,7 @@ class MappingSubscriberTest extends \PHPUnit_Framework_TestCase
                     'mapped' => true,
                     'type' => null,
                     'multiple' => false,
+                    'default' => null,
                 ),
             )
         );
@@ -81,6 +82,7 @@ class MappingSubscriberTest extends \PHPUnit_Framework_TestCase
                     'property' => 'hello',
                     'type' => null,
                     'multiple' => false,
+                    'default' => null,
                     'mapped' => false,
                 ),
             )
@@ -106,6 +108,7 @@ class MappingSubscriberTest extends \PHPUnit_Framework_TestCase
                     'property' => 'hello',
                     'type' => null,
                     'multiple' => true,
+                    'default' => null,
                     'mapped' => true,
                 ),
             )
@@ -130,6 +133,7 @@ class MappingSubscriberTest extends \PHPUnit_Framework_TestCase
                     'mapped' => true,
                     'type' => null,
                     'multiple' => false,
+                    'default' => null,
                 ),
             )
         );
@@ -156,6 +160,7 @@ class MappingSubscriberTest extends \PHPUnit_Framework_TestCase
                     'mapped' => false,
                     'type' => null,
                     'multiple' => false,
+                    'default' => null,
                 ),
             )
         );
@@ -163,6 +168,33 @@ class MappingSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->metadataFactory->hasMetadataForClass('stdClass')->willReturn(true);
         $this->hydrateEvent->getNode()->willReturn($this->node->reveal());
         $this->accessor->set('test', 'goodbye')->shouldNotBeCalled();
+
+        $this->subscriber->handleHydrate($this->hydrateEvent->reveal());
+    }
+
+    /**
+     * It should use a default value
+     */
+    public function testHydrateDefault()
+    {
+        $this->metadata->getFieldMappings()->willReturn(
+            array(
+                'test' => array(
+                    'encoding' => 'localized_system',
+                    'property' => 'hello',
+                    'mapped' => false,
+                    'type' => null,
+                    'multiple' => false,
+                    'default' => 'HAI',
+                ),
+            )
+        );
+
+        $this->metadataFactory->hasMetadataForClass('stdClass')->willReturn(true);
+        $this->hydrateEvent->getNode()->willReturn($this->node->reveal());
+        $this->encoder->encode('localized_system', 'hello', 'de')->willReturn('sys:hello');
+        $this->node->getPropertyValueWithDefault('sys:hello', null)->willReturn(null);
+        $this->accessor->set('test', 'HAI')->shouldNotBeCalled();
 
         $this->subscriber->handleHydrate($this->hydrateEvent->reveal());
     }
