@@ -46,6 +46,16 @@ class FullDocument implements
         $this->children = new \ArrayIterator();
     }
 
+    public function getTitle()
+    {
+        return $this->title;
+    }
+
+    public function setTitle($title)
+    {
+        $this->title = $title;
+    }
+
     /**
      * {@inheritDoc}
      */
