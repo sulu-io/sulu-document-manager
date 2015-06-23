@@ -47,13 +47,14 @@ class RegistratorSubscriber implements EventSubscriberInterface
     {
         return array(
             Events::HYDRATE => array(
-                array('handleDefaultLocale', 520),
+                array('handleDefaultLocaleHydrate', 520),
                 array('handleDocumentFromRegistry', 510),
                 array('handleStopPropagationAndResetLocale', 509),
                 array('handleHydrate', 490),
                 array('handleEndHydrate', -500),
             ),
             Events::PERSIST => array(
+                array('handleDefaultLocalePersist', 520),
                 array('handlePersist', 450),
                 array('handleNodeFromRegistry', 510),
                 array('handleEndPersist', -500),
@@ -68,9 +69,20 @@ class RegistratorSubscriber implements EventSubscriberInterface
      *
      * @param HydrateEvent $event
      */
-    public function handleDefaultLocale(HydrateEvent $event)
+    public function handleDefaultLocaleHydrate(HydrateEvent $event)
     {
-        // set the default locale
+        if (null === $event->getLocale()) {
+            $event->setLocale($this->documentRegistry->getDefaultLocale());
+        }
+    }
+
+    /**
+     * Set the default locale for the persist request.
+     *
+     * @param HydrateEvent $event
+     */
+    public function handleDefaultLocalePersist(PersistEvent $event)
+    {
         if (null === $event->getLocale()) {
             $event->setLocale($this->documentRegistry->getDefaultLocale());
         }
