@@ -11,7 +11,6 @@
 
 namespace Sulu\Component\DocumentManager\Tests\Functional\Model;
 
-use Sulu\Component\DocumentManager\Behavior\Audit\BlameBehavior;
 use Sulu\Component\DocumentManager\Behavior\Audit\TimestampBehavior;
 use Sulu\Component\DocumentManager\Behavior\Mapping\ChildrenBehavior;
 use Sulu\Component\DocumentManager\Behavior\Mapping\NodeNameBehavior;
@@ -25,7 +24,6 @@ use Sulu\Component\DocumentManager\Behavior\Mapping\UuidBehavior;
 class FullDocument implements
     NodeNameBehavior,
     TimestampBehavior,
-    BlameBehavior,
     ParentBehavior,
     UuidBehavior,
     ChildrenBehavior,
