@@ -55,7 +55,7 @@ class MetadataTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * It should throw an exception if the given mapping does not exist
+     * It should throw an exception if the given mapping does not exist.
      *
      * @expectedException InvalidArgumentException
      */

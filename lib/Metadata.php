@@ -36,7 +36,7 @@ class Metadata
     /**
      * @var array
      */
-    private $fieldMappings = array();
+    private $fieldMappings = [];
 
     /**
      * Add a field mapping for field with given name, for example:.
