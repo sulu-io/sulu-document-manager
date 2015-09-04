@@ -28,8 +28,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class QueryBuilderConverter extends ConverterPhpcr
 {
     /**
-     * j.
-     *
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;

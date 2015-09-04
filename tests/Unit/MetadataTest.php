@@ -53,4 +53,18 @@ class MetadataTest extends \PHPUnit_Framework_TestCase
             $this->metadata->getFieldMapping('hello')
         );
     }
+
+    /**
+     * It should throw an exception if the given mapping does not exist
+     *
+     * @expectedException InvalidArgumentException
+     */
+    public function testGetFieldMappingNonExisting()
+    {
+        $this->assertContains([
+                'property' => 'foo',
+            ],
+            $this->metadata->getFieldMapping('hello')
+        );
+    }
 }
