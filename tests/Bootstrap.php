@@ -177,13 +177,14 @@ class Bootstrap
         $session = $repository->login($credentials, 'default');
 
         $nodeTypeManager = $session->getWorkspace()->getNodeTypeManager();
-        if (!$nodeTypeManager->hasNodeType('mix:test')) {
-            $nodeTypeManager->registerNodeTypesCnd(<<<EOT
-[mix:test] > mix:referenceable mix
-[mix:mapping5] > mix:referenceable mix
-[mix:mapping10] > mix:referenceable mix
+
+        foreach (['mix:issue', 'mix:test', 'mix:mapping5', 'mix:mapping10'] as $mixinType) {
+            if (!$nodeTypeManager->hasNodeType($mixinType)) {
+                $nodeTypeManager->registerNodeTypesCnd(sprintf(<<<EOT
+    [%s] > mix:referenceable mix
 EOT
-            , true);
+                , $mixinType), true);
+            }
         }
 
         $namespaceRegistry = $session->getWorkspace()->getNamespaceRegistry();
