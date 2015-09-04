@@ -42,7 +42,7 @@ class MetadataTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * It should return a specific field mapping
+     * It should return a specific field mapping.
      */
     public function testGetFieldMapping()
     {

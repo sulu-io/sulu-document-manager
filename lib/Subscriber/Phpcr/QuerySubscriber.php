@@ -11,7 +11,6 @@
 
 namespace Sulu\Component\DocumentManager\Subscriber\Phpcr;
 
-use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 use PHPCR\Query\QueryInterface;
 use PHPCR\SessionInterface;
 use Sulu\Component\DocumentManager\Collection\QueryResultCollection;
@@ -19,8 +18,8 @@ use Sulu\Component\DocumentManager\Event\QueryCreateBuilderEvent;
 use Sulu\Component\DocumentManager\Event\QueryCreateEvent;
 use Sulu\Component\DocumentManager\Event\QueryExecuteEvent;
 use Sulu\Component\DocumentManager\Events;
-use Sulu\Component\DocumentManager\Query\QueryBuilderConverter;
 use Sulu\Component\DocumentManager\Query\Query;
+use Sulu\Component\DocumentManager\Query\QueryBuilderConverter;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -68,15 +67,15 @@ class QuerySubscriber implements EventSubscriberInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public static function getSubscribedEvents()
     {
-        return array(
-            Events::QUERY_CREATE => array('handleCreate', 500),
-            Events::QUERY_CREATE_BUILDER => array('handleCreateBuilder', 500),
-            Events::QUERY_EXECUTE => array('handleQueryExecute', 500),
-        );
+        return [
+            Events::QUERY_CREATE => ['handleCreate', 500],
+            Events::QUERY_CREATE_BUILDER => ['handleCreateBuilder', 500],
+            Events::QUERY_EXECUTE => ['handleQueryExecute', 500],
+        ];
     }
 
     /**

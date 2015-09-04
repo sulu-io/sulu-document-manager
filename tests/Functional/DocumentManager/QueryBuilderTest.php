@@ -35,44 +35,44 @@ class QueryBuilderTest extends BaseTestCase
         $document1->setTitle('Hello');
         $document1->setBody('Hello this is something');
         $document1->setStatus('open');
-        $manager->persist($document1, 'en', array('path' => '/test/document1', 'auto_create' => true));
+        $manager->persist($document1, 'en', ['path' => '/test/document1', 'auto_create' => true]);
 
         $document2 = $manager->create('full');
         $document2->setTitle('Goodbye');
         $document2->setBody('Goodbye and Adios');
         $document2->setStatus('closed');
         $document2->setReference($document1);
-        $manager->persist($document2, 'en', array('path' => '/test/document2', 'auto_create' => true));
+        $manager->persist($document2, 'en', ['path' => '/test/document2', 'auto_create' => true]);
 
         $document2->setTitle('Aufweidersehn');
         $document2->setBody('Gutetag, das ist etwas');
-        $manager->persist($document2, 'de', array('path' => '/test/document2'));
+        $manager->persist($document2, 'de', ['path' => '/test/document2']);
 
         $issue1 = $manager->create('issue');
         $issue1->setName('Does it work?');
         $issue1->setStatus('open');
-        $manager->persist($issue1, null, array(
+        $manager->persist($issue1, null, [
             'path' => '/test/issue1',
             'auto_create' => true,
-        ));
+        ]);
 
         $issue2 = $manager->create('issue');
         $issue2->setName('What shall we do today?');
         $issue2->setStatus('closed');
 
-        $manager->persist($issue2, null, array(
+        $manager->persist($issue2, null, [
             'path' => '/test/issue2',
             'auto_create' => true,
-        ));
+        ]);
 
         $issue3 = $manager->create('issue');
         $issue3->setName('The hot water at ten and a closed car at four');
         $issue3->setStatus('open');
 
-        $manager->persist($issue3, null, array(
+        $manager->persist($issue3, null, [
             'path' => '/test/issue3',
             'auto_create' => true,
-        ));
+        ]);
 
         $manager->flush();
     }
@@ -227,7 +227,7 @@ class QueryBuilderTest extends BaseTestCase
     }
 
     /**
-     * It should limit the results
+     * It should limit the results.
      */
     public function testQueryBuilderLimit()
     {

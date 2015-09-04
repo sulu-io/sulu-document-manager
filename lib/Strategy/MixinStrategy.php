@@ -12,11 +12,11 @@
 namespace Sulu\Component\DocumentManager\Strategy;
 
 use PHPCR\NodeInterface;
+use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
+use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
 use PHPCR\Util\UUIDHelper;
 use Sulu\Component\DocumentManager\DocumentStrategyInterface;
 use Sulu\Component\DocumentManager\MetadataFactoryInterface;
-use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
-use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 
 /**
  * Manage nodes via. a jcr mixin.
@@ -71,7 +71,7 @@ class MixinStrategy implements DocumentStrategyInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getPrimaryNodeType($classFqn)
     {
@@ -79,7 +79,7 @@ class MixinStrategy implements DocumentStrategyInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function createSourceConstraint(QueryObjectModelFactoryInterface $qomf, $sourceAlias, $classFqn)
     {

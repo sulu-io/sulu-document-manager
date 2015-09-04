@@ -95,14 +95,14 @@ class Bootstrap
                     'alias' => 'issue',
                     'phpcr_type' => 'mix:issue',
                     'class' => 'Sulu\Component\DocumentManager\Tests\Functional\Model\IssueDocument',
-                    'mapping' => array(
-                        'name' => array(
+                    'mapping' => [
+                        'name' => [
                             'encoding' => 'content',
-                        ),
-                        'status' => array(
+                        ],
+                        'status' => [
                             'encoding' => 'content',
-                        ),
-                    ),
+                        ],
+                    ],
                 ],
             ],
             'sulu_document_manager.namespace_mapping' => [

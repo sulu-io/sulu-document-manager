@@ -11,8 +11,8 @@
 
 namespace Sulu\Component\DocumentManager\Event;
 
-use Sulu\Component\DocumentManager\Exception\DocumentManagerException;
 use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
+use Sulu\Component\DocumentManager\Exception\DocumentManagerException;
 
 class QueryCreateBuilderEvent extends AbstractEvent
 {

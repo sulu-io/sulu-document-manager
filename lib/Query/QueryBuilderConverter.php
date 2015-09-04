@@ -11,17 +11,16 @@
 
 namespace Sulu\Component\DocumentManager\Query;
 
-use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
 use Doctrine\ODM\PHPCR\Query\Builder\ConverterPhpcr;
 use Doctrine\ODM\PHPCR\Query\Builder\OperandDynamicField;
 use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 use Doctrine\ODM\PHPCR\Query\Builder\SourceDocument;
 use PHPCR\SessionInterface;
+use Sulu\Component\DocumentManager\DocumentStrategyInterface;
 use Sulu\Component\DocumentManager\MetadataFactoryInterface;
 use Sulu\Component\DocumentManager\PropertyEncoder;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Sulu\Component\DocumentManager\DocumentStrategyInterface;
 
 /**
  * Class which converts a Builder tree to a PHPCR Query.
@@ -29,7 +28,8 @@ use Sulu\Component\DocumentManager\DocumentStrategyInterface;
 class QueryBuilderConverter extends ConverterPhpcr
 {
     /**
-     * j
+     * j.
+     *
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
@@ -37,7 +37,7 @@ class QueryBuilderConverter extends ConverterPhpcr
     /**
      * @var Metadata[]
      */
-    protected $documentMetadata = array();
+    protected $documentMetadata = [];
 
     /**
      * @param PropertyEncoder
@@ -70,12 +70,12 @@ class QueryBuilderConverter extends ConverterPhpcr
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getQuery(QueryBuilder $builder)
     {
-        $this->documentMetadata = array();
-        $this->sourceDocumentNodes = array();
+        $this->documentMetadata = [];
+        $this->sourceDocumentNodes = [];
         $this->constraint = null;
 
         $this->locale = $builder->getLocale();
@@ -96,12 +96,12 @@ class QueryBuilderConverter extends ConverterPhpcr
             );
         }
 
-        $dispatches = array(
+        $dispatches = [
             QBConstants::NT_FROM,
             QBConstants::NT_SELECT,
             QBConstants::NT_WHERE,
             QBConstants::NT_ORDER_BY,
-        );
+        ];
 
         foreach ($dispatches as $dispatchType) {
             $this->dispatchMany($builder->getChildrenOfType($dispatchType));
@@ -123,7 +123,7 @@ class QueryBuilderConverter extends ConverterPhpcr
             $this->columns
         );
 
-        $query = new Query($phpcrQuery, $this->eventDispatcher, $this->locale, array(), $builder->getPrimaryAlias());
+        $query = new Query($phpcrQuery, $this->eventDispatcher, $this->locale, [], $builder->getPrimaryAlias());
 
         if ($firstResult = $builder->getFirstResult()) {
             $query->setFirstResult($firstResult);
@@ -137,14 +137,14 @@ class QueryBuilderConverter extends ConverterPhpcr
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function applySourceConstraints(QueryBuilder $builder)
     {
         foreach ($this->sourceDocumentNodes as $sourceDocumentNode) {
             $metadata = $this->getMetadata($sourceDocumentNode->getDocumentFqn());
             $constraint = $this->strategy->createSourceConstraint(
-                $this->qomf, 
+                $this->qomf,
                 $sourceDocumentNode->getAlias(),
                 $metadata->getClass()
             );
@@ -166,7 +166,7 @@ class QueryBuilderConverter extends ConverterPhpcr
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function walkSourceDocument(SourceDocument $node)
     {
@@ -186,7 +186,7 @@ class QueryBuilderConverter extends ConverterPhpcr
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function walkOperandDynamicField(OperandDynamicField $node)
     {
@@ -214,6 +214,7 @@ class QueryBuilderConverter extends ConverterPhpcr
      * @param string $field Name of the document field
      *
      * @return array {
+     *
      *     @var string Element is the real alias to use, second element is
      *     @var string the property name
      * }
@@ -236,13 +237,14 @@ class QueryBuilderConverter extends ConverterPhpcr
             $this->locale
         );
 
-        return array($alias, $phpcrName);
+        return [$alias, $phpcrName];
     }
 
     /**
-     * Return either the metadata for the fqn of the document, or the alias
+     * Return either the metadata for the fqn of the document, or the alias.
      *
      * @param string $documentFqn Document FQN or alias
+     *
      * @return Metadata
      */
     protected function getMetadata($documentFqn)
@@ -253,5 +255,4 @@ class QueryBuilderConverter extends ConverterPhpcr
 
         return $this->metadataFactory->getMetadataForClass($documentFqn);
     }
-
 }

@@ -3,16 +3,16 @@
 namespace Sulu\Comonent\DocumentManager\tests\Unit\Strategy;
 
 use PHPCR\NodeInterface;
+use PHPCR\Query\QOM\ComparisonInterface;
+use PHPCR\Query\QOM\LiteralInterface;
+use PHPCR\Query\QOM\PropertyValueInterface;
+use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
+use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
 use Prophecy\Argument;
 use Sulu\Component\DocumentManager\Metadata;
 use Sulu\Component\DocumentManager\MetadataFactoryInterface;
 use Sulu\Component\DocumentManager\Strategy\MixinStrategy;
 use Sulu\Component\DocumentManager\Strategy\Strategy;
-use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
-use PHPCR\Query\QOM\ComparisonInterface;
-use PHPCR\Query\QOM\PropertyValueInterface;
-use PHPCR\Query\QOM\LiteralInterface;
-use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 
 class MixinStrategyTest extends \PHPUnit_Framework_TestCase
 {
@@ -74,7 +74,7 @@ class MixinStrategyTest extends \PHPUnit_Framework_TestCase
 
     /**
      * It should return the primary node type for a class fqn
-     * It should always return [nt:unstructured]
+     * It should always return [nt:unstructured].
      */
     public function testGetPrimaryNodeType()
     {
@@ -83,7 +83,7 @@ class MixinStrategyTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * It should create a source constraint for a given document fqn
+     * It should create a source constraint for a given document fqn.
      */
     public function testCreateSourceConstraint()
     {

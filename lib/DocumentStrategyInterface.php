@@ -61,6 +61,7 @@ interface DocumentStrategyInterface
      * ````
      *
      * @param string $classFqn
+     *
      * @return string
      */
     public function getPrimaryNodeType($classFqn);
