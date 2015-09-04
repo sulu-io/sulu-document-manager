@@ -91,6 +91,19 @@ class Bootstrap
                         'ten' => [],
                     ],
                 ],
+                'issue' => [
+                    'alias' => 'issue',
+                    'phpcr_type' => 'mix:issue',
+                    'class' => 'Sulu\Component\DocumentManager\Tests\Functional\Model\IssueDocument',
+                    'mapping' => array(
+                        'name' => array(
+                            'encoding' => 'content',
+                        ),
+                        'status' => array(
+                            'encoding' => 'content',
+                        ),
+                    ),
+                ],
             ],
             'sulu_document_manager.namespace_mapping' => [
                 'system' => 'nsys',

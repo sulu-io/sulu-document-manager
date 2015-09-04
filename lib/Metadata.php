@@ -82,6 +82,25 @@ class Metadata
     }
 
     /**
+     * Return the mapping for the named field.
+     *
+     * @see Metadata::addFieldMapping
+     *
+     * @return array
+     */
+    public function getFieldMapping($name)
+    {
+        if (!isset($this->fieldMappings[$name])) {
+            throw new \InvalidArgumentException(sprintf(
+                'Field mapping "%s" not known in metadata for document type "%s". Known mappings: "%s"',
+                $name, $this->alias, implode('", "', array_keys($this->fieldMappings))
+            ));
+        }
+
+        return $this->fieldMappings[$name];
+    }
+
+    /**
      * @return string
      */
     public function getClass()

@@ -11,14 +11,15 @@
 
 namespace Sulu\Component\DocumentManager\Subscriber\Phpcr;
 
+use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 use PHPCR\Query\QueryInterface;
-use PHPCR\Query\QueryManagerInterface;
 use PHPCR\SessionInterface;
 use Sulu\Component\DocumentManager\Collection\QueryResultCollection;
 use Sulu\Component\DocumentManager\Event\QueryCreateBuilderEvent;
 use Sulu\Component\DocumentManager\Event\QueryCreateEvent;
 use Sulu\Component\DocumentManager\Event\QueryExecuteEvent;
 use Sulu\Component\DocumentManager\Events;
+use Sulu\Component\DocumentManager\Query\QueryBuilderConverter;
 use Sulu\Component\DocumentManager\Query\Query;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -39,25 +40,43 @@ class QuerySubscriber implements EventSubscriberInterface
     private $eventDispatcher;
 
     /**
+     * @var QueryBuilderConverter
+     */
+    private $builderConverter;
+
+    /**
+     * @var string
+     */
+    private $queryBuilderClass;
+
+    /**
      * @param SessionInterface $session
      * @param EventDispatcherInterface $eventDispatcher
+     * @param QueryBuilderConverter $converter
+     * @param string $queryBuilderClass
      */
-    public function __construct(SessionInterface $session, EventDispatcherInterface $eventDispatcher)
+    public function __construct(
+        SessionInterface $session,
+        EventDispatcherInterface $eventDispatcher,
+        QueryBuilderConverter $builderConverter,
+        $queryBuilderClass = 'Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder')
     {
         $this->session = $session;
         $this->eventDispatcher = $eventDispatcher;
+        $this->builderConverter = $builderConverter;
+        $this->queryBuilderClass = $queryBuilderClass;
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public static function getSubscribedEvents()
     {
-        return [
-            Events::QUERY_CREATE => ['handleCreate', 500],
-            Events::QUERY_CREATE_BUILDER => ['handleCreateBuilder', 500],
-            Events::QUERY_EXECUTE => ['handleQueryExecute', 500],
-        ];
+        return array(
+            Events::QUERY_CREATE => array('handleCreate', 500),
+            Events::QUERY_CREATE_BUILDER => array('handleCreateBuilder', 500),
+            Events::QUERY_EXECUTE => array('handleQueryExecute', 500),
+        );
     }
 
     /**
@@ -92,16 +111,15 @@ class QuerySubscriber implements EventSubscriberInterface
     }
 
     /**
-     * TODO: We should reuse the PHPCR-ODM query builder here, see:
-     *       https://github.com/doctrine/phpcr-odm/issues/627.
+     * Instantiate a new query builder and set it on the event.
      *
      * @param QueryCreateBuilderEvent $event
-     *
-     * @throws \Exception
      */
     public function handleCreateBuilder(QueryCreateBuilderEvent $event)
     {
-        throw new \Exception('Not implemented');
+        $builder = new $this->queryBuilderClass();
+        $builder->setConverter($this->builderConverter);
+        $event->setQueryBuilder($builder);
     }
 
     /**
@@ -113,17 +131,15 @@ class QuerySubscriber implements EventSubscriberInterface
     {
         $query = $event->getQuery();
         $locale = $query->getLocale();
+        $primarySelector = $query->getPrimarySelector();
         $phpcrResult = $query->getPhpcrQuery()->execute();
 
         $event->setResult(
-            new QueryResultCollection($phpcrResult, $this->eventDispatcher, $locale, $event->getOptions())
+            new QueryResultCollection($phpcrResult, $this->eventDispatcher, $locale, $event->getOptions(), $primarySelector)
         );
     }
 
-    /**
-     * @return QueryManagerInterface
-     */
-    private function getQueryManager()
+    protected function getQueryManager()
     {
         return $this->session->getWorkspace()->getQueryManager();
     }
