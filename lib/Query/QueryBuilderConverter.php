@@ -107,7 +107,7 @@ class QueryBuilderConverter extends ConverterPhpcr
 
         if (count($this->sourceDocumentNodes) > 1 && null === $builder->getPrimaryAlias()) {
             throw new \InvalidArgumentException(
-                'You must specify a primary alias when selecting from multiple document sources' .
+                'You must specify a primary alias when selecting from multiple document sources ' .
                 'e.g. $qb->from(\'a\') ...'
             );
         }

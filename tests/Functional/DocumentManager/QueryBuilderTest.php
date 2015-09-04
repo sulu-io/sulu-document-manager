@@ -22,7 +22,8 @@ use Sulu\Component\DocumentManager\Tests\Functional\Model\IssueDocument;
  * builder is tested in that package.
  *
  * This class just needs to test the Sulu Converter which converts the query builder object
- * into a PHPCR query.
+ * into a PHPCR query. Testing this as a unit would be very complicated due to having to mock
+ * the PHPCR QOMF.
  */
 class QueryBuilderTest extends BaseTestCase
 {
@@ -248,5 +249,24 @@ class QueryBuilderTest extends BaseTestCase
         $builder->setFirstResult(1);
         $results = $builder->getQuery()->execute();
         $this->assertCount(1, $results->toArray());
+    }
+
+    /**
+     * It should throw an exception if you try and select from multiple sources without
+     * specifying a primary selector.
+     *
+     * @expectedException InvalidArgumentException 
+     * @expectedExceptionMessage You must specify a primary alias when selecting from multiple document sources
+     */
+    public function testMultipleSelectorsNoPrimary()
+    {
+        $builder = $this->getDocumentManager()->createQueryBuilder();
+        $builder->setLocale('en');
+        $builder->from()->joinInner()
+            ->left()->document('full', 'f')->end()
+            ->right()->document('issue', 'i')->end()
+            ->condition()->equi('f.status', 'i.status');
+        $builder->where()->eq()->field('i.status')->literal('closed');
+        $builder->getQuery();
     }
 }
