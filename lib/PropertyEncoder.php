@@ -29,6 +29,24 @@ class PropertyEncoder
         $this->namespaceRegistry = $namespaceRegistry;
     }
 
+    public function encode($encoding, $name, $locale)
+    {
+        switch ($encoding) {
+            case 'system_localized':
+                return $this->localizedSystemName($name, $locale);
+            case 'system':
+                return $this->systemName($name);
+            case 'content_localized':
+                return $this->localizedContentName($name, $locale);
+            case 'content':
+                return $this->contentName($name);
+            default:
+                throw new \InvalidArgumentException(sprintf(
+                    'Invalid encoding "%s"', $encoding
+                ));
+        }
+    }
+
     /**
      * @param string $name
      * @param string $locale

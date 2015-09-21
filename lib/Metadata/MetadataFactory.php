@@ -81,6 +81,14 @@ class MetadataFactory implements MetadataFactoryInterface
     /**
      * {@inheritdoc}
      */
+    public function hasMetadataForClass($class)
+    {
+        return $this->metadataFactory->hasMetadataForClass($class);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function hasAlias($alias)
     {
         return $this->metadataFactory->hasAlias($alias);

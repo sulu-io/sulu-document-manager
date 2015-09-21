@@ -11,10 +11,13 @@
 
 namespace Sulu\Component\DocumentManager\Subscriber\Behavior\Path;
 
+use Doctrine\Common\Util\Inflector;
+use Sulu\Component\DocumentManager\ClassNameInflector;
 use Sulu\Component\DocumentManager\DocumentManager;
 use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Events;
+use Sulu\Component\DocumentManager\Metadata\BaseMetadataFactory;
 use Sulu\Component\DocumentManager\NodeManager;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -39,6 +42,11 @@ abstract class AbstractFilingSubscriber implements EventSubscriberInterface
     private $basePath;
 
     /**
+     * @var BaseMetadataFactory
+     */
+    private $baseMetadataFactory;
+
+    /**
      * @param NodeManager $nodeManager
      * @param DocumentManagerInterface $documentManager
      * @param string $basePath
@@ -46,11 +54,13 @@ abstract class AbstractFilingSubscriber implements EventSubscriberInterface
     public function __construct(
         NodeManager $nodeManager,
         DocumentManagerInterface $documentManager,
+        BaseMetadataFactory $baseMetadataFactory,
         $basePath
     ) {
         $this->nodeManager = $nodeManager;
         $this->documentManager = $documentManager;
         $this->basePath = $basePath;
+        $this->baseMetadataFactory = $baseMetadataFactory;
     }
 
     /**
@@ -71,8 +81,10 @@ abstract class AbstractFilingSubscriber implements EventSubscriberInterface
             return;
         }
 
+        $alias = $this->baseMetadataFactory->getMetadataForClass(get_class($document))->getAlias();
+
         $parentName = $this->getParentName($document);
-        $path = sprintf('%s/%s', $this->basePath, $parentName);
+        $path = sprintf('%s/%s/%s', $this->basePath, Inflector::pluralize($alias) , $parentName);
 
         $parentNode = $this->nodeManager->createPath($path);
         $event->setParentNode($parentNode);

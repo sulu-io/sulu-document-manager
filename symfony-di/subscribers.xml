@@ -68,6 +68,14 @@
             <tag name="sulu_document_manager.event_subscriber"/>
         </service>
 
+        <service id="sulu_document_manager.subscriber.core.mapping" class="Sulu\Component\DocumentManager\Subscriber\Core\MappingSubscriber">
+            <argument type="service" id="sulu_document_manager.metadata_factory" />
+            <argument type="service" id="sulu_document_manager.property_encoder" />
+            <argument type="service" id="sulu_document_manager.proxy_factory"/>
+            <argument type="service" id="sulu_document_manager.document_registry"/>
+            <tag name="sulu_document_manager.event_subscriber"/>
+        </service>
+
         <service id="sulu_document_manager.subscriber.phpcr.reorder" class="Sulu\Component\DocumentManager\Subscriber\Phpcr\ReorderSubscriber">
             <argument type="service" id="sulu_document_manager.node_manager"/>
             <argument type="service" id="sulu_document_manager.document_registry"/>
