@@ -12,12 +12,8 @@
 namespace Sulu\Component\DocumentManager\Subscriber\Behavior\Path;
 
 use Doctrine\Common\Util\Inflector;
-use Sulu\Component\DocumentManager\ClassNameInflector;
-use Sulu\Component\DocumentManager\DocumentManager;
-use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Events;
-use Sulu\Component\DocumentManager\Metadata\BaseMetadataFactory;
 use Sulu\Component\DocumentManager\NodeManager;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -32,35 +28,20 @@ abstract class AbstractFilingSubscriber implements EventSubscriberInterface
     private $nodeManager;
 
     /**
-     * @var DocumentManagerInterface
-     */
-    private $documentManager;
-
-    /**
      * @var string
      */
-    private $basePath;
-
-    /**
-     * @var BaseMetadataFactory
-     */
-    private $baseMetadataFactory;
+    protected $basePath;
 
     /**
      * @param NodeManager $nodeManager
-     * @param DocumentManagerInterface $documentManager
      * @param string $basePath
      */
     public function __construct(
         NodeManager $nodeManager,
-        DocumentManagerInterface $documentManager,
-        BaseMetadataFactory $baseMetadataFactory,
         $basePath
     ) {
         $this->nodeManager = $nodeManager;
-        $this->documentManager = $documentManager;
         $this->basePath = $basePath;
-        $this->baseMetadataFactory = $baseMetadataFactory;
     }
 
     /**
@@ -81,14 +62,18 @@ abstract class AbstractFilingSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $alias = $this->baseMetadataFactory->getMetadataForClass(get_class($document))->getAlias();
-
-        $parentName = $this->getParentName($document);
-        $path = sprintf('%s/%s/%s', $this->basePath, Inflector::pluralize($alias) , $parentName);
+        $path = $this->generatePath($event);
 
         $parentNode = $this->nodeManager->createPath($path);
         $event->setParentNode($parentNode);
     }
+
+    /**
+     * Generates the path for the given event
+     *
+     * @return string
+     */
+    abstract protected function generatePath(PersistEvent $event);
 
     /**
      * Return true if this subscriber should be applied to the document.
