@@ -37,7 +37,6 @@ class AliasFilingSubscriberTest extends \PHPUnit_Framework_TestCase
 
         $this->subscriber = new AliasFilingSubscriber(
             $this->nodeManager->reveal(),
-            $this->documentManager->reveal(),
             $this->metadataFactory->reveal(),
             '/base/path'
         );
@@ -61,9 +60,10 @@ class AliasFilingSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->persistEvent->getLocale()->willReturn('fr');
         $this->metadataFactory->getMetadataForClass(AliasFilingTestDocument::class)->willReturn($this->metadata->reveal());
         $this->metadata->getAlias()->willReturn('test');
-        $this->nodeManager->createPath('/base/path/test')->willReturn($this->parentNode->reveal());
+        $this->nodeManager->createPath('/base/path/tests')->willReturn($this->parentNode->reveal());
+        $this->persistEvent->hasParentNode()->shouldBeCalled();
         $this->persistEvent->setParentNode($this->parentNode->reveal())->shouldBeCalled();
-        $this->documentManager->find('/base/path/test', 'fr')->willReturn($this->parentDocument);
+        $this->documentManager->find('/base/path/tests', 'fr')->willReturn($this->parentDocument);
 
         $this->subscriber->handlePersist($this->persistEvent->reveal());
     }
