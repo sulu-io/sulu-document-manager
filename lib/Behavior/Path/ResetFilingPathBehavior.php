@@ -14,13 +14,9 @@ namespace Sulu\Component\DocumentManager\Behavior\Path;
 use Sulu\Component\DocumentManager\Behavior\Mapping\ParentBehavior;
 
 /**
- * Automatically positions the document at a configured location as a child of a node
- * named after the documents alias.
+ * Resets the path to base path
  *
- * For example, if you specify the base path to be "/cmf/example" and the document has
- * the alias "foobar" then the parent will be set to "/cmf/example/foobar".
- *
- * If the parent document does not exist, it will be created.
+ * this is used for example with the AliasFilingBehavior
  */
 interface ResetFilingPathBehavior extends ParentBehavior
 {

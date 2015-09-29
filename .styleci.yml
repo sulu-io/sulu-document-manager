@@ -11,4 +11,3 @@ disabled:
     - phpdoc_params
     - phpdoc_to_comment
     - blankline_after_open_tag
-    - psr0

@@ -11,8 +11,6 @@
 
 namespace Sulu\Component\DocumentManager\Behavior\Path;
 
-use Sulu\Component\DocumentManager\Behavior\Mapping\ParentBehavior;
-
 /**
  * Automatically positions the document at a configured location as a child of a node
  * named after the documents alias.
@@ -22,6 +20,6 @@ use Sulu\Component\DocumentManager\Behavior\Mapping\ParentBehavior;
  *
  * If the parent document does not exist, it will be created.
  */
-interface AliasFilingBehavior extends ParentBehavior
+interface AliasFilingBehavior extends ResetFilingPathBehavior
 {
 }
