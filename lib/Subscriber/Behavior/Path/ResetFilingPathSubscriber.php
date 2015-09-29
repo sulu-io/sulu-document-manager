@@ -7,7 +7,7 @@ use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Events;
 
 /**
- * Class ResetFilingPathSubscriber
+ * Class ResetFilingPathSubscriber.
  */
 class ResetFilingPathSubscriber extends AbstractFilingSubscriber
 {

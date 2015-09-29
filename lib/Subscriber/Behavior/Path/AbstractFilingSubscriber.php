@@ -11,7 +11,6 @@
 
 namespace Sulu\Component\DocumentManager\Subscriber\Behavior\Path;
 
-use Doctrine\Common\Util\Inflector;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\NodeManager;
@@ -69,7 +68,7 @@ abstract class AbstractFilingSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * Generates the path for the given event
+     * Generates the path for the given event.
      *
      * @return string
      */

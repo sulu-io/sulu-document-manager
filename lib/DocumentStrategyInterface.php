@@ -45,7 +45,7 @@ interface DocumentStrategyInterface
      *
      * @param NodeInterface $node
      *
-     * @return Metadata|NULL
+     * @return Metadata|null
      */
     public function resolveMetadataForNode(NodeInterface $node);
 }

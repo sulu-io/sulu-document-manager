@@ -14,9 +14,9 @@ namespace Sulu\Component\DocumentManager\Subscriber\Behavior\Path;
 use Doctrine\Common\Inflector\Inflector;
 use Sulu\Component\DocumentManager\Behavior\Path\AliasFilingBehavior;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
+use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\MetadataFactoryInterface;
 use Sulu\Component\DocumentManager\NodeManager;
-use Sulu\Component\DocumentManager\Events;
 
 /**
  * Automatically set the parent at a pre-determined location.

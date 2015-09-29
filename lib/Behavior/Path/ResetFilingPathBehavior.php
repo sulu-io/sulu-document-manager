@@ -14,7 +14,7 @@ namespace Sulu\Component\DocumentManager\Behavior\Path;
 use Sulu\Component\DocumentManager\Behavior\Mapping\ParentBehavior;
 
 /**
- * Resets the path to base path
+ * Resets the path to base path.
  *
  * this is used for example with the AliasFilingBehavior
  */
