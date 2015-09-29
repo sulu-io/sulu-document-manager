@@ -21,7 +21,7 @@ class PathBuilderBench implements Benchmark
         ]);
         $this->pathBuilder = new PathBuilder($registry);
     }
-    
+
     /**
      * @description Build path 1000 times
      * @revs 1000
