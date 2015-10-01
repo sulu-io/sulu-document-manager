@@ -74,7 +74,7 @@ class ProxyFactory
      *
      * @return \ProxyManager\Proxy\GhostObjectInterface
      */
-    public function createProxyForNode($fromDocument, NodeInterface $targetNode)
+    public function createProxyForNode($fromDocument, NodeInterface $targetNode, $options = [])
     {
         // if node is already registered then just return the registered document
         if ($this->registry->hasNode($targetNode)) {
@@ -93,11 +93,12 @@ class ProxyFactory
 
         $initializer = function (LazyLoadingInterface $document, $method, array $parameters, &$initializer) use (
             $fromDocument,
-            $targetNode
+            $targetNode,
+            $options
         ) {
             $locale = $this->registry->getOriginalLocaleForDocument($fromDocument);
 
-            $hydrateEvent = new HydrateEvent($targetNode, $locale);
+            $hydrateEvent = new HydrateEvent($targetNode, $locale, $options);
             $hydrateEvent->setDocument($document);
             $this->dispatcher->dispatch(Events::HYDRATE, $hydrateEvent);
 

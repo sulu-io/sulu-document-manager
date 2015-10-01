@@ -131,7 +131,7 @@ class ParentSubscriber implements EventSubscriberInterface
             ));
         }
 
-        $this->mapParent($document, $node);
+        $this->mapParent($document, $node, $event->getOptions());
     }
 
     /**
@@ -151,7 +151,7 @@ class ParentSubscriber implements EventSubscriberInterface
         $this->documentManager->move($document, $parentNode->getPath());
     }
 
-    private function mapParent($document, NodeInterface $node)
+    private function mapParent($document, NodeInterface $node, $options = [])
     {
         // TODO: performance warning: We are eagerly fetching the parent node
         $targetNode = $node->getParent();
@@ -161,6 +161,6 @@ class ParentSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $document->setParent($this->proxyFactory->createProxyForNode($document, $targetNode));
+        $document->setParent($this->proxyFactory->createProxyForNode($document, $targetNode, $options));
     }
 }
