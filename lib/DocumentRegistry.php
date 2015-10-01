@@ -87,7 +87,7 @@ class DocumentRegistry
         $uuid = $node->getIdentifier();
 
         // do not allow nodes without UUIDs or reregistration of documents
-        $this->validateDocumentRegistration($document, $node, $oid, $uuid);
+        $this->validateDocumentRegistration($document, $node, $oid, $uuid, $locale);
 
         $this->documentMap[$oid] = $document;
         $this->documentNodeMap[$oid] = $uuid;
@@ -137,8 +137,10 @@ class DocumentRegistry
      */
     public function hasNode(NodeInterface $node, $locale = null)
     {
-        if (null === $locale) {
-            return isset($this->nodeDocumentMap[$node->getIdentifier()]);
+        $exists = isset($this->nodeDocumentMap[$node->getIdentifier()]);
+
+        if (null === $locale || false === $exists) {
+            return $exists;
         }
 
         $document = $this->getDocumentForNode($node);
@@ -317,7 +319,7 @@ class DocumentRegistry
      *
      * @throws DocumentManagerException
      */
-    private function validateDocumentRegistration($document, NodeInterface $node, $oid, $uuid)
+    private function validateDocumentRegistration($document, NodeInterface $node, $oid, $uuid, $locale)
     {
         if (null === $uuid) {
             throw new DocumentManagerException(sprintf(
@@ -326,7 +328,7 @@ class DocumentRegistry
             ));
         }
 
-        if (isset($this->nodeMap[$uuid])) {
+        if (isset($this->nodeMap[$uuid]) && (isset($this->documentLocaleMap[$oid]) && $this->documentLocaleMap[$oid] === $locale)) {
             $registeredDocument = $this->nodeDocumentMap[$uuid];
             throw new \RuntimeException(sprintf(
                 'Document "%s" (%s) is already registered for node "%s" (%s) when trying to register document "%s" (%s)',
