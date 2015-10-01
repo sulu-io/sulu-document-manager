@@ -135,9 +135,16 @@ class DocumentRegistry
      *
      * @return bool
      */
-    public function hasNode(NodeInterface $node)
+    public function hasNode(NodeInterface $node, $locale = null)
     {
-        return isset($this->nodeDocumentMap[$node->getIdentifier()]);
+        if (null === $locale) {
+            return isset($this->nodeDocumentMap[$node->getIdentifier()]);
+        }
+
+        $document = $this->getDocumentForNode($node);
+        $oid = $this->getObjectIdentifier($document);
+
+        return $this->documentLocaleMap[$oid] === $locale;
     }
 
     /**
@@ -235,12 +242,18 @@ class DocumentRegistry
      *
      * @throws \RuntimeException If the node is not managed
      */
-    public function getDocumentForNode(NodeInterface $node)
+    public function getDocumentForNode(NodeInterface $node, $locale = null)
     {
         $identifier = $node->getIdentifier();
         $this->assertNodeExists($identifier);
+        $document = $this->nodeDocumentMap[$identifier];
+        $oid = $this->getObjectIdentifier($document);
 
-        return $this->nodeDocumentMap[$identifier];
+        if ($locale !== null && $this->documentLocaleMap[$oid] !== $locale) {
+            return;
+        }
+
+        return $document;
     }
 
     /**
