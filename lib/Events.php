@@ -94,4 +94,9 @@ class Events
      * Enables subscribers to define options.
      */
     const CONFIGURE_OPTIONS = 'sulu_document_manager.configure_options';
+
+    /**
+     * Enables fields to be added to the mapping.
+     */
+    const METADATA_LOAD = 'sulu_document_manager.metadata_load';
 }

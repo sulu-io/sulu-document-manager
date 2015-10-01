@@ -90,12 +90,13 @@ class RegistratorSubscriber implements EventSubscriberInterface
         }
 
         $node = $event->getNode();
+        $locale = $event->getLocale();
 
-        if (!$this->documentRegistry->hasNode($node)) {
+        if (!$this->documentRegistry->hasNode($node, $locale)) {
             return;
         }
 
-        $document = $this->documentRegistry->getDocumentForNode($node);
+        $document = $this->documentRegistry->getDocumentForNode($node, $locale);
 
         $event->setDocument($document);
     }

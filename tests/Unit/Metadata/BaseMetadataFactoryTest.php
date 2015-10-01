@@ -14,13 +14,16 @@ namespace Sulu\Component\DocumentManager\tests\Unit\Metadata;
 use Sulu\Component\DocumentManager\DocumentStrategyInterface;
 use Sulu\Component\DocumentManager\Metadata;
 use Sulu\Component\DocumentManager\Metadata\BaseMetadataFactory;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class BaseMetadataFactoryTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
         $this->strategy = $this->prophesize(DocumentStrategyInterface::class);
+        $this->dispatcher = $this->prophesize(EventDispatcherInterface::class);
         $this->factory = new BaseMetadataFactory(
+            $this->dispatcher->reveal(),
             [
                 [
                     'alias' => 'page',
@@ -100,6 +103,22 @@ class BaseMetadataFactoryTest extends \PHPUnit_Framework_TestCase
 
         $res = $this->factory->hasMetadataForPhpcrType('foobar');
         $this->assertFalse($res);
+    }
+
+    /**
+     * It should say if it has metadata for a class.
+     */
+    public function testHasMetadataForClass()
+    {
+        $this->assertTrue($this->factory->hasMetadataForClass('Class\Snippet'));
+    }
+
+    /**
+     * It should say if it has metadata for a class.
+     */
+    public function testHasMetadataForProxyClass()
+    {
+        $this->assertTrue($this->factory->hasMetadataForClass('ProxyManagerGeneratedProxy\__PM__\Class\Snippet\Generateda84aebfffbf882fd8bddc950faa89e05'));
     }
 
     /**

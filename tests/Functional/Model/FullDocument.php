@@ -14,6 +14,7 @@ namespace Sulu\Component\DocumentManager\Tests\Functional\Model;
 use Sulu\Component\DocumentManager\Behavior\Audit\BlameBehavior;
 use Sulu\Component\DocumentManager\Behavior\Audit\TimestampBehavior;
 use Sulu\Component\DocumentManager\Behavior\Mapping\ChildrenBehavior;
+use Sulu\Component\DocumentManager\Behavior\Mapping\LocaleBehavior;
 use Sulu\Component\DocumentManager\Behavior\Mapping\NodeNameBehavior;
 use Sulu\Component\DocumentManager\Behavior\Mapping\ParentBehavior;
 use Sulu\Component\DocumentManager\Behavior\Mapping\PathBehavior;
@@ -29,7 +30,8 @@ class FullDocument implements
     ParentBehavior,
     UuidBehavior,
     ChildrenBehavior,
-    PathBehavior
+    PathBehavior,
+    LocaleBehavior
 {
     protected $nodeName;
     protected $created;
@@ -40,6 +42,11 @@ class FullDocument implements
     protected $uuid;
     protected $children;
     protected $path;
+    protected $title;
+    protected $body;
+    protected $status;
+    protected $reference;
+    protected $locale;
 
     public function __construct()
     {
@@ -121,6 +128,13 @@ class FullDocument implements
     /**
      * {@inheritdoc}
      */
+    public function setLocale($locale)
+    {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getChildren()
     {
         return $this->children;
@@ -132,5 +146,45 @@ class FullDocument implements
     public function getPath()
     {
         return $this->path;
+    }
+
+    public function getTitle()
+    {
+        return $this->title;
+    }
+
+    public function setTitle($title)
+    {
+        $this->title = $title;
+    }
+
+    public function getBody()
+    {
+        return $this->body;
+    }
+
+    public function setBody($body)
+    {
+        $this->body = $body;
+    }
+
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    public function setStatus($status)
+    {
+        $this->status = $status;
+    }
+
+    public function getReference()
+    {
+        return $this->reference;
+    }
+
+    public function setReference($reference)
+    {
+        $this->reference = $reference;
     }
 }

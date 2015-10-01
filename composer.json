@@ -13,7 +13,7 @@
         "jackalope/jackalope-doctrine-dbal": "~1.2@dev",
         "phpunit/phpunit": "~4.5",
         "monolog/monolog": "~1.0",
-        "dantleech/phpbench": "~0.1"
+        "phpbench/phpbench": "~0.1"
     },
     "license": "MIT",
     "authors": [

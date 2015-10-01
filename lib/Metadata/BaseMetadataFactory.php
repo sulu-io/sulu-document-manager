@@ -13,9 +13,12 @@ namespace Sulu\Component\DocumentManager\Metadata;
 
 use PHPCR\NodeInterface;
 use Sulu\Component\DocumentManager\ClassNameInflector;
+use Sulu\Component\DocumentManager\Event\MetadataLoadEvent;
+use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\Exception\MetadataNotFoundException;
 use Sulu\Component\DocumentManager\Metadata;
 use Sulu\Component\DocumentManager\MetadataFactoryInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Simple metadata factory which uses an array map.
@@ -41,10 +44,22 @@ class BaseMetadataFactory implements MetadataFactoryInterface
     private $phpcrTypeMap = [];
 
     /**
+     * @var EventDispatcherInterface
+     */
+    private $dispatcher;
+
+    /**
+     * @var Metadata[]
+     */
+    private $metadata = [];
+
+    /**
      * @param array $mapping
      */
-    public function __construct(array $mapping)
+    public function __construct(EventDispatcherInterface $dispatcher, array $mapping)
     {
+        $this->dispatcher = $dispatcher;
+
         foreach ($mapping as $map) {
             $this->aliasMap[$map['alias']] = $map;
             $this->classMap[$map['class']] = $map;
@@ -66,7 +81,7 @@ class BaseMetadataFactory implements MetadataFactoryInterface
 
         $map = $this->aliasMap[$alias];
 
-        return $this->getMetadata($map);
+        return $this->loadMetadata($map);
     }
 
     /**
@@ -83,7 +98,7 @@ class BaseMetadataFactory implements MetadataFactoryInterface
 
         $map = $this->phpcrTypeMap[$phpcrType];
 
-        return $this->getMetadata($map);
+        return $this->loadMetadata($map);
     }
 
     /**
@@ -92,6 +107,16 @@ class BaseMetadataFactory implements MetadataFactoryInterface
     public function hasMetadataForPhpcrType($phpcrType)
     {
         return isset($this->phpcrTypeMap[$phpcrType]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasMetadataForClass($class)
+    {
+        $class = ClassNameInflector::getUserClassName($class);
+
+        return isset($this->classMap[$class]);
     }
 
     /**
@@ -110,7 +135,7 @@ class BaseMetadataFactory implements MetadataFactoryInterface
 
         $map = $this->classMap[$class];
 
-        return $this->getMetadata($map);
+        return $this->loadMetadata($map);
     }
 
     /**
@@ -144,12 +169,36 @@ class BaseMetadataFactory implements MetadataFactoryInterface
      *
      * @return Metadata
      */
-    private function getMetadata($mapping)
+    private function loadMetadata($mapping)
     {
+        $mapping = array_merge([
+            'alias' => null,
+            'phpcr_type' => null,
+            'class' => null,
+            'mapping' => [],
+        ], $mapping);
+
+        if (isset($this->metadata[$mapping['alias']])) {
+            return $this->metadata[$mapping['alias']];
+        }
+
         $metadata = new Metadata();
         $metadata->setAlias($mapping['alias']);
         $metadata->setPhpcrType($mapping['phpcr_type']);
         $metadata->setClass($mapping['class']);
+
+        foreach ($mapping['mapping'] as $fieldName => $fieldMapping) {
+            $fieldMapping = array_merge([
+                'encoding' => 'content',
+                'property' => $fieldName,
+            ], $fieldMapping);
+            $metadata->addFieldMapping($fieldName, $fieldMapping);
+        }
+
+        $event = new MetadataLoadEvent($metadata);
+        $this->dispatcher->dispatch(Events::METADATA_LOAD, $event);
+
+        $this->metadata[$mapping['alias']] = $metadata;
 
         return $metadata;
     }

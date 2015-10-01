@@ -13,8 +13,7 @@ before_script:
 
 script: 
   - phpunit
-  - php ./vendor/bin/phpbench run --processisolation=iteration
-
+  - php ./vendor/bin/phpbench run --process-isolation=iteration
 
 notifications:
   slack:

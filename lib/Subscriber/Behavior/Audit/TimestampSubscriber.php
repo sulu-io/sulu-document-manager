@@ -12,10 +12,8 @@
 namespace Sulu\Component\DocumentManager\Subscriber\Behavior\Audit;
 
 use Sulu\Component\DocumentManager\Behavior\Audit\TimestampBehavior;
-use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Events;
-use Sulu\Component\DocumentManager\PropertyEncoder;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -28,24 +26,40 @@ class TimestampSubscriber implements EventSubscriberInterface
     const CHANGED = 'changed';
 
     /**
-     * @var PropertyEncoder
-     */
-    private $encoder;
-
-    public function __construct(PropertyEncoder $encoder)
-    {
-        $this->encoder = $encoder;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public static function getSubscribedEvents()
     {
         return [
             Events::PERSIST => 'handlePersist',
-            Events::HYDRATE => 'handleHydrate',
+            Events::METADATA_LOAD => 'handleMetadataLoad',
         ];
+    }
+
+    /**
+     * @param MetadataLoadEvent
+     */
+    public function handleMetadataLoad($event)
+    {
+        if (!$event->getMetadata()->getReflectionClass()->isSubclassOf(TimestampBehavior::class)) {
+            return;
+        }
+
+        $metadata = $event->getMetadata();
+        $metadata->addFieldMapping(
+            self::CREATED,
+            [
+                'encoding' => 'system_localized',
+                'property' => self::CREATED,
+            ]
+        );
+        $metadata->addFieldMapping(
+            self::CHANGED,
+            [
+                'encoding' => 'system_localized',
+                'property' => self::CHANGED,
+            ]
+        );
     }
 
     /**
@@ -65,45 +79,10 @@ class TimestampSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $node = $event->getNode();
-
         if (!$document->getCreated()) {
-            $name = $this->encoder->localizedSystemName(self::CREATED, $locale);
-            $node->setProperty($name, new \DateTime());
+            $event->getAccessor()->set(self::CREATED, new \DateTime());
         }
 
-        $name = $this->encoder->localizedSystemName(self::CHANGED, $locale);
-        $node->setProperty($name, new \DateTime());
-    }
-
-    /**
-     * @param HydrateEvent $event
-     */
-    public function handleHydrate(HydrateEvent $event)
-    {
-        $document = $event->getDocument();
-
-        if (!$document instanceof TimestampBehavior) {
-            return;
-        }
-
-        $node = $event->getNode();
-        $locale = $event->getLocale();
-        $accessor = $event->getAccessor();
-        $accessor->set(
-            self::CREATED,
-            $node->getPropertyValueWithDefault(
-                $v = $this->encoder->localizedSystemName(self::CREATED, $locale),
-                null
-            )
-        );
-
-        $accessor->set(
-            self::CHANGED,
-            $node->getPropertyValueWithDefault(
-                $this->encoder->localizedSystemName(self::CHANGED, $locale),
-                null
-            )
-        );
+        $event->getAccessor()->set(self::CHANGED, new \DateTime());
     }
 }

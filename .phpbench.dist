@@ -5,10 +5,37 @@ require_once(__DIR__ . '/vendor/autoload.php');
 $config = new PhpBench\Configuration();
 $config->setPath(__DIR__ . '/tests/Bench');
 $config->addReport(array(
+    'title' => 'PHPCR Comparison',
     'name' => 'console_table',
-    'aggregate_iterations' => true,
-    'avg_rps' => true,
-    'deviation' => false,
+    'aggregate' => 'run',
+    'groups' => array('phpcr_comparison'),
+    'cols' => array('params', 'iters', 'variance_time', 'mean_time', 'mean_rps'),
+    /*'footer_funcs' => array('sum'),*/
 ));
+
+$config->addReport(array(
+    'title' => 'Path Builder',
+    'name' => 'console_table',
+    'groups' => array('path_builder'),
+    'cols' => array('pid', 'revs', 'params', 'time', 'rps'),
+));
+
+$config->addReport(array(
+    'title' => 'Mapping Persist',
+    'name' => 'console_table',
+    'groups' => array('mapping_persist'),
+    'aggregate' => 'subject',
+    'cols' => $cols = array('iters', 'description', 'mean_revs', 'mean_time', 'mean_rps', 'deviation_min', 'variance_time'),
+));
+
+$config->addReport(array(
+    'title' => 'Mapping hydrate',
+    'name' => 'console_table',
+    'groups' => array('mapping_hydrate'),
+    'aggregate' => 'subject',
+    'cols' => $cols,
+));
+
+
 
 return $config;
