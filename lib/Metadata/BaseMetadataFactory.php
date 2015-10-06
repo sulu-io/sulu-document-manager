@@ -165,6 +165,14 @@ class BaseMetadataFactory implements MetadataFactoryInterface
     }
 
     /**
+     * @return array
+     */
+    public function getPhpcrTypeMap()
+    {
+        return $this->phpcrTypeMap;
+    }
+
+    /**
      * @param array $mapping
      *
      * @return Metadata
