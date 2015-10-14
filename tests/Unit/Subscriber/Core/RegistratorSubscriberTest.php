@@ -70,6 +70,25 @@ class RegistratorSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->hydrateEvent->hasDocument()->willReturn(false);
         $this->hydrateEvent->getNode()->willReturn($this->node->reveal());
         $this->hydrateEvent->getLocale()->willReturn('fr');
+        $this->hydrateEvent->getOptions()->willReturn([]);
+        $this->registry->hasNode($this->node->reveal())->willReturn(true);
+        $this->registry->getDocumentForNode($this->node->reveal())->willReturn($this->document);
+        $this->hydrateEvent->setDocument($this->document)->shouldBeCalled();
+        $this->subscriber->handleDocumentFromRegistry($this->hydrateEvent->reveal());
+    }
+
+    /**
+     * It should halt propagation if the document is already in the registry and the "rehydrate" option is false.
+     */
+    public function testDocumentFromRegistryNoRehydration()
+    {
+        $this->hydrateEvent->hasDocument()->willReturn(false);
+        $this->hydrateEvent->getNode()->willReturn($this->node->reveal());
+        $this->hydrateEvent->getLocale()->willReturn('fr');
+        $this->hydrateEvent->getOptions()->willReturn([
+            'rehydrate' => false,
+        ]);
+        $this->hydrateEvent->stopPropagation()->shouldBeCalled();
         $this->registry->hasNode($this->node->reveal())->willReturn(true);
         $this->registry->getDocumentForNode($this->node->reveal())->willReturn($this->document);
         $this->hydrateEvent->setDocument($this->document)->shouldBeCalled();

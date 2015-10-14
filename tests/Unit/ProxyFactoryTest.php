@@ -12,19 +12,24 @@
 namespace Sulu\Component\DocumentManager\Tests\Unit;
 
 use PHPCR\NodeInterface;
+use Prophecy\Argument;
 use ProxyManager\Factory\LazyLoadingGhostFactory;
 use ProxyManager\Proxy\LazyLoadingInterface;
 use Sulu\Component\DocumentManager\Behavior\Mapping\ParentBehavior;
 use Sulu\Component\DocumentManager\Collection\ChildrenCollection;
 use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\Metadata;
-use Sulu\Component\DocumentManager\MetadataFactory;
 use Sulu\Component\DocumentManager\MetadataFactoryInterface;
 use Sulu\Component\DocumentManager\ProxyFactory;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProxyFactoryTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var ProxyFactory
+     */
+    private $factory;
+
     public function setUp()
     {
         $this->node = $this->prophesize(NodeInterface::class);
@@ -58,6 +63,36 @@ class ProxyFactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(LazyLoadingInterface::class, $proxy);
 
         return $proxy;
+    }
+
+    /**
+     * It should populate the documents parent property (with custom options) with a proxy.
+     */
+    public function testCreateProxyOptions()
+    {
+        $options = ['test_option' => 'test'];
+
+        $this->node->getParent()->willReturn($this->parentNode->reveal());
+        $this->metadataFactory->getMetadataForPhpcrNode($this->parentNode->reveal())->willReturn(
+            $this->metadata->reveal()
+        );
+        $this->metadata->getClass()->willReturn(TestProxyDocumentProxy::class);
+
+        $proxy = $this->factory->createProxyForNode($this->document, $this->parentNode->reveal(), $options);
+
+        $this->assertInstanceOf(LazyLoadingInterface::class, $proxy);
+
+        $this->dispatcher->dispatch(
+            'sulu_document_manager.hydrate',
+            Argument::that(
+                function ($event) use ($options) {
+                    return $event->getOptions() === $options;
+                }
+            )
+        )->shouldBeCalled();
+
+        // hydrate
+        $proxy->getTitle();
     }
 
     /**
