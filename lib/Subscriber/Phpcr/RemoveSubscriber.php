@@ -12,6 +12,7 @@
 namespace Sulu\Component\DocumentManager\Subscriber\Phpcr;
 
 use Sulu\Component\DocumentManager\DocumentRegistry;
+use Sulu\Component\DocumentManager\Event\ConfigureOptionsEvent;
 use Sulu\Component\DocumentManager\Event\RemoveEvent;
 use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\NodeManager;
@@ -46,8 +47,22 @@ class RemoveSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
+            Events::CONFIGURE_OPTIONS => ['configureOptions', 0],
             Events::REMOVE => ['handleRemove', 500],
         ];
+    }
+
+    /**
+     * Adds the options for this subscriber to the OptionsResolver
+     *
+     * @param ConfigureOptionsEvent $event
+     */
+    public function configureOptions(ConfigureOptionsEvent $event)
+    {
+        $options = $event->getOptions();
+
+        $options->setDefault('dereference', false);
+        $options->addAllowedTypes('dereference', 'bool');
     }
 
     /**

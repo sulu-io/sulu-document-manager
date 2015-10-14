@@ -54,8 +54,9 @@ interface DocumentManagerInterface
      * and the related PHPCR node should be removed from the session.
      *
      * @param object $document
+     * @param array $options
      */
-    public function remove($document);
+    public function remove($document, array $options = []);
 
     /**
      * Move the PHPCR node to which the document is mapped to be
