@@ -20,6 +20,56 @@ use Sulu\Component\DocumentManager\Subscriber\Phpcr\RemoveSubscriber;
 
 class RemoveSubscriberTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var NodeManager
+     */
+    private $nodeManager;
+
+    /**
+     * @var DocumentRegistry
+     */
+    private $documentRegistry;
+
+    /**
+     * @var RemoveEvent
+     */
+    private $removeEvent;
+
+    /**
+     * @var \stdClass
+     */
+    private $document;
+
+    /**
+     * @var NodeInterface
+     */
+    private $node;
+
+    /**
+     * @var NodeInterface
+     */
+    private $node1;
+
+    /**
+     * @var NodeInterface
+     */
+    private $node2;
+
+    /**
+     * @var PropertyInterface
+     */
+    private $property1;
+
+    /**
+     * @var PropertyInterface
+     */
+    private $property2;
+
+    /**
+     * @var RemoveSubscriber
+     */
+    private $subscriber;
+
     public function setUp()
     {
         $this->nodeManager = $this->prophesize(NodeManager::class);
@@ -47,6 +97,20 @@ class RemoveSubscriberTest extends \PHPUnit_Framework_TestCase
     {
         $this->removeEvent->getDocument()->willReturn($this->document);
         $this->node->remove()->shouldBeCalled();
+        $this->node->getReferences()->willReturn(new \ArrayIterator([]));
+
+        $this->subscriber->handleRemove($this->removeEvent->reveal());
+    }
+
+    /**
+     * It should not remove nodes if the node is still referenced.
+     *
+     * @expectedException Sulu\Component\DocumentManager\Exception\DocumentReferencedException
+     */
+    public function testHandleReferencedRemove()
+    {
+        $this->removeEvent->getDocument()->willReturn($this->document);
+        $this->node->getReferences()->willReturn(new \ArrayIterator([new \stdClass()]));
 
         $this->subscriber->handleRemove($this->removeEvent->reveal());
     }
