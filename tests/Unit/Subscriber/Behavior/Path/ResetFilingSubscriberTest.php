@@ -12,15 +12,16 @@
 namespace Sulu\Component\DocumentManager\Tests\Unit\Subscriber\Behavior\Audit\Path;
 
 use PHPCR\NodeInterface;
-use Sulu\Component\DocumentManager\Behavior\Path\AliasFilingBehavior;
+use Sulu\Component\DocumentManager\Behavior\Path\ResetFilingPathBehavior;
 use Sulu\Component\DocumentManager\DocumentManager;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Metadata;
 use Sulu\Component\DocumentManager\MetadataFactoryInterface;
 use Sulu\Component\DocumentManager\NodeManager;
 use Sulu\Component\DocumentManager\Subscriber\Behavior\Path\AliasFilingSubscriber;
+use Sulu\Component\DocumentManager\Subscriber\Behavior\Path\ResetFilingPathSubscriber;
 
-class AliasFilingSubscriberTest extends \PHPUnit_Framework_TestCase
+class ResetFilingSubscriberTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var PersistEvent
@@ -33,7 +34,7 @@ class AliasFilingSubscriberTest extends \PHPUnit_Framework_TestCase
     private $notImplementing;
 
     /**
-     * @var AliasFilingBehavior
+     * @var ResetFilingPathBehavior
      */
     private $document;
 
@@ -76,7 +77,7 @@ class AliasFilingSubscriberTest extends \PHPUnit_Framework_TestCase
     {
         $this->persistEvent = $this->prophesize(PersistEvent::class);
         $this->notImplementing = new \stdClass();
-        $this->document = $this->prophesize(AliasFilingBehavior::class);
+        $this->document = $this->prophesize(ResetFilingPathBehavior::class);
         $this->parentDocument = new \stdClass();
         $this->nodeManager = $this->prophesize(NodeManager::class);
         $this->documentManager = $this->prophesize(DocumentManager::class);
@@ -84,9 +85,9 @@ class AliasFilingSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->metadata = $this->prophesize(Metadata::class);
         $this->parentNode = $this->prophesize(NodeInterface::class);
 
-        $this->subscriber = new AliasFilingSubscriber(
+        $this->subscriber = new ResetFilingPathSubscriber(
             $this->nodeManager->reveal(),
-            $this->metadataFactory->reveal()
+            '/base/path'
         );
     }
 
@@ -110,10 +111,10 @@ class AliasFilingSubscriberTest extends \PHPUnit_Framework_TestCase
             $this->metadata->reveal()
         );
         $this->metadata->getAlias()->willReturn('test');
-        $this->nodeManager->createPath('/tests')->willReturn($this->parentNode->reveal());
-        $this->persistEvent->hasParentNode()->shouldBeCalled();
+        $this->nodeManager->createPath('/base/path')->willReturn($this->parentNode->reveal());
+
         $this->persistEvent->setParentNode($this->parentNode->reveal())->shouldBeCalled();
-        $this->documentManager->find('/tests', 'fr')->willReturn($this->parentDocument);
+        $this->documentManager->find('/base/path/tests', 'fr')->willReturn($this->parentDocument);
 
         $this->subscriber->handlePersist($this->persistEvent->reveal());
     }
