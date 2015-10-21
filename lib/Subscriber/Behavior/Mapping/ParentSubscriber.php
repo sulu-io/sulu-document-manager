@@ -14,7 +14,6 @@ namespace Sulu\Component\DocumentManager\Subscriber\Behavior\Mapping;
 use PHPCR\NodeInterface;
 use Sulu\Component\DocumentManager\Behavior\Mapping\ParentBehavior;
 use Sulu\Component\DocumentManager\DocumentInspector;
-use Sulu\Component\DocumentManager\DocumentManager;
 use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Event\MoveEvent;
@@ -151,7 +150,14 @@ class ParentSubscriber implements EventSubscriberInterface
         $this->documentManager->move($document, $parentNode->getPath());
     }
 
-    private function mapParent($document, NodeInterface $node)
+    /**
+     * Map parent document to given document.
+     *
+     * @param object $document child-document
+     * @param NodeInterface $node to determine parent
+     * @param array $options options to load parent
+     */
+    private function mapParent($document, NodeInterface $node, $options = [])
     {
         // TODO: performance warning: We are eagerly fetching the parent node
         $targetNode = $node->getParent();
@@ -161,6 +167,6 @@ class ParentSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $document->setParent($this->proxyFactory->createProxyForNode($document, $targetNode));
+        $document->setParent($this->proxyFactory->createProxyForNode($document, $targetNode, $options));
     }
 }

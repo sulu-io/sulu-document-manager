@@ -14,6 +14,7 @@ namespace Sulu\Component\DocumentManager\Subscriber\Core;
 use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\Event\AbstractMappingEvent;
 use Sulu\Component\DocumentManager\Event\ClearEvent;
+use Sulu\Component\DocumentManager\Event\ConfigureOptionsEvent;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Event\RemoveEvent;
@@ -62,7 +63,19 @@ class RegistratorSubscriber implements EventSubscriberInterface
             Events::REMOVE => ['handleRemove', 490],
             Events::CLEAR => ['handleClear', 500],
             Events::REORDER => ['handleNodeFromRegistry', 510],
+            Events::CONFIGURE_OPTIONS => 'configureOptions',
         ];
+    }
+
+    /**
+     * @param ConfigureOptionsEvent $event
+     */
+    public function configureOptions(ConfigureOptionsEvent $event)
+    {
+        $options = $event->getOptions();
+        $options->setDefaults([
+            'rehydrate' => true,
+        ]);
     }
 
     /**
@@ -98,6 +111,15 @@ class RegistratorSubscriber implements EventSubscriberInterface
         $document = $this->documentRegistry->getDocumentForNode($node);
 
         $event->setDocument($document);
+
+        $options = $event->getOptions();
+
+        // if reydration is not required (f.e. we just want to retrieve the
+        // current state of the document, no matter it's current state) stop
+        // further event propagation - we have the document now.
+        if (isset($options['rehydrate']) && false === $options['rehydrate']) {
+            $event->stopPropagation();
+        }
     }
 
     /**
