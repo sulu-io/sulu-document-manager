@@ -2,7 +2,6 @@
 
 namespace Sulu\Component\DocumentManager\tests\Unit;
 
-use PhpBench\Benchmark;
 use Sulu\Component\DocumentManager\PathBuilder;
 use Sulu\Component\DocumentManager\PathSegmentRegistry;
 
