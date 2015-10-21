@@ -27,20 +27,12 @@ abstract class AbstractFilingSubscriber implements EventSubscriberInterface
     private $nodeManager;
 
     /**
-     * @var string
-     */
-    protected $basePath;
-
-    /**
      * @param NodeManager $nodeManager
-     * @param string $basePath
      */
     public function __construct(
-        NodeManager $nodeManager,
-        $basePath
+        NodeManager $nodeManager
     ) {
         $this->nodeManager = $nodeManager;
-        $this->basePath = $basePath;
     }
 
     /**

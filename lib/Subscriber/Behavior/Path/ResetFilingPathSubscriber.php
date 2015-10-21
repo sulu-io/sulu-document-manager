@@ -5,12 +5,32 @@ namespace Sulu\Component\DocumentManager\Subscriber\Behavior\Path;
 use Sulu\Component\DocumentManager\Behavior\Path\ResetFilingPathBehavior;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Events;
+use Sulu\Component\DocumentManager\NodeManager;
 
 /**
- * Class ResetFilingPathSubscriber.
+ * Resets the path to base path.
+ *
+ * this is used for example with the AliasFilingBehavior
  */
 class ResetFilingPathSubscriber extends AbstractFilingSubscriber
 {
+    /**
+     * @var string
+     */
+    protected $basePath;
+
+    /**
+     * @param NodeManager $nodeManager
+     * @param string $basePath
+     */
+    public function __construct(
+        NodeManager $nodeManager,
+        $basePath
+    ) {
+        parent::__construct($nodeManager);
+        $this->basePath = $basePath;
+    }
+
     /**
      * {@inheritdoc}
      */

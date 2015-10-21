@@ -16,13 +16,62 @@ use Sulu\Component\DocumentManager\Behavior\Path\AliasFilingBehavior;
 use Sulu\Component\DocumentManager\DocumentManager;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Metadata;
-use Sulu\Component\DocumentManager\MetadataFactory;
 use Sulu\Component\DocumentManager\MetadataFactoryInterface;
 use Sulu\Component\DocumentManager\NodeManager;
 use Sulu\Component\DocumentManager\Subscriber\Behavior\Path\AliasFilingSubscriber;
 
 class AliasFilingSubscriberTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var PersistEvent
+     */
+    private $persistEvent;
+
+    /**
+     * @var \stdClass
+     */
+    private $notImplementing;
+
+    /**
+     * @var AliasFilingTestDocument
+     */
+    private $document;
+
+    /**
+     * @var \stdClass
+     */
+    private $parentDocument;
+
+    /**
+     * @var NodeManager
+     */
+    private $nodeManager;
+
+    /**
+     * @var DocumentManager
+     */
+    private $documentManager;
+
+    /**
+     * @var MetadataFactoryInterface
+     */
+    private $metadataFactory;
+
+    /**
+     * @var MetaData
+     */
+    private $metadata;
+
+    /**
+     * @var NodeInterface
+     */
+    private $parentNode;
+
+    /**
+     * @var AliasFilingSubscriber
+     */
+    private $subscriber;
+
     public function setUp()
     {
         $this->persistEvent = $this->prophesize(PersistEvent::class);
@@ -37,8 +86,7 @@ class AliasFilingSubscriberTest extends \PHPUnit_Framework_TestCase
 
         $this->subscriber = new AliasFilingSubscriber(
             $this->nodeManager->reveal(),
-            $this->metadataFactory->reveal(),
-            '/base/path'
+            $this->metadataFactory->reveal()
         );
     }
 
@@ -58,12 +106,14 @@ class AliasFilingSubscriberTest extends \PHPUnit_Framework_TestCase
     {
         $this->persistEvent->getDocument()->willReturn($this->document);
         $this->persistEvent->getLocale()->willReturn('fr');
-        $this->metadataFactory->getMetadataForClass(AliasFilingTestDocument::class)->willReturn($this->metadata->reveal());
+        $this->metadataFactory->getMetadataForClass(AliasFilingTestDocument::class)->willReturn(
+            $this->metadata->reveal()
+        );
         $this->metadata->getAlias()->willReturn('test');
-        $this->nodeManager->createPath('/base/path/tests')->willReturn($this->parentNode->reveal());
+        $this->nodeManager->createPath('/tests')->willReturn($this->parentNode->reveal());
         $this->persistEvent->hasParentNode()->shouldBeCalled();
         $this->persistEvent->setParentNode($this->parentNode->reveal())->shouldBeCalled();
-        $this->documentManager->find('/base/path/tests', 'fr')->willReturn($this->parentDocument);
+        $this->documentManager->find('/tests', 'fr')->willReturn($this->parentDocument);
 
         $this->subscriber->handlePersist($this->persistEvent->reveal());
     }

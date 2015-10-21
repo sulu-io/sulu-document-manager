@@ -31,14 +31,12 @@ class AliasFilingSubscriber extends AbstractFilingSubscriber
     /**
      * @param NodeManager $nodeManager
      * @param MetadataFactoryInterface $metadataFactory
-     * @param string $basePath
      */
     public function __construct(
         NodeManager $nodeManager,
-        MetadataFactoryInterface $metadataFactory,
-        $basePath
+        MetadataFactoryInterface $metadataFactory
     ) {
-        parent::__construct($nodeManager, $basePath);
+        parent::__construct($nodeManager);
         $this->metadataFactory = $metadataFactory;
     }
 
@@ -59,7 +57,7 @@ class AliasFilingSubscriber extends AbstractFilingSubscriber
     {
         $document = $event->getDocument();
 
-        $currentPath = $this->basePath;
+        $currentPath = '';
         if ($event->hasParentNode()) {
             $currentPath = $event->getParentNode()->getPath();
         }
