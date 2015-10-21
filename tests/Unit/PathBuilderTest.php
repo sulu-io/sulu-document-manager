@@ -6,7 +6,7 @@ use PhpBench\Benchmark;
 use Sulu\Component\DocumentManager\PathBuilder;
 use Sulu\Component\DocumentManager\PathSegmentRegistry;
 
-class PathBuilderTest extends \PHPUnit_Framework_TestCase implements Benchmark
+class PathBuilderTest extends \PHPUnit_Framework_TestCase
 {
     private $pathBuilder;
 
