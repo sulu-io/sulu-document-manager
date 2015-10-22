@@ -20,6 +20,6 @@ namespace Sulu\Component\DocumentManager\Behavior\Path;
  *
  * If the parent document does not exist, it will be created.
  */
-interface AliasFilingBehavior extends ResetFilingPathBehavior
+interface AliasFilingBehavior extends BasePathBehavior
 {
 }

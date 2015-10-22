@@ -13,6 +13,9 @@ namespace Sulu\Component\DocumentManager\Behavior\Path;
 
 use Sulu\Component\DocumentManager\Behavior\Mapping\ParentBehavior;
 
-interface ResetFilingPathBehavior extends ParentBehavior
+/**
+ * This behavior adds an initial base path to the node.
+ */
+interface BasePathBehavior extends ParentBehavior
 {
 }

@@ -12,16 +12,16 @@
 namespace Sulu\Component\DocumentManager\Tests\Unit\Subscriber\Behavior\Audit\Path;
 
 use PHPCR\NodeInterface;
-use Sulu\Component\DocumentManager\Behavior\Path\ResetFilingPathBehavior;
+use Sulu\Component\DocumentManager\Behavior\Path\BasePathBehavior;
 use Sulu\Component\DocumentManager\DocumentManager;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Metadata;
 use Sulu\Component\DocumentManager\MetadataFactoryInterface;
 use Sulu\Component\DocumentManager\NodeManager;
 use Sulu\Component\DocumentManager\Subscriber\Behavior\Path\AliasFilingSubscriber;
-use Sulu\Component\DocumentManager\Subscriber\Behavior\Path\ResetFilingPathSubscriber;
+use Sulu\Component\DocumentManager\Subscriber\Behavior\Path\BasePathSubscriber;
 
-class ResetFilingSubscriberTest extends \PHPUnit_Framework_TestCase
+class BasePathSubscriberTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var PersistEvent
@@ -34,7 +34,7 @@ class ResetFilingSubscriberTest extends \PHPUnit_Framework_TestCase
     private $notImplementing;
 
     /**
-     * @var ResetFilingPathBehavior
+     * @var BasePathBehavior
      */
     private $document;
 
@@ -77,7 +77,7 @@ class ResetFilingSubscriberTest extends \PHPUnit_Framework_TestCase
     {
         $this->persistEvent = $this->prophesize(PersistEvent::class);
         $this->notImplementing = new \stdClass();
-        $this->document = $this->prophesize(ResetFilingPathBehavior::class);
+        $this->document = $this->prophesize(BasePathBehavior::class);
         $this->parentDocument = new \stdClass();
         $this->nodeManager = $this->prophesize(NodeManager::class);
         $this->documentManager = $this->prophesize(DocumentManager::class);
@@ -85,7 +85,7 @@ class ResetFilingSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->metadata = $this->prophesize(Metadata::class);
         $this->parentNode = $this->prophesize(NodeInterface::class);
 
-        $this->subscriber = new ResetFilingPathSubscriber(
+        $this->subscriber = new BasePathSubscriber(
             $this->nodeManager->reveal(),
             '/base/path'
         );
