@@ -17,6 +17,16 @@ use Sulu\Component\DocumentManager\PropertyEncoder;
 
 class PropertyEncoderTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var PropertyEncoder
+     */
+    private $encoder;
+
+    /**
+     * @var NamespaceRegistry
+     */
+    private $namespaceRegistry;
+
     public function setUp()
     {
         $map = [
@@ -47,5 +57,45 @@ class PropertyEncoderTest extends \PHPUnit_Framework_TestCase
     {
         $name = $this->encoder->systemName('created');
         $this->assertEquals('nsys:created', $name);
+    }
+
+    /**
+     * It should throw exception.
+     */
+    public function testEncodeLocalizedSystemEmptyLocale()
+    {
+        $this->setExpectedException(\InvalidArgumentException::class);
+
+        $this->encoder->encode('system_localized', 'test', null);
+    }
+
+    /**
+     * It should throw exception.
+     */
+    public function testEncodeLocalizedContentEmptyLocale()
+    {
+        $this->setExpectedException(\InvalidArgumentException::class);
+
+        $this->encoder->encode('content_localized', 'test', null);
+    }
+
+    /**
+     * It should throw exception.
+     */
+    public function testLocalizedContentEmptyLocale()
+    {
+        $this->setExpectedException(\InvalidArgumentException::class);
+
+        $this->encoder->encode('content_localized', 'test', null);
+    }
+
+    /**
+     * It should throw exception.
+     */
+    public function testLocalizedSystemEmptyLocale()
+    {
+        $this->setExpectedException(\InvalidArgumentException::class);
+
+        $this->encoder->encode('system_localized', 'test', null);
     }
 }
