@@ -85,9 +85,11 @@ class RegistratorSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->hydrateEvent->hasDocument()->willReturn(false);
         $this->hydrateEvent->getNode()->willReturn($this->node->reveal());
         $this->hydrateEvent->getLocale()->willReturn('fr');
-        $this->hydrateEvent->getOptions()->willReturn([
-            'rehydrate' => false,
-        ]);
+        $this->hydrateEvent->getOptions()->willReturn(
+            [
+                'rehydrate' => false,
+            ]
+        );
         $this->hydrateEvent->stopPropagation()->shouldBeCalled();
         $this->registry->hasNode($this->node->reveal())->willReturn(true);
         $this->registry->getDocumentForNode($this->node->reveal())->willReturn($this->document);
@@ -117,10 +119,31 @@ class RegistratorSubscriberTest extends \PHPUnit_Framework_TestCase
 
         $this->hydrateEvent->hasDocument()->willReturn(true);
         $this->hydrateEvent->getLocale()->willReturn($locale);
+        $this->hydrateEvent->getOptions()->willReturn([]);
         $this->hydrateEvent->getDocument()->willReturn($this->document);
         $this->registry->isHydrated($this->document)->willReturn(true);
         $this->registry->getOriginalLocaleForDocument($this->document)->willReturn($originalLocale);
         $this->hydrateEvent->stopPropagation()->shouldBeCalled();
+
+        $this->subscriber->handleStopPropagationAndResetLocale($this->hydrateEvent->reveal());
+    }
+
+    /**
+     * It should notstop propagation if the document is loaded with rehydrate option.
+     */
+    public function testStopPropagationRehydrate()
+    {
+        $locale = 'de';
+        $originalLocale = 'de';
+
+        $this->hydrateEvent->hasDocument()->willReturn(true);
+        $this->hydrateEvent->getLocale()->willReturn($locale);
+        $this->hydrateEvent->getOptions()->willReturn(['rehydrate' => true]);
+        $this->hydrateEvent->getDocument()->willReturn($this->document);
+        $this->registry->isHydrated($this->document)->willReturn(true);
+        $this->registry->getOriginalLocaleForDocument($this->document)->willReturn($originalLocale);
+        $this->registry->updateLocale($this->document, $locale, $locale)->shouldBeCalled();
+        $this->hydrateEvent->stopPropagation()->shouldNotBeCalled();
 
         $this->subscriber->handleStopPropagationAndResetLocale($this->hydrateEvent->reveal());
     }
@@ -136,6 +159,7 @@ class RegistratorSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->hydrateEvent->hasDocument()->willReturn(true);
         $this->hydrateEvent->getLocale()->willReturn($locale);
         $this->hydrateEvent->getDocument()->willReturn($this->document);
+        $this->hydrateEvent->getOptions()->willReturn([]);
         $this->registry->isHydrated($this->document)->willReturn(true);
 
         $this->registry->getOriginalLocaleForDocument($this->document)->willReturn($originalLocale);
