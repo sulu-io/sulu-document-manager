@@ -47,7 +47,8 @@ class MetadataTest extends \PHPUnit_Framework_TestCase
     public function testGetFieldMapping()
     {
         $this->metadata->addFieldMapping('hello', ['property' => 'foo']);
-        $this->assertContains([
+        $this->assertContains(
+            [
                 'property' => 'foo',
             ],
             $this->metadata->getFieldMapping('hello')
@@ -61,10 +62,6 @@ class MetadataTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetFieldMappingNonExisting()
     {
-        $this->assertContains([
-                'property' => 'foo',
-            ],
-            $this->metadata->getFieldMapping('hello')
-        );
+        $this->metadata->getFieldMapping('hello');
     }
 }

@@ -56,9 +56,9 @@ interface DocumentStrategyInterface
      *
      * For example:
      *
-     * ````
+     * ```
      * return 'nt:unstructured';
-     * ````
+     * ```
      *
      * @param string $classFqn
      *
@@ -73,7 +73,7 @@ interface DocumentStrategyInterface
      *
      * For example:
      *
-     * ````
+     * ```
      * return $qomf->comparison(
      *     $qomf->propertyValue(
      *         $sourceNode->getAlias(),
@@ -82,7 +82,7 @@ interface DocumentStrategyInterface
      *     QOMConstants::JCR_OPERATOR_EQUAL_TO,
      *     $qomf->literal('foo')
      * );
-     * ````
+     * ```
      *
      * Can return NULL if no constraints should be added. This may be required
      * if the primary type already represents the document class.

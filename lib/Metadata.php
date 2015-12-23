@@ -41,12 +41,12 @@ class Metadata
     /**
      * Add a field mapping for field with given name, for example:.
      *
-     * ````
+     * ```
      * $metadata->addFieldMapping(array(
      *     'encoding' => 'content',
      *     'property' => 'phpcr_property_name',
      * ));
-     * ````
+     * ```
      *
      * @param string $name Name of field/property in the mapped class.
      * @param array $mapping {
