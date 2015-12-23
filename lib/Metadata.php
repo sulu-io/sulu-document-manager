@@ -36,17 +36,17 @@ class Metadata
     /**
      * @var array
      */
-    private $fieldMappings;
+    private $fieldMappings = [];
 
     /**
      * Add a field mapping for field with given name, for example:.
      *
-     * ````
+     * ```
      * $metadata->addFieldMapping(array(
      *     'encoding' => 'content',
      *     'property' => 'phpcr_property_name',
      * ));
-     * ````
+     * ```
      *
      * @param string $name Name of field/property in the mapped class.
      * @param array $mapping {
@@ -79,6 +79,25 @@ class Metadata
     public function getFieldMappings()
     {
         return $this->fieldMappings;
+    }
+
+    /**
+     * Return the mapping for the named field.
+     *
+     * @see Metadata::addFieldMapping
+     *
+     * @return array
+     */
+    public function getFieldMapping($name)
+    {
+        if (!isset($this->fieldMappings[$name])) {
+            throw new \InvalidArgumentException(sprintf(
+                'Field mapping "%s" not known in metadata for document type "%s". Known mappings: "%s"',
+                $name, $this->alias, implode('", "', array_keys($this->fieldMappings))
+            ));
+        }
+
+        return $this->fieldMappings[$name];
     }
 
     /**
