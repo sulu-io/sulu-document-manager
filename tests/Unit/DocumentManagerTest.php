@@ -31,16 +31,67 @@ use Sulu\Component\DocumentManager\NodeManager;
 use Sulu\Component\DocumentManager\Query\Query;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Sulu\Component\DocumentManager\DocumentRegistry;
+use Sulu\Component\DocumentManager\MetadataFactoryInterface;
 
 class DocumentManagerTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var mixed
+     */
+    private $dispatcher;
+
+    /**
+     * @var NodeManager
+     */
+    private $nodeManager;
+
+    /**
+     * @var MetadataFactoryInterface
+     */
+    private $metadataFactory;
+
+    /**
+     * @var DocumentRegistry
+     */
+    private $documentRegistry;
+
+    /**
+     * @var DocumentManager
+     */
+    private $manager;
+
+    /**
+     * @var NodeManager
+     */
+    private $node;
+
+    /**
+     * @var object
+     */
+    private $document;
+
+    /**
+     * @var Query
+     */
+    private $query;
+
+    /**
+     * @var QueryResultCollection
+     */
+    private $resultCollection;
+
     public function setUp()
     {
         $this->dispatcher = new EventDispatcher();
         $this->nodeManager = $this->prophesize(NodeManager::class);
+        $this->metadataFactory = $this->prophesize(MetadataFactoryInterface::class);
+        $this->documentRegistry = $this->prophesize(DocumentRegistry::class);
         $this->manager = new DocumentManager(
             $this->dispatcher,
-            $this->nodeManager->reveal()
+            $this->nodeManager->reveal(),
+            $this->metadataFactory->reveal(),
+            $this->documentRegistry->reveal()
         );
 
         $this->node = $this->prophesize(NodeInterface::class);
