@@ -27,26 +27,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class ReorderSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var NodeManager
-     */
-    private $nodeManager;
-
-    /**
-     * @var DocumentRegistry
-     */
-    private $documentRegistry;
-
-    /**
-     * @param NodeManager $nodeManager
-     * @param DocumentRegistry $documentRegistry
-     */
-    public function __construct(NodeManager $nodeManager, DocumentRegistry $documentRegistry)
-    {
-        $this->nodeManager = $nodeManager;
-        $this->documentRegistry = $documentRegistry;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public static function getSubscribedEvents()
@@ -68,12 +48,13 @@ class ReorderSubscriber implements EventSubscriberInterface
         $document = $event->getDocument();
         $siblingId = $event->getDestId();
         $after = $event->getAfter();
+        $context = $event->getContext();
 
-        $node = $this->documentRegistry->getNodeForDocument($document);
+        $node = $context->getDocumentRegistry()->getNodeForDocument($document);
         $parentNode = $node->getParent();
 
         $nodeName = $node->getName();
-        $siblingName = $this->resolveSiblingName($siblingId, $parentNode, $node);
+        $siblingName = $this->resolveSiblingName($context->getNodeManager(), $siblingId, $parentNode, $node);
         if (true === $after) {
             $siblingName = $this->resolveAfterSiblingName($parentNode, $siblingName);
         }
@@ -81,7 +62,7 @@ class ReorderSubscriber implements EventSubscriberInterface
         $parentNode->orderBefore($nodeName, $siblingName);
     }
 
-    private function resolveSiblingName($siblingId, NodeInterface $parentNode, NodeInterface $node)
+    private function resolveSiblingName(NodeManager $nodeManager, $siblingId, NodeInterface $parentNode, NodeInterface $node)
     {
         if (null === $siblingId) {
             return;
@@ -89,7 +70,7 @@ class ReorderSubscriber implements EventSubscriberInterface
 
         $siblingPath = $siblingId;
         if (UUIDHelper::isUUID($siblingId)) {
-            $siblingPath = $this->nodeManager->find($siblingId)->getPath();
+            $siblingPath = $nodeManager->find($siblingId)->getPath();
         }
 
         if ($siblingPath !== null && PathHelper::getParentPath($siblingPath) !== $parentNode->getPath()) {

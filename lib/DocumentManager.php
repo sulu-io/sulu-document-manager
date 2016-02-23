@@ -16,6 +16,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Sulu\Component\DocumentManager\MetadataFactoryInterface;
 use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\Event\AbstractEvent;
+use Sulu\Component\DocumentManager\ProxyFactory;
 
 class DocumentManager implements DocumentManagerInterface
 {
@@ -38,16 +39,21 @@ class DocumentManager implements DocumentManagerInterface
         EventDispatcherInterface $eventDispatcher,
         NodeManager $nodeManager,
         MetadataFactoryInterface $metadataFactory,
-        DocumentRegistry $documentRegistry
+        DocumentRegistry $documentRegistry,
+        DocumentInspector $documentInspector,
+        ProxyFactory $proxyFactory
     )
     {
         $this->eventDispatcher = $eventDispatcher;
 
         $this->context = new DocumentManagerContext(
+            $this,
             $metadataFactory,
             $nodeManager,
             $documentRegistry,
-            $eventDispatcher
+            $eventDispatcher,
+            $documentInspector,
+            $proxyFactory
         );
     }
 

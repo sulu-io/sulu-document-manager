@@ -24,16 +24,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class LocaleSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var DocumentRegistry
-     */
-    private $registry;
-
-    public function __construct(DocumentRegistry $registry)
-    {
-        $this->registry = $registry;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public static function getSubscribedEvents()
@@ -59,7 +49,7 @@ class LocaleSubscriber implements EventSubscriberInterface
 
         $event->getAccessor()->set(
             'locale',
-            $this->registry->getLocaleForDocument($document)
+            $event->getContext()->getRegistry()->getLocaleForDocument($document)
         );
     }
 }

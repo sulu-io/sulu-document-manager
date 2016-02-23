@@ -23,19 +23,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class ChildrenSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var ProxyFactory
-     */
-    private $proxyFactory;
-
-    /**
-     * @param ProxyFactory $proxyFactory
-     */
-    public function __construct(ProxyFactory $proxyFactory)
-    {
-        $this->proxyFactory = $proxyFactory;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public static function getSubscribedEvents()
@@ -56,7 +43,8 @@ class ChildrenSubscriber implements EventSubscriberInterface
             return;
         }
 
+        $proxyFactory = $event->getContext()->getProxyFactory();
         $accessor = $event->getAccessor();
-        $accessor->set('children', $this->proxyFactory->createChildrenCollection($document, $event->getOptions()));
+        $accessor->set('children', $proxyFactory->createChildrenCollection($document, $event->getOptions()));
     }
 }

@@ -15,26 +15,13 @@ use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\NodeManager;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Sulu\Component\DocumentManager\Event\AbstractEvent;
 
 /**
  * Automatically set the parent at a pre-determined location.
  */
 abstract class AbstractFilingSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var NodeManager
-     */
-    private $nodeManager;
-
-    /**
-     * @param NodeManager $nodeManager
-     */
-    public function __construct(
-        NodeManager $nodeManager
-    ) {
-        $this->nodeManager = $nodeManager;
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -55,7 +42,7 @@ abstract class AbstractFilingSubscriber implements EventSubscriberInterface
 
         $path = $this->generatePath($event);
 
-        $parentNode = $this->nodeManager->createPath($path);
+        $parentNode = $event->getContext()->getNodeManager()->createPath($path);
         $event->setParentNode($parentNode);
     }
 
@@ -80,5 +67,5 @@ abstract class AbstractFilingSubscriber implements EventSubscriberInterface
      *
      * @return string
      */
-    abstract protected function getParentName($document);
+    abstract protected function getParentName(AbstractEvent $event);
 }

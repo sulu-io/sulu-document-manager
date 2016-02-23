@@ -35,20 +35,12 @@ class ExplicitSubscriber implements EventSubscriberInterface
     private $strategy;
 
     /**
-     * @var NodeManager
-     */
-    private $nodeManager;
-
-    /**
      * @param DocumentStrategyInterface $strategy
-     * @param NodeManager $nodeManager
      */
     public function __construct(
-        DocumentStrategyInterface $strategy,
-        NodeManager $nodeManager
+        DocumentStrategyInterface $strategy
     ) {
         $this->strategy = $strategy;
-        $this->nodeManager = $nodeManager;
     }
 
     /**
@@ -105,7 +97,7 @@ class ExplicitSubscriber implements EventSubscriberInterface
 
         if ($parentPath) {
             $event->setParentNode(
-                $this->resolveParent($parentPath, $options)
+                $this->resolveParent($event->getContext()->getNodeManager(), $parentPath, $options)
             );
         }
 
@@ -150,15 +142,15 @@ class ExplicitSubscriber implements EventSubscriberInterface
         $node->rename($nodeName);
     }
 
-    private function resolveParent($parentPath, array $options)
+    private function resolveParent(NodeManager $nodeManager, $parentPath, array $options)
     {
         $autoCreate = $options['auto_create'];
 
         if ($autoCreate) {
-            return $this->nodeManager->createPath($parentPath);
+            return $nodeManager->createPath($parentPath);
         }
 
-        return $this->nodeManager->find($parentPath);
+        return $nodeManager->find($parentPath);
     }
 
     private function validateOptions(array $options)

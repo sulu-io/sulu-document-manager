@@ -36,31 +36,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class GeneralSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var DocumentRegistry
-     */
-    private $documentRegistry;
-
-    /**
-     * @var NodeManager
-     */
-    private $nodeManager;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    public function __construct(
-        DocumentRegistry $documentRegistry,
-        NodeManager $nodeManager,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->documentRegistry = $documentRegistry;
-        $this->nodeManager = $nodeManager;
-        $this->eventDispatcher = $eventDispatcher;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public static function getSubscribedEvents()
@@ -79,9 +54,10 @@ class GeneralSubscriber implements EventSubscriberInterface
      */
     public function handleMove(MoveEvent $event)
     {
+        $context = $event->getContext();
         $document = $event->getDocument();
-        $node = $this->documentRegistry->getNodeForDocument($document);
-        $this->nodeManager->move($node->getPath(), $event->getDestId(), $event->getDestName());
+        $node = $context->getDocumentRegistry()->getNodeForDocument($document);
+        $event->getContext()->getNodeManager()->move($node->getPath(), $event->getDestId(), $event->getDestName());
     }
 
     /**
@@ -89,9 +65,10 @@ class GeneralSubscriber implements EventSubscriberInterface
      */
     public function handleCopy(CopyEvent $event)
     {
+        $context = $event->getContext();
         $document = $event->getDocument();
-        $node = $this->documentRegistry->getNodeForDocument($document);
-        $newPath = $this->nodeManager->copy($node->getPath(), $event->getDestId(), $event->getDestName());
+        $node = $context->getDocumentRegistry()->getNodeForDocument($document);
+        $newPath = $event->getContext()->getNodeManager()->copy($node->getPath(), $event->getDestId(), $event->getDestName());
         $event->setCopiedPath($newPath);
     }
 
@@ -100,9 +77,10 @@ class GeneralSubscriber implements EventSubscriberInterface
      */
     public function handleRefresh(RefreshEvent $event)
     {
+        $context = $event->getContext();
         $document = $event->getDocument();
-        $node = $this->documentRegistry->getNodeForDocument($document);
-        $locale = $this->documentRegistry->getLocaleForDocument($document);
+        $node = $context->getDocumentRegistry()->getNodeForDocument($document);
+        $locale = $context->getDocumentRegistry()->getLocaleForDocument($document);
 
         // revert/reload the node to the persisted state
         $node->revert();
@@ -110,7 +88,7 @@ class GeneralSubscriber implements EventSubscriberInterface
         // rehydrate the document
         $hydrateEvent = new HydrateEvent($node, $locale);
         $hydrateEvent->setDocument($document);
-        $this->eventDispatcher->dispatch(Events::HYDRATE, $hydrateEvent);
+        $context->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
     }
 
     /**
@@ -118,7 +96,7 @@ class GeneralSubscriber implements EventSubscriberInterface
      */
     public function handleClear(ClearEvent $event)
     {
-        $this->nodeManager->clear();
+        $event->getContext()->getNodeManager()->clear();
     }
 
     /**
@@ -126,6 +104,6 @@ class GeneralSubscriber implements EventSubscriberInterface
      */
     public function handleFlush(FlushEvent $event)
     {
-        $this->nodeManager->save();
+        $event->getContext()->getNodeManager()->save();
     }
 }

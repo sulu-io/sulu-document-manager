@@ -23,24 +23,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class RemoveSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var DocumentRegistry
-     */
-    private $documentRegistry;
-
-    /**
-     * @var NodeManager
-     */
-    private $nodeManager;
-
-    public function __construct(
-        DocumentRegistry $documentRegistry,
-        NodeManager $nodeManager
-    ) {
-        $this->documentRegistry = $documentRegistry;
-        $this->nodeManager = $nodeManager;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public static function getSubscribedEvents()
@@ -59,8 +41,7 @@ class RemoveSubscriber implements EventSubscriberInterface
     public function handleRemove(RemoveEvent $event)
     {
         $document = $event->getDocument();
-        $node = $this->documentRegistry->getNodeForDocument($document);
-
+        $node = $event->getContext()->getDocumentRegistry()->getNodeForDocument($document);
         $node->remove();
     }
 }

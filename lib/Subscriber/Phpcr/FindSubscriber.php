@@ -33,28 +33,14 @@ class FindSubscriber implements EventSubscriberInterface
     private $metadataFactory;
 
     /**
-     * @var NodeManager
-     */
-    private $nodeManager;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
      * @param MetadataFactoryInterface $metadataFactory
      * @param NodeManager $nodeManager
      * @param EventDispatcherInterface $eventDispatcher
      */
     public function __construct(
-        MetadataFactoryInterface $metadataFactory,
-        NodeManager $nodeManager,
-        EventDispatcherInterface $eventDispatcher
+        MetadataFactoryInterface $metadataFactory
     ) {
         $this->metadataFactory = $metadataFactory;
-        $this->nodeManager = $nodeManager;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -89,10 +75,11 @@ class FindSubscriber implements EventSubscriberInterface
     {
         $options = $event->getOptions();
         $aliasOrClass = $options['type'];
-        $node = $this->nodeManager->find($event->getId());
+        $node = $event->getContext()->getNodeManager()->find($event->getId());
 
         $hydrateEvent = new HydrateEvent($node, $event->getLocale(), $options);
-        $this->eventDispatcher->dispatch(Events::HYDRATE, $hydrateEvent);
+        $hydrateEvent->attachContext($event->getContext());
+        $event->getContext()->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
         $document = $hydrateEvent->getDocument();
 
         if ($aliasOrClass) {

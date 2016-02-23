@@ -23,19 +23,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class PathSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var DocumentInspector
-     */
-    private $documentInspector;
-
-    /**
-     * @param DocumentInspector $documentInspector
-     */
-    public function __construct(DocumentInspector $documentInspector)
-    {
-        $this->documentInspector = $documentInspector;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public static function getSubscribedEvents()
@@ -58,7 +45,7 @@ class PathSubscriber implements EventSubscriberInterface
 
         $event->getAccessor()->set(
             'path',
-            $this->documentInspector->getPath($document)
+            $event->getContext()->getInspector()->getPath($document)
         );
     }
 }

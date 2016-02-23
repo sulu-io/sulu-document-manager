@@ -23,6 +23,8 @@
             <argument type="service" id="sulu_document_manager.node_manager"/>
             <argument type="service" id="sulu_document_manager.metadata_factory"/>
             <argument type="service" id="sulu_document_manager.document_registry" />
+            <argument type="service" id="sulu_document_manager.document_inspector" />
+            <argument type="service" id="sulu_document_manager.proxy_factory"/>
         </service>
 
         <service id="sulu_document_manager.document_registry" class="Sulu\Component\DocumentManager\DocumentRegistry" public="false">

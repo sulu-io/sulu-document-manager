@@ -35,11 +35,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class AutoNameSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var DocumentRegistry
-     */
-    private $registry;
-
-    /**
      * @var SlugifierInterface
      */
     private $slugifier;
@@ -48,11 +43,6 @@ class AutoNameSubscriber implements EventSubscriberInterface
      * @var NameResolver
      */
     private $resolver;
-
-    /**
-     * @var NodeManager
-     */
-    private $nodeManager;
 
     /**
      * @var DocumentStrategyInterface
@@ -67,16 +57,12 @@ class AutoNameSubscriber implements EventSubscriberInterface
      * @param DocumentStrategyInterface $documentStrategy
      */
     public function __construct(
-        DocumentRegistry $registry,
         SlugifierInterface $slugifier,
         NameResolver $resolver,
-        NodeManager $nodeManager,
         DocumentStrategyInterface $documentStrategy
     ) {
-        $this->registry = $registry;
         $this->slugifier = $slugifier;
         $this->resolver = $resolver;
-        $this->nodeManager = $nodeManager;
         $this->documentStrategy = $documentStrategy;
     }
 
@@ -165,7 +151,7 @@ class AutoNameSubscriber implements EventSubscriberInterface
         }
 
         $node = $event->getNode();
-        $defaultLocale = $this->registry->getDefaultLocale();
+        $defaultLocale = $event->getContext()->getRegistry()->getDefaultLocale();
 
         if ($defaultLocale != $event->getLocale()) {
             return;
@@ -205,8 +191,8 @@ class AutoNameSubscriber implements EventSubscriberInterface
         }
 
         $destId = $event->getDestId();
-        $node = $this->registry->getNodeForDocument($document);
-        $destNode = $this->nodeManager->find($destId);
+        $node = $event->getContext()->getRegistry()->getNodeForDocument($document);
+        $destNode = $event->getContext()->getNodeManager()->find($destId);
         $nodeName = $this->resolver->resolveName($destNode, $node->getName());
 
         $event->setDestName($nodeName);

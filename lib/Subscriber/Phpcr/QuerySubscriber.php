@@ -29,26 +29,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class QuerySubscriber implements EventSubscriberInterface
 {
     /**
-     * @var SessionInterface
-     */
-    private $session;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @param SessionInterface $session
-     * @param EventDispatcherInterface $eventDispatcher
-     */
-    public function __construct(SessionInterface $session, EventDispatcherInterface $eventDispatcher)
-    {
-        $this->session = $session;
-        $this->eventDispatcher = $eventDispatcher;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public static function getSubscribedEvents()
@@ -70,7 +50,7 @@ class QuerySubscriber implements EventSubscriberInterface
         $innerQuery = $event->getInnerQuery();
 
         if (is_string($innerQuery)) {
-            $phpcrQuery = $this->getQueryManager()->createQuery($innerQuery, QueryInterface::JCR_SQL2);
+            $phpcrQuery = $this->getQueryManager($event)->createQuery($innerQuery, QueryInterface::JCR_SQL2);
         } elseif ($innerQuery instanceof QueryInterface) {
             $phpcrQuery = $innerQuery;
         } else {
@@ -83,7 +63,7 @@ class QuerySubscriber implements EventSubscriberInterface
         $event->setQuery(
             new Query(
                 $phpcrQuery,
-                $this->eventDispatcher,
+                $event->getContext()->getEventDispatcher(),
                 $event->getLocale(),
                 $event->getOptions(),
                 $event->getPrimarySelector()
@@ -116,15 +96,16 @@ class QuerySubscriber implements EventSubscriberInterface
         $phpcrResult = $query->getPhpcrQuery()->execute();
 
         $event->setResult(
-            new QueryResultCollection($phpcrResult, $this->eventDispatcher, $locale, $event->getOptions())
+            new QueryResultCollection($phpcrResult, $event->getContext()->getEventDispatcher(), $locale, $event->getOptions())
         );
     }
 
     /**
      * @return QueryManagerInterface
      */
-    private function getQueryManager()
+    private function getQueryManager(AbstractEvent $event)
     {
-        return $this->session->getWorkspace()->getQueryManager();
+        $session = $event->getContext()->getPhpcrSession();
+        return $session->getWorkspace()->getQueryManager();
     }
 }

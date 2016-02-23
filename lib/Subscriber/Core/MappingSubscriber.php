@@ -40,16 +40,6 @@ class MappingSubscriber implements EventSubscriberInterface
     private $encoder;
 
     /**
-     * @var ProxyFactory
-     */
-    private $proxyFactory;
-
-    /**
-     * @var DocumentRegistry
-     */
-    private $documentRegistry;
-
-    /**
      * @param MetadataFactoryInterface $factory
      * @param PropertyEncoder $encoder
      * @param ProxyFactory $proxyFactory
@@ -57,14 +47,10 @@ class MappingSubscriber implements EventSubscriberInterface
      */
     public function __construct(
         MetadataFactoryInterface $factory,
-        PropertyEncoder $encoder,
-        ProxyFactory $proxyFactory,
-        DocumentRegistry $documentRegistry
+        PropertyEncoder $encoder
     ) {
         $this->factory = $factory;
         $this->encoder = $encoder;
-        $this->proxyFactory = $proxyFactory;
-        $this->documentRegistry = $documentRegistry;
     }
 
     /**
@@ -95,7 +81,7 @@ class MappingSubscriber implements EventSubscriberInterface
 
             switch ($fieldMapping['type']) {
                 case 'reference':
-                    $this->persistReference($node, $accessor, $fieldName, $locale, $fieldMapping);
+                    $this->persistReference($event->getContext()->getRegistry(), $node, $accessor, $fieldName, $locale, $fieldMapping);
                     break;
                 case 'json_array':
                     $this->persistJsonArray($node, $accessor, $fieldName, $locale, $fieldMapping);
@@ -116,6 +102,7 @@ class MappingSubscriber implements EventSubscriberInterface
      * @param mixed $fieldMapping
      */
     private function persistReference(
+        DocumentRegistry $documentRegistry,
         NodeInterface $node,
         DocumentAccessor $accessor,
         $fieldName,
@@ -138,7 +125,7 @@ class MappingSubscriber implements EventSubscriberInterface
         }
 
         try {
-            $referenceNode = $this->documentRegistry->getNodeForDocument($referenceDocument);
+            $referenceNode = $documentRegistry->getNodeForDocument($referenceDocument);
             $phpcrName = $this->encoder->encode($fieldMapping['encoding'], $fieldMapping['property'], $locale);
             $node->setProperty($phpcrName, $referenceNode);
         } catch (InvalidLocaleException $ex) {
@@ -229,6 +216,7 @@ class MappingSubscriber implements EventSubscriberInterface
             switch ($fieldMapping['type']) {
                 case 'reference':
                     $this->hydrateReferenceField(
+                        $event->getContext()->getProxyFactory(),
                         $node,
                         $document,
                         $accessor,
@@ -259,6 +247,7 @@ class MappingSubscriber implements EventSubscriberInterface
      * @param array $options
      */
     private function hydrateReferenceField(
+        ProxyFactory $proxyFactory,
         NodeInterface $node,
         $document,
         DocumentAccessor $accessor,
@@ -277,7 +266,7 @@ class MappingSubscriber implements EventSubscriberInterface
             if ($referencedNode) {
                 $accessor->set(
                     $fieldName,
-                    $this->proxyFactory->createProxyForNode($document, $referencedNode, $options)
+                    $proxyFactory->createProxyForNode($document, $referencedNode, $options)
                 );
             }
         } catch (InvalidLocaleException $ex) {

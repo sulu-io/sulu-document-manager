@@ -29,20 +29,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class RegistratorSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var DocumentRegistry
-     */
-    private $documentRegistry;
-
-    /**
-     * @param DocumentRegistry $documentRegistry
-     */
-    public function __construct(
-        DocumentRegistry $documentRegistry
-    ) {
-        $this->documentRegistry = $documentRegistry;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public static function getSubscribedEvents()
@@ -87,7 +73,7 @@ class RegistratorSubscriber implements EventSubscriberInterface
     {
         // set the default locale
         if (null === $event->getLocale()) {
-            $event->setLocale($this->documentRegistry->getDefaultLocale());
+            $event->setLocale($event->getContext()->getRegistry()->getDefaultLocale());
         }
     }
 
@@ -104,11 +90,11 @@ class RegistratorSubscriber implements EventSubscriberInterface
 
         $node = $event->getNode();
 
-        if (!$this->documentRegistry->hasNode($node)) {
+        if (!$event->getContext()->getRegistry()->hasNode($node)) {
             return;
         }
 
-        $document = $this->documentRegistry->getDocumentForNode($node);
+        $document = $event->getContext()->getRegistry()->getDocumentForNode($node);
 
         $event->setDocument($document);
 
@@ -137,18 +123,18 @@ class RegistratorSubscriber implements EventSubscriberInterface
         $locale = $event->getLocale();
         $document = $event->getDocument();
         $options = $event->getOptions();
-        $originalLocale = $this->documentRegistry->getOriginalLocaleForDocument($document);
+        $originalLocale = $event->getContext()->getRegistry()->getOriginalLocaleForDocument($document);
 
         if (
             (!isset($options['rehydrate']) || false === $options['rehydrate']) &&
-            (true === $this->documentRegistry->isHydrated($document) && $originalLocale === $locale)
+            (true === $event->getContext()->getRegistry()->isHydrated($document) && $originalLocale === $locale)
         ) {
             $event->stopPropagation();
 
             return;
         }
 
-        $this->documentRegistry->updateLocale($document, $locale, $locale);
+        $event->getContext()->getRegistry()->updateLocale($document, $locale, $locale);
     }
 
     /**
@@ -159,7 +145,7 @@ class RegistratorSubscriber implements EventSubscriberInterface
      */
     public function handleEndHydrate(HydrateEvent $event)
     {
-        $this->documentRegistry->markDocumentAsHydrated($event->getDocument());
+        $event->getContext()->getRegistry()->markDocumentAsHydrated($event->getDocument());
     }
 
     /**
@@ -172,7 +158,7 @@ class RegistratorSubscriber implements EventSubscriberInterface
      */
     public function handleEndPersist(PersistEvent $event)
     {
-        $this->documentRegistry->unmarkDocumentAsHydrated($event->getDocument());
+        $event->getContext()->getRegistry()->unmarkDocumentAsHydrated($event->getDocument());
     }
 
     /**
@@ -188,11 +174,11 @@ class RegistratorSubscriber implements EventSubscriberInterface
 
         $document = $event->getDocument();
 
-        if (!$this->documentRegistry->hasDocument($document)) {
+        if (!$event->getContext()->getRegistry()->hasDocument($document)) {
             return;
         }
 
-        $node = $this->documentRegistry->getNodeForDocument($document);
+        $node = $event->getContext()->getRegistry()->getNodeForDocument($document);
         $event->setNode($node);
     }
 
@@ -224,7 +210,7 @@ class RegistratorSubscriber implements EventSubscriberInterface
     public function handleRemove(RemoveEvent $event)
     {
         $document = $event->getDocument();
-        $this->documentRegistry->deregisterDocument($document);
+        $event->getContext()->getRegistry()->deregisterDocument($document);
     }
 
     /**
@@ -234,7 +220,7 @@ class RegistratorSubscriber implements EventSubscriberInterface
      */
     public function handleClear(ClearEvent $event)
     {
-        $this->documentRegistry->clear();
+        $event->getContext()->getRegistry()->clear();
     }
 
     /**
@@ -250,12 +236,12 @@ class RegistratorSubscriber implements EventSubscriberInterface
         $node = $event->getNode();
         $locale = $event->getLocale();
 
-        if ($this->documentRegistry->hasDocument($document)) {
-            $this->documentRegistry->updateLocale($document, $locale);
+        if ($event->getContext()->getRegistry()->hasDocument($document)) {
+            $event->getContext()->getRegistry()->updateLocale($document, $locale);
 
             return;
         }
 
-        $this->documentRegistry->registerDocument($document, $node, $locale);
+        $event->getContext()->getRegistry()->registerDocument($document, $node, $locale);
     }
 }

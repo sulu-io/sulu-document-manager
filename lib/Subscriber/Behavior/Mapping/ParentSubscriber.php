@@ -28,37 +28,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class ParentSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var ProxyFactory
-     */
-    private $proxyFactory;
-
-    /**
-     * @var DocumentInspector
-     */
-    private $inspector;
-
-    /**
-     * @var DocumentManagerInterface
-     */
-    private $documentManager;
-
-    /**
-     * @param ProxyFactory $proxyFactory
-     * @param DocumentInspector $inspector
-     * @param DocumentManagerInterface $documentManager
-     */
-    public function __construct(
-        ProxyFactory $proxyFactory,
-        DocumentInspector $inspector,
-        DocumentManagerInterface $documentManager
-
-    ) {
-        $this->proxyFactory = $proxyFactory;
-        $this->inspector = $inspector;
-        $this->documentManager = $documentManager;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public static function getSubscribedEvents()
@@ -79,8 +48,11 @@ class ParentSubscriber implements EventSubscriberInterface
     public function handleMove(MoveEvent $event)
     {
         $document = $event->getDocument();
-        $node = $this->inspector->getNode($event->getDocument());
-        $this->mapParent($document, $node);
+        $context = $event->getContext();
+        $node = $context->getInspector()
+            ->getNode($event->getDocument());
+
+        $this->mapParent($context->getProxyFactory(), $document, $node);
     }
 
     /**
@@ -104,7 +76,7 @@ class ParentSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $parentNode = $this->inspector->getNode($parentDocument);
+        $parentNode = $event->getContext()->getInspector()->getNode($parentDocument);
         $event->setParentNode($parentNode);
     }
 
@@ -130,7 +102,7 @@ class ParentSubscriber implements EventSubscriberInterface
             ));
         }
 
-        $this->mapParent($document, $node, $event->getOptions());
+        $this->mapParent($event->getContext()->getProxyFactory(), $document, $node, $event->getOptions());
     }
 
     /**
@@ -140,14 +112,14 @@ class ParentSubscriber implements EventSubscriberInterface
     {
         $document = $event->getDocument();
 
-        $node = $this->inspector->getNode($document);
+        $node = $event->getContext()->getInspector()->getNode($document);
         $parentNode = $event->getParentNode();
 
         if ($parentNode->getPath() === $node->getParent()->getPath()) {
             return;
         }
 
-        $this->documentManager->move($document, $parentNode->getPath());
+        $event->getDocumentManager()->move($document, $parentNode->getPath());
     }
 
     /**
@@ -157,7 +129,7 @@ class ParentSubscriber implements EventSubscriberInterface
      * @param NodeInterface $node to determine parent
      * @param array $options options to load parent
      */
-    private function mapParent($document, NodeInterface $node, $options = [])
+    private function mapParent(ProxyFactory $proxyFactory, $document, NodeInterface $node, $options = [])
     {
         // TODO: performance warning: We are eagerly fetching the parent node
         $targetNode = $node->getParent();
@@ -167,6 +139,6 @@ class ParentSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $document->setParent($this->proxyFactory->createProxyForNode($document, $targetNode, $options));
+        $document->setParent($proxyFactory->createProxyForNode($document, $targetNode, $options));
     }
 }
