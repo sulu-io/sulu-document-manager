@@ -23,8 +23,12 @@
             <argument type="service" id="sulu_document_manager.event_dispatcher"/>
             <argument type="service" id="sulu_document_manager.metadata_factory"/>
             <argument type="service" id="sulu_document_manager.proxy_manager.factory.ghost"/>
-            <argument type="service" id="sulu_document_manager.path_segment_registry" />
+            <argument type="service" id="sulu_document_manager.document_inspector_factory"/>
             <argument>%sulu_document_manager.default_locale%</argument>
+        </service>
+
+        <service id="sulu_document_manager.document_inspector_factory" class="Sulu\Component\DocumentManager\DocumentInspectorFactory">
+            <argument type="service" id="sulu_document_manager.path_segment_registry" />
         </service>
 
         <service id="sulu_document_manager.metadata_factory.base" class="Sulu\Component\DocumentManager\Metadata\BaseMetadataFactory" public="false">

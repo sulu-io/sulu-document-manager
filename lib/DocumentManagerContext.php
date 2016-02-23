@@ -43,7 +43,7 @@ class DocumentManagerContext
     /**
      * @var DocumentInspector
      */
-    private $inspector;
+    private $inspectorFactory;
 
     /**
      * @var ProxyFactory
@@ -56,7 +56,7 @@ class DocumentManagerContext
         NodeManager $nodeManager,
         DocumentRegistry $documentRegistry,
         EventDispatcherInterface $eventDispatcher,
-        DocumentInspector $inspector,
+        DocumentInspectorFactoryInterface $inspectorFactory,
         ProxyFactory $proxyFactory
     )
     {
@@ -65,9 +65,10 @@ class DocumentManagerContext
         $this->documentRegistry = $documentRegistry;
         $this->eventDispatcher = $eventDispatcher;
         $this->documentManager = $documentManager;
-        $this->inspector = $inspector;
+        $this->inspectorFactory = $inspectorFactory;
         $this->proxyFactory = $proxyFactory;
         $proxyFactory->attachContext($this);
+        $inspectorFactory->attachContext($this);
     }
 
     public function getEventDispatcher()
@@ -102,6 +103,6 @@ class DocumentManagerContext
 
     public function getInspector() 
     {
-        return $this->inspector;
+        return $this->inspectorFactory->getInspector();
     }
 }
