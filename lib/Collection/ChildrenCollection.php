@@ -49,12 +49,6 @@ class ChildrenCollection extends AbstractLazyCollection
      */
     private $context;
 
-    /**
-     * @param NodeInterface $parentNode
-     * @param EventDispatcherInterface $dispatcher
-     * @param string $locale
-     * @param array $options
-     */
     public function __construct(
         NodeInterface $parentNode,
         DocumentManagerContext $context,
@@ -77,7 +71,7 @@ class ChildrenCollection extends AbstractLazyCollection
 
         $hydrateEvent = new HydrateEvent($childNode, $this->locale, $this->options);
         $hydrateEvent->attachContext($this->context);
-        $this->dispatcher->dispatch(Events::HYDRATE, $hydrateEvent);
+        $this->context->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
 
         return $hydrateEvent->getDocument();
     }

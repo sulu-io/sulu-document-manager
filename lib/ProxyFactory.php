@@ -83,7 +83,8 @@ class ProxyFactory
             if ($registry->getOriginalLocaleForDocument($document) !== $locale) {
                 $hydrateEvent = new HydrateEvent($targetNode, $locale);
                 $hydrateEvent->setDocument($document);
-                $this->dispatcher->dispatch(Events::HYDRATE, $hydrateEvent);
+                $hydrateEvent->attachContext($this->context);
+                $this->context->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
             }
 
             return $document;

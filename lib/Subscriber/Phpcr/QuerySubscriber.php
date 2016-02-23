@@ -22,6 +22,7 @@ use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\Query\Query;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Sulu\Component\DocumentManager\Event\AbstractEvent;
 
 /**
  * Handles creation of query and query builder objects.
@@ -63,7 +64,7 @@ class QuerySubscriber implements EventSubscriberInterface
         $event->setQuery(
             new Query(
                 $phpcrQuery,
-                $event->getContext()->getEventDispatcher(),
+                $event->getContext(),
                 $event->getLocale(),
                 $event->getOptions(),
                 $event->getPrimarySelector()
@@ -96,7 +97,7 @@ class QuerySubscriber implements EventSubscriberInterface
         $phpcrResult = $query->getPhpcrQuery()->execute();
 
         $event->setResult(
-            new QueryResultCollection($phpcrResult, $event->getContext()->getEventDispatcher(), $locale, $event->getOptions())
+            new QueryResultCollection($phpcrResult, $event->getContext(), $locale, $event->getOptions())
         );
     }
 

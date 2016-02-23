@@ -16,6 +16,7 @@ use Sulu\Component\DocumentManager\Event\QueryExecuteEvent;
 use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\Exception\DocumentManagerException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 
 /**
  * Based heavily on the PHPCR-ODM Query object.
@@ -36,9 +37,9 @@ class Query
     private $phpcrQuery;
 
     /**
-     * @var EventDispatcherInterface
+     * @var DocumentManagerContext
      */
-    private $dispatcher;
+    private $context;
 
     /**
      * @var null|string
@@ -65,25 +66,18 @@ class Query
      */
     private $firstResult;
 
-    /**
-     * @param QueryInterface $phpcrQuery
-     * @param EventDispatcherInterface $dispatcher
-     * @param null|string $locale
-     * @param array $options
-     * @param null|string $primarySelector
-     */
     public function __construct(
         QueryInterface $phpcrQuery,
-        EventDispatcherInterface $dispatcher,
+        DocumentManagerContext $context,
         $locale = null,
         array $options = [],
         $primarySelector = null
     ) {
         $this->phpcrQuery = $phpcrQuery;
-        $this->dispatcher = $dispatcher;
         $this->locale = $locale;
         $this->options = $options;
         $this->primarySelector = $primarySelector;
+        $this->context = $context;
     }
 
     /**
@@ -120,7 +114,8 @@ class Query
         }
 
         $event = new QueryExecuteEvent($this, $this->options);
-        $this->dispatcher->dispatch(Events::QUERY_EXECUTE, $event);
+        $event->attachContext($this->context);
+        $this->context->getEventDispatcher()->dispatch(Events::QUERY_EXECUTE, $event);
 
         return $event->getResult();
     }

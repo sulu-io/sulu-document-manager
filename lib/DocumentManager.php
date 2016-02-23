@@ -33,7 +33,30 @@ class DocumentManager implements DocumentManagerInterface
      */
     private $optionsResolvers = [];
 
+    /**
+     * @var DocumentInspectorFactory
+     */
+    private $inspectorFactory;
+
+    /**
+     * @var NodeManager
+     */
+    private $nodeManager;
+
+    /**
+     * @var DocumentManagerContext
+     */
     private $context;
+
+    /**
+     * @var DocumentRegistry
+     */
+    private $registry;
+
+    /**
+     * @var ProxyFactory
+     */
+    private $proxyFactory;
 
     /**
      * @param EventDispatcherInterface $eventDispatcher
@@ -49,18 +72,20 @@ class DocumentManager implements DocumentManagerInterface
     {
         $this->eventDispatcher = $eventDispatcher;
 
-        $nodeManager = new NodeManager($session);
-        $proxyFactory = new ProxyFactory($lazyProxyFactory, $metadataFactory);
-        $documentRegistry = new DocumentRegistry($defaultLocale);
+        $this->nodeManager = new NodeManager($session);
+        $this->registry = new DocumentRegistry($defaultLocale);
+        $this->inspectorFactory = $inspectorFactory;
+        $this->proxyFactory = new ProxyFactory($lazyProxyFactory, $metadataFactory);
 
         $this->context = new DocumentManagerContext(
             $this,
             $metadataFactory,
-            $nodeManager,
-            $documentRegistry,
-            $eventDispatcher,
-            $inspectorFactory,
-            $proxyFactory
+            $this->nodeManager,
+            $this->registry,
+            $this->eventDispatcher,
+            $this->inspectorFactory,
+            $this->proxyFactory,
+            $session
         );
     }
 
@@ -185,6 +210,32 @@ class DocumentManager implements DocumentManagerInterface
 
         return $event->getQueryBuilder();
     }
+
+    /**
+     * TODO : This interface method.
+     * {@inheritdoc}
+     */
+    public function getInspector()
+    {
+        return $this->inspectorFactory->getInspector();
+    }
+
+    public function getNodeManager()
+    {
+        return $this->nodeManager;
+    }
+
+    public function getRegistry() 
+    {
+        return $this->registry;
+    }
+
+    public function getProxyFactory() 
+    {
+        return $this->proxyFactory;
+    }
+    
+    
 
     /**
      * {@inheritdoc}

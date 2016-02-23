@@ -7,6 +7,7 @@ use Sulu\Component\DocumentManager\NodeManager;
 use Sulu\Component\DocumentManager\DocumentRegistry;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Sulu\Component\DocumentManager\ProxyFactory;
+use PHPCR\SessionInterface;
 
 /**
  * This class is available to event subscribers and contains all of the
@@ -50,6 +51,11 @@ class DocumentManagerContext
      */
     private $proxyFactory;
 
+    /**
+     * @var SessionInterface
+     */
+    private $phpcrSession;
+
     public function __construct(
         DocumentManagerInterface $documentManager,
         MetadataFactoryInterface $metadataFactory,
@@ -57,7 +63,8 @@ class DocumentManagerContext
         DocumentRegistry $documentRegistry,
         EventDispatcherInterface $eventDispatcher,
         DocumentInspectorFactoryInterface $inspectorFactory,
-        ProxyFactory $proxyFactory
+        ProxyFactory $proxyFactory,
+        SessionInterface $phpcrSession
     )
     {
         $this->metadataFactory = $metadataFactory;
@@ -67,6 +74,7 @@ class DocumentManagerContext
         $this->documentManager = $documentManager;
         $this->inspectorFactory = $inspectorFactory;
         $this->proxyFactory = $proxyFactory;
+        $this->phpcrSession = $phpcrSession;
         $proxyFactory->attachContext($this);
         $inspectorFactory->attachContext($this);
     }
@@ -105,4 +113,10 @@ class DocumentManagerContext
     {
         return $this->inspectorFactory->getInspector();
     }
+
+    public function getPhpcrSession() 
+    {
+        return $this->phpcrSession;
+    }
+    
 }

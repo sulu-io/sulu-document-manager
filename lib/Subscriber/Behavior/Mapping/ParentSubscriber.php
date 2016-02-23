@@ -119,7 +119,7 @@ class ParentSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $event->getDocumentManager()->move($document, $parentNode->getPath());
+        $event->getContext()->getDocumentManager()->move($document, $parentNode->getPath());
     }
 
     /**

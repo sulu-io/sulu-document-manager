@@ -11,7 +11,7 @@
 
 namespace Sulu\Component\DocumentManager\Subscriber\Phpcr;
 
-use Sulu\Component\DocumentManager\DocumentRegistry;
+use Sulu\Component\DocumentManager\Registry;
 use Sulu\Component\DocumentManager\Event\ClearEvent;
 use Sulu\Component\DocumentManager\Event\CopyEvent;
 use Sulu\Component\DocumentManager\Event\FlushEvent;
@@ -56,8 +56,8 @@ class GeneralSubscriber implements EventSubscriberInterface
     {
         $context = $event->getContext();
         $document = $event->getDocument();
-        $node = $context->getDocumentRegistry()->getNodeForDocument($document);
-        $event->getContext()->getNodeManager()->move($node->getPath(), $event->getDestId(), $event->getDestName());
+        $node = $context->getRegistry()->getNodeForDocument($document);
+        $context->getNodeManager()->move($node->getPath(), $event->getDestId(), $event->getDestName());
     }
 
     /**
@@ -67,7 +67,7 @@ class GeneralSubscriber implements EventSubscriberInterface
     {
         $context = $event->getContext();
         $document = $event->getDocument();
-        $node = $context->getDocumentRegistry()->getNodeForDocument($document);
+        $node = $context->getRegistry()->getNodeForDocument($document);
         $newPath = $event->getContext()->getNodeManager()->copy($node->getPath(), $event->getDestId(), $event->getDestName());
         $event->setCopiedPath($newPath);
     }
@@ -79,8 +79,8 @@ class GeneralSubscriber implements EventSubscriberInterface
     {
         $context = $event->getContext();
         $document = $event->getDocument();
-        $node = $context->getDocumentRegistry()->getNodeForDocument($document);
-        $locale = $context->getDocumentRegistry()->getLocaleForDocument($document);
+        $node = $context->getRegistry()->getNodeForDocument($document);
+        $locale = $context->getRegistry()->getLocaleForDocument($document);
 
         // revert/reload the node to the persisted state
         $node->revert();
@@ -88,6 +88,7 @@ class GeneralSubscriber implements EventSubscriberInterface
         // rehydrate the document
         $hydrateEvent = new HydrateEvent($node, $locale);
         $hydrateEvent->setDocument($document);
+        $hydrateEvent->attachContext($event->getContext());
         $context->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
     }
 

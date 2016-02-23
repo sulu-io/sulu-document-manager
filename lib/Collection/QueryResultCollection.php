@@ -77,7 +77,7 @@ class QueryResultCollection extends AbstractLazyCollection
 
         $hydrateEvent = new HydrateEvent($node, $this->locale, $this->options);
         $hydrateEvent->attachContext($this->context);
-        $this->eventDispatcher->dispatch(Events::HYDRATE, $hydrateEvent);
+        $this->context->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
 
         return $hydrateEvent->getDocument();
     }
