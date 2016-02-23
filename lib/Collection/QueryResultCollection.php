@@ -15,17 +15,13 @@ use PHPCR\Query\QueryResultInterface;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Events;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 
 /**
  * Lazily hydrate query results.
  */
 class QueryResultCollection extends AbstractLazyCollection
 {
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
     /**
      * @var QueryResultInterface
      */
@@ -52,21 +48,19 @@ class QueryResultCollection extends AbstractLazyCollection
     private $primarySelector = null;
 
     /**
-     * @param QueryResultInterface $result
-     * @param EventDispatcherInterface $eventDispatcher
-     * @param string $locale
-     * @param array $options
-     * @param null|string $primarySelector
+     * @var DocumentManagerContext
      */
+    private $context;
+
     public function __construct(
         QueryResultInterface $result,
-        EventDispatcherInterface $eventDispatcher,
+        DocumentManagerContext $context,
         $locale,
         $options = [],
         $primarySelector = null
     ) {
         $this->result = $result;
-        $this->eventDispatcher = $eventDispatcher;
+        $this->context = $context;
         $this->locale = $locale;
         $this->options = $options;
         $this->primarySelector = $primarySelector;
@@ -82,6 +76,7 @@ class QueryResultCollection extends AbstractLazyCollection
         $node = $row->getNode($this->primarySelector);
 
         $hydrateEvent = new HydrateEvent($node, $this->locale, $this->options);
+        $hydrateEvent->attachContext($this->context);
         $this->eventDispatcher->dispatch(Events::HYDRATE, $hydrateEvent);
 
         return $hydrateEvent->getDocument();

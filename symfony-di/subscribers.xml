@@ -37,7 +37,6 @@
         </service>
 
         <service id="sulu_document_manager.suscriber.behavior.parent" class="Sulu\Component\DocumentManager\Subscriber\Behavior\Mapping\ParentSubscriber">
-            <argument type="service" id="sulu_document_manager.document_inspector"/>
             <argument type="service" id="sulu_document_manager.document_manager"/>
             <tag name="sulu_document_manager.event_subscriber"/>
         </service>
@@ -47,7 +46,6 @@
         </service>
 
         <service id="sulu_document_manager.subscriber.behavior.path" class="Sulu\Component\DocumentManager\Subscriber\Behavior\Mapping\PathSubscriber">
-            <argument type="service" id="sulu_document_manager.document_inspector"/>
             <tag name="sulu_document_manager.event_subscriber"/>
         </service>
 

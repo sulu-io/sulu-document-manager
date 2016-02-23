@@ -30,36 +30,31 @@ class ProxyFactory
     private $proxyFactory;
 
     /**
-     * @var EventDispatcherInterface
-     */
-    private $dispatcher;
-
-    /**
-     * @var DocumentRegistry
-     */
-    private $registry;
-
-    /**
      * @var MetadataFactoryInterface
      */
     private $metadataFactory;
 
     /**
+     * @var DocumentManagerContext
+     */
+    private $context;
+
+    /**
      * @param LazyLoadingGhostFactory $proxyFactory
      * @param EventDispatcherInterface $dispatcher
-     * @param DocumentRegistry $registry
      * @param MetadataFactoryInterface $metadataFactory
      */
     public function __construct(
         LazyLoadingGhostFactory $proxyFactory,
-        EventDispatcherInterface $dispatcher,
-        DocumentRegistry $registry,
         MetadataFactoryInterface $metadataFactory
     ) {
         $this->proxyFactory = $proxyFactory;
-        $this->dispatcher = $dispatcher;
-        $this->registry = $registry;
         $this->metadataFactory = $metadataFactory;
+    }
+
+    public function attachContext(DocumentManagerContext $context)
+    {
+        $this->context = $context;
     }
 
     /**
@@ -77,13 +72,15 @@ class ProxyFactory
      */
     public function createProxyForNode($fromDocument, NodeInterface $targetNode, $options = [])
     {
+        $registry = $this->context->getRegistry();
+
         // if node is already registered then just return the registered document
-        if ($this->registry->hasNode($targetNode)) {
-            $document = $this->registry->getDocumentForNode($targetNode);
-            $locale = $this->registry->getOriginalLocaleForDocument($fromDocument);
+        if ($registry->hasNode($targetNode)) {
+            $document = $registry->getDocumentForNode($targetNode);
+            $locale = $registry->getOriginalLocaleForDocument($fromDocument);
 
             // If the parent is not loaded in the correct locale, reload it in the correct locale.
-            if ($this->registry->getOriginalLocaleForDocument($document) !== $locale) {
+            if ($registry->getOriginalLocaleForDocument($document) !== $locale) {
                 $hydrateEvent = new HydrateEvent($targetNode, $locale);
                 $hydrateEvent->setDocument($document);
                 $this->dispatcher->dispatch(Events::HYDRATE, $hydrateEvent);
@@ -95,21 +92,23 @@ class ProxyFactory
         $initializer = function (LazyLoadingInterface $document, $method, array $parameters, &$initializer) use (
             $fromDocument,
             $targetNode,
-            $options
+            $options,
+            $registry
         ) {
-            $locale = $this->registry->getOriginalLocaleForDocument($fromDocument);
+            $locale = $registry->getOriginalLocaleForDocument($fromDocument);
 
             $hydrateEvent = new HydrateEvent($targetNode, $locale, $options);
+            $hydrateEvent->attachContext($this->context);
             $hydrateEvent->setDocument($document);
-            $this->dispatcher->dispatch(Events::HYDRATE, $hydrateEvent);
+            $this->context->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
 
             $initializer = null;
         };
 
         $targetMetadata = $this->metadataFactory->getMetadataForPhpcrNode($targetNode);
         $proxy = $this->proxyFactory->createProxy($targetMetadata->getClass(), $initializer);
-        $locale = $this->registry->getOriginalLocaleForDocument($fromDocument);
-        $this->registry->registerDocument($proxy, $targetNode, $locale);
+        $locale = $registry->getOriginalLocaleForDocument($fromDocument);
+        $registry->registerDocument($proxy, $targetNode, $locale);
 
         return $proxy;
     }
@@ -123,12 +122,13 @@ class ProxyFactory
      */
     public function createChildrenCollection($document, array $options = [])
     {
-        $node = $this->registry->getNodeForDocument($document);
-        $locale = $this->registry->getOriginalLocaleForDocument($document);
+        $registry = $this->context->getRegistry();
+        $node = $registry->getNodeForDocument($document);
+        $locale = $registry->getOriginalLocaleForDocument($document);
 
         return new ChildrenCollection(
             $node,
-            $this->dispatcher,
+            $this->context,
             $locale,
             $options
         );
@@ -143,12 +143,13 @@ class ProxyFactory
      */
     public function createReferrerCollection($document)
     {
-        $node = $this->registry->getNodeForDocument($document);
-        $locale = $this->registry->getOriginalLocaleForDocument($document);
+        $registry = $this->context->getRegistry();
+        $node = $registry->getNodeForDocument($document);
+        $locale = $registry->getOriginalLocaleForDocument($document);
 
         return new ReferrerCollection(
             $node,
-            $this->dispatcher,
+            $this->context,
             $locale
         );
     }

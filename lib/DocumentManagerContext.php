@@ -67,6 +67,7 @@ class DocumentManagerContext
         $this->documentManager = $documentManager;
         $this->inspector = $inspector;
         $this->proxyFactory = $proxyFactory;
+        $proxyFactory->attachContext($this);
     }
 
     public function getEventDispatcher()

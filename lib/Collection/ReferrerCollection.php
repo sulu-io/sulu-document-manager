@@ -16,17 +16,13 @@ use PHPCR\PropertyInterface;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Events;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 
 /**
  * Lazily load documents referring to the given node.
  */
 class ReferrerCollection extends AbstractLazyCollection
 {
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $dispatcher;
-
     /**
      * @var NodeInterface
      */
@@ -42,10 +38,15 @@ class ReferrerCollection extends AbstractLazyCollection
      */
     private $initialized = false;
 
-    public function __construct(NodeInterface $node, EventDispatcherInterface $dispatcher, $locale)
+    /**
+     * @var DocumentManagerContext
+     */
+    private $context;
+
+    public function __construct(NodeInterface $node, DocumentManagerContext $context, $locale)
     {
         $this->node = $node;
-        $this->dispatcher = $dispatcher;
+        $this->context = $context;
         $this->locale = $locale;
         $this->documents = new \ArrayIterator();
     }
@@ -59,6 +60,7 @@ class ReferrerCollection extends AbstractLazyCollection
         $referrerNode = $this->documents->current();
 
         $hydrateEvent = new HydrateEvent($referrerNode, $this->locale);
+        $hydrateEvent->attachContext($this->context);
         $this->dispatcher->dispatch(Events::HYDRATE, $hydrateEvent);
 
         return $hydrateEvent->getDocument();

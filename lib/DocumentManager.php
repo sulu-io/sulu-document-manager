@@ -17,6 +17,8 @@ use Sulu\Component\DocumentManager\MetadataFactoryInterface;
 use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\Event\AbstractEvent;
 use Sulu\Component\DocumentManager\ProxyFactory;
+use PHPCR\SessionInterface;
+use ProxyManager\Factory\LazyLoadingGhostFactory;
 
 class DocumentManager implements DocumentManagerInterface
 {
@@ -36,15 +38,23 @@ class DocumentManager implements DocumentManagerInterface
      * @param EventDispatcherInterface $eventDispatcher
      */
     public function __construct(
+        SessionInterface $session,
         EventDispatcherInterface $eventDispatcher,
-        NodeManager $nodeManager,
         MetadataFactoryInterface $metadataFactory,
-        DocumentRegistry $documentRegistry,
-        DocumentInspector $documentInspector,
-        ProxyFactory $proxyFactory
+        LazyLoadingGhostFactory $lazyProxyFactory,
+        PathSegmentRegistry $pathSegmentRegistry,
+        $defaultLocale
     )
     {
         $this->eventDispatcher = $eventDispatcher;
+        $nodeManager = new NodeManager($session);
+        $proxyFactory = new ProxyFactory($lazyProxyFactory, $metadataFactory);
+        $documentRegistry = new DocumentRegistry($defaultLocale);
+        $documentInspector = new DocumentInspector(
+            $documentRegistry,
+            $pathSegmentRegistry,
+            $proxyFactory
+        );
 
         $this->context = new DocumentManagerContext(
             $this,
