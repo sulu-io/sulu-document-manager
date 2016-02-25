@@ -14,7 +14,6 @@ namespace Sulu\Component\DocumentManager\Subscriber\Phpcr;
 use PHPCR\NodeInterface;
 use PHPCR\Util\PathHelper;
 use PHPCR\Util\UUIDHelper;
-use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\Event\ReorderEvent;
 use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\Exception\DocumentManagerException;

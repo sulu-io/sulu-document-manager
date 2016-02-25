@@ -14,6 +14,7 @@ namespace Sulu\Component\DocumentManager\tests\Unit\Subscriber\Behavior\Path;
 use PHPCR\NodeInterface;
 use Prophecy\Argument;
 use Sulu\Component\DocumentManager\Behavior\Path\AutoNameBehavior;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\DocumentStrategyInterface;
 use Sulu\Component\DocumentManager\Event\MoveEvent;
@@ -22,9 +23,10 @@ use Sulu\Component\DocumentManager\Metadata;
 use Sulu\Component\DocumentManager\NameResolver;
 use Sulu\Component\DocumentManager\NodeManager;
 use Sulu\Component\DocumentManager\Subscriber\Behavior\Path\AutoNameSubscriber;
+use Sulu\Component\DocumentManager\Tests\Unit\Subscriber\Behavior\SubscriberTestCase;
 use Symfony\Cmf\Bundle\CoreBundle\Slugifier\SlugifierInterface;
 
-class AutoNameSubscriberTest extends \PHPUnit_Framework_TestCase
+class AutoNameSubscriberTest extends SubscriberTestCase
 {
     const DEFAULT_LOCALE = 'en';
 
@@ -121,11 +123,16 @@ class AutoNameSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->nodeManager = $this->prophesize(NodeManager::class);
         $this->strategy = $this->prophesize(DocumentStrategyInterface::class);
 
+        $this->context = $this->prophesize(DocumentManagerContext::class);
+        $this->context->getNodeManager()->willReturn($this->nodeManager->reveal());
+        $this->context->getRegistry()->willReturn($this->documentRegistry->reveal());
+
+        $this->moveEvent->getContext()->willReturn($this->context->reveal());
+        $this->persistEvent->getContext()->willReturn($this->context->reveal());
+
         $this->subscriber = new AutoNameSubscriber(
-            $this->documentRegistry->reveal(),
             $this->slugifier->reveal(),
             $this->resolver->reveal(),
-            $this->nodeManager->reveal(),
             $this->strategy->reveal()
         );
     }

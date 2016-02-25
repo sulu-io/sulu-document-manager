@@ -16,8 +16,9 @@ use Sulu\Component\DocumentManager\Behavior\Mapping\UuidBehavior;
 use Sulu\Component\DocumentManager\DocumentAccessor;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Subscriber\Behavior\Mapping\UuidSubscriber;
+use Sulu\Component\DocumentManager\Tests\Unit\Subscriber\Behavior\SubscriberTestCase;
 
-class UuidSubscriberTest extends \PHPUnit_Framework_TestCase
+class UuidSubscriberTest extends SubscriberTestCase
 {
     public function setUp()
     {

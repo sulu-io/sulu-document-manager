@@ -13,8 +13,6 @@ namespace Sulu\Component\DocumentManager\Subscriber\Behavior\Mapping;
 
 use PHPCR\NodeInterface;
 use Sulu\Component\DocumentManager\Behavior\Mapping\ParentBehavior;
-use Sulu\Component\DocumentManager\DocumentInspector;
-use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Event\MoveEvent;
 use Sulu\Component\DocumentManager\Event\PersistEvent;

@@ -13,9 +13,9 @@ namespace Sulu\Component\DocumentManager\Strategy;
 
 use PHPCR\NodeInterface;
 use PHPCR\Util\UUIDHelper;
+use Sulu\Component\DocumentManager\Behavior\Mapping\UuidBehavior;
 use Sulu\Component\DocumentManager\DocumentStrategyInterface;
 use Sulu\Component\DocumentManager\MetadataFactoryInterface;
-use Sulu\Component\DocumentManager\Behavior\Mapping\UuidBehavior;
 
 /**
  * Manage nodes via. a jcr mixin.

@@ -1,15 +1,20 @@
 <?php
 
-namespace Sulu\Component\DocumentManager;
+/*
+ * This file is part of Sulu.
+ *
+ * (c) MASSIVE ART WebServices GmbH
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
 
-use Sulu\Component\DocumentManager\InspectorFactoryInterface;
-use Sulu\Component\DocumentManager\PathSegmentRegistry;
-use Sulu\Component\DocumentManager\DocumentManagerContext;
+namespace Sulu\Component\DocumentManager;
 
 /**
  * Document inspector factory.
  */
-class DocumentInspectorFactory implements DocumentInspectorFactoryInterface 
+class DocumentInspectorFactory implements DocumentInspectorFactoryInterface
 {
     /**
      * @var PathSegmentRegistry

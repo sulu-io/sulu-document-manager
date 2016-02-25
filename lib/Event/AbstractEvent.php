@@ -11,8 +11,8 @@
 
 namespace Sulu\Component\DocumentManager\Event;
 
-use Symfony\Component\EventDispatcher\Event;
 use Sulu\Component\DocumentManager\DocumentManagerContext;
+use Symfony\Component\EventDispatcher\Event;
 
 abstract class AbstractEvent extends Event
 {
@@ -23,7 +23,7 @@ abstract class AbstractEvent extends Event
         $this->context = $context;
     }
 
-    final public function getContext()
+    public function getContext()
     {
         if (null === $this->context) {
             throw new \RuntimeException(

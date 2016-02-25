@@ -15,10 +15,12 @@ use PHPCR\NodeInterface;
 use Sulu\Component\DocumentManager\Behavior\Mapping\PathBehavior;
 use Sulu\Component\DocumentManager\DocumentAccessor;
 use Sulu\Component\DocumentManager\DocumentInspector;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Subscriber\Behavior\Mapping\PathSubscriber;
+use Sulu\Component\DocumentManager\Tests\Unit\Subscriber\Behavior\SubscriberTestCase;
 
-class PathSubscriberTest extends \PHPUnit_Framework_TestCase
+class PathSubscriberTest extends SubscriberTestCase
 {
     public function setUp()
     {
@@ -31,9 +33,12 @@ class PathSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->inspector = $this->prophesize(DocumentInspector::class);
         $this->accessor = $this->prophesize(DocumentAccessor::class);
         $this->hydrateEvent->getAccessor()->willReturn($this->accessor);
+        $this->context = $this->prophesize(DocumentManagerContext::class);
+        $this->context->getInspector()->willReturn($this->inspector->reveal());
+        $this->hydrateEvent->getContext()->willReturn($this->context->reveal());
 
         $this->subscriber = new PathSubscriber(
-            $this->inspector->reveal()
+            $this->context->reveal()
         );
     }
 

@@ -12,6 +12,7 @@
 namespace Sulu\Component\DocumentManager\tests;
 
 use Jackalope\RepositoryFactoryDoctrineDBAL;
+use Jackalope\Transport\DoctrineDBAL\RepositorySchema;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use PHPCR\SessionInterface;
@@ -19,7 +20,6 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher;
-use Jackalope\Transport\DoctrineDBAL\RepositorySchema;
 
 class Bootstrap
 {

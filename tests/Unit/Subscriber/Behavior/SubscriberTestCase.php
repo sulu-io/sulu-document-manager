@@ -9,12 +9,8 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Sulu\Component\DocumentManager;
+namespace Sulu\Component\DocumentManager\Tests\Unit\Subscriber\Behavior;
 
-/**
- * Document inspector factory.
- */
-interface DocumentInspectorFactoryInterface
+class SubscriberTestCase extends \PHPUnit_Framework_TestCase
 {
-    public function getInspector(DocumentManagerContext $context);
 }

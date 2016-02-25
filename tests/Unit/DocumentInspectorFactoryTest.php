@@ -1,13 +1,22 @@
 <?php
 
+/*
+ * This file is part of Sulu.
+ *
+ * (c) MASSIVE ART WebServices GmbH
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Sulu\Component\DocumentManager\Tests\Unit;
 
+use Sulu\Component\DocumentManager\DocumentInspector;
 use Sulu\Component\DocumentManager\DocumentInspectorFactory;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
+use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\PathSegmentRegistry;
 use Sulu\Component\DocumentManager\ProxyFactory;
-use Sulu\Component\DocumentManager\DocumentRegistry;
-use Sulu\Component\DocumentManager\DocumentInspector;
-use Sulu\Component\DocumentManager\DocumentManagerContext;
 
 class DocumentInspectorFactoryTest extends \PHPUnit_Framework_TestCase
 {
@@ -41,7 +50,6 @@ class DocumentInspectorFactoryTest extends \PHPUnit_Framework_TestCase
         $this->context->getProxyFactory()->willReturn($this->proxyFactory->reveal());
 
         $this->factory = new DocumentInspectorFactory($this->pathSegmentRegistry->reveal());
-        $this->factory->setContext($this->context->reveal());
     }
 
     /**
@@ -49,7 +57,7 @@ class DocumentInspectorFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetInspector()
     {
-        $inspector = $this->factory->getInspector();
+        $inspector = $this->factory->getInspector($this->context->reveal());
         $this->assertInstanceOf(DocumentInspector::class, $inspector);
     }
 }

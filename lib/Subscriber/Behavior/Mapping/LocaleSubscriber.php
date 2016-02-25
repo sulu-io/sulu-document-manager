@@ -12,7 +12,6 @@
 namespace Sulu\Component\DocumentManager\Subscriber\Behavior\Mapping;
 
 use Sulu\Component\DocumentManager\Behavior\Mapping\LocaleBehavior;
-use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\Event\AbstractMappingEvent;
 use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\Exception\DocumentManagerException;

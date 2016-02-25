@@ -11,10 +11,8 @@
 
 namespace Sulu\Component\DocumentManager\Subscriber\Phpcr;
 
-use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\Event\RemoveEvent;
 use Sulu\Component\DocumentManager\Events;
-use Sulu\Component\DocumentManager\NodeManager;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**

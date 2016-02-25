@@ -16,8 +16,9 @@ use Sulu\Component\DocumentManager\Behavior\Mapping\NodeNameBehavior;
 use Sulu\Component\DocumentManager\DocumentAccessor;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Subscriber\Behavior\Mapping\NodeNameSubscriber;
+use Sulu\Component\DocumentManager\Tests\Unit\Subscriber\Behavior\SubscriberTestCase;
 
-class NodeNameSubscriberTest extends \PHPUnit_Framework_TestCase
+class NodeNameSubscriberTest extends SubscriberTestCase
 {
     public function setUp()
     {

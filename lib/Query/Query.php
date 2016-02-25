@@ -12,11 +12,10 @@
 namespace Sulu\Component\DocumentManager\Query;
 
 use PHPCR\Query\QueryInterface;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 use Sulu\Component\DocumentManager\Event\QueryExecuteEvent;
 use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\Exception\DocumentManagerException;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Sulu\Component\DocumentManager\DocumentManagerContext;
 
 /**
  * Based heavily on the PHPCR-ODM Query object.

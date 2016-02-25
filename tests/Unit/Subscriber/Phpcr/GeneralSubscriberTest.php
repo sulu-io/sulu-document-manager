@@ -12,6 +12,7 @@
 namespace Sulu\Comonent\DocumentManager\Tests\Unit\Subscriber;
 
 use PHPCR\NodeInterface;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\Event\ClearEvent;
 use Sulu\Component\DocumentManager\Event\CopyEvent;
@@ -45,11 +46,18 @@ class GeneralSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->document = new \stdClass();
         $this->node = $this->prophesize(NodeInterface::class);
 
-        $this->subscriber = new GeneralSubscriber(
-            $this->documentRegistry->reveal(),
-            $this->nodeManager->reveal(),
-            $this->eventDispatcher->reveal()
-        );
+        $this->context = $this->prophesize(DocumentManagerContext::class);
+        $this->context->getNodeManager()->willReturn($this->nodeManager->reveal());
+        $this->context->getRegistry()->willReturn($this->documentRegistry->reveal());
+        $this->context->getEventDispatcher()->willReturn($this->eventDispatcher->reveal());
+
+        $this->moveEvent->getContext()->willReturn($this->context->reveal());
+        $this->copyEvent->getContext()->willReturn($this->context->reveal());
+        $this->clearEvent->getContext()->willReturn($this->context->reveal());
+        $this->flushEvent->getContext()->willReturn($this->context->reveal());
+        $this->refreshEvent->getContext()->willReturn($this->context->reveal());
+
+        $this->subscriber = new GeneralSubscriber();
     }
 
     /**

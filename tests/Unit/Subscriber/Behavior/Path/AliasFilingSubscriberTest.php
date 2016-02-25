@@ -14,13 +14,15 @@ namespace Sulu\Component\DocumentManager\Tests\Unit\Subscriber\Behavior\Audit\Pa
 use PHPCR\NodeInterface;
 use Sulu\Component\DocumentManager\Behavior\Path\AliasFilingBehavior;
 use Sulu\Component\DocumentManager\DocumentManager;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Metadata;
 use Sulu\Component\DocumentManager\MetadataFactoryInterface;
 use Sulu\Component\DocumentManager\NodeManager;
 use Sulu\Component\DocumentManager\Subscriber\Behavior\Path\AliasFilingSubscriber;
+use Sulu\Component\DocumentManager\Tests\Unit\Subscriber\Behavior\SubscriberTestCase;
 
-class AliasFilingSubscriberTest extends \PHPUnit_Framework_TestCase
+class AliasFilingSubscriberTest extends SubscriberTestCase
 {
     /**
      * @var PersistEvent
@@ -83,11 +85,12 @@ class AliasFilingSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->metadataFactory = $this->prophesize(MetadataFactoryInterface::class);
         $this->metadata = $this->prophesize(Metadata::class);
         $this->parentNode = $this->prophesize(NodeInterface::class);
+        $this->context = $this->prophesize(DocumentManagerContext::class);
+        $this->context->getNodeManager()->willReturn($this->nodeManager->reveal());
+        $this->context->getMetadataFactory()->willReturn($this->metadataFactory->reveal());
+        $this->persistEvent->getContext()->willReturn($this->context->reveal());
 
-        $this->subscriber = new AliasFilingSubscriber(
-            $this->nodeManager->reveal(),
-            $this->metadataFactory->reveal()
-        );
+        $this->subscriber = new AliasFilingSubscriber();
     }
 
     /**

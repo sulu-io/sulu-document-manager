@@ -11,15 +11,11 @@
 
 namespace Sulu\Component\DocumentManager;
 
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use Sulu\Component\DocumentManager\MetadataFactoryInterface;
-use Sulu\Component\DocumentManager\DocumentRegistry;
-use Sulu\Component\DocumentManager\Event\AbstractEvent;
-use Sulu\Component\DocumentManager\ProxyFactory;
 use PHPCR\SessionInterface;
 use ProxyManager\Factory\LazyLoadingGhostFactory;
-use Sulu\Component\DocumentManager\DocumentInspectorFactoryInterface;
+use Sulu\Component\DocumentManager\Event\AbstractEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DocumentManager implements DocumentManagerInterface
 {
@@ -68,8 +64,7 @@ class DocumentManager implements DocumentManagerInterface
         LazyLoadingGhostFactory $lazyProxyFactory,
         DocumentInspectorFactoryInterface $inspectorFactory,
         $defaultLocale
-    )
-    {
+    ) {
         $this->eventDispatcher = $eventDispatcher;
 
         $this->nodeManager = new NodeManager($session);
@@ -225,16 +220,16 @@ class DocumentManager implements DocumentManagerInterface
         return $this->nodeManager;
     }
 
-    public function getRegistry() 
+    public function getRegistry()
     {
         return $this->registry;
     }
 
-    public function getProxyFactory() 
+    public function getProxyFactory()
     {
         return $this->proxyFactory;
     }
-    
+
     /**
      * {@inheritdoc}
      */

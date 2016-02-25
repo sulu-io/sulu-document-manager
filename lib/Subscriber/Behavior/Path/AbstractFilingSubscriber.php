@@ -11,11 +11,10 @@
 
 namespace Sulu\Component\DocumentManager\Subscriber\Behavior\Path;
 
+use Sulu\Component\DocumentManager\Event\AbstractEvent;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Events;
-use Sulu\Component\DocumentManager\NodeManager;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Sulu\Component\DocumentManager\Event\AbstractEvent;
 
 /**
  * Automatically set the parent at a pre-determined location.

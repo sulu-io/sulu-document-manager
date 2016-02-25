@@ -13,16 +13,14 @@ namespace Sulu\Component\DocumentManager\Subscriber\Phpcr;
 
 use PHPCR\Query\QueryInterface;
 use PHPCR\Query\QueryManagerInterface;
-use PHPCR\SessionInterface;
 use Sulu\Component\DocumentManager\Collection\QueryResultCollection;
+use Sulu\Component\DocumentManager\Event\AbstractEvent;
 use Sulu\Component\DocumentManager\Event\QueryCreateBuilderEvent;
 use Sulu\Component\DocumentManager\Event\QueryCreateEvent;
 use Sulu\Component\DocumentManager\Event\QueryExecuteEvent;
 use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\Query\Query;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Sulu\Component\DocumentManager\Event\AbstractEvent;
 
 /**
  * Handles creation of query and query builder objects.
@@ -107,6 +105,7 @@ class QuerySubscriber implements EventSubscriberInterface
     private function getQueryManager(AbstractEvent $event)
     {
         $session = $event->getContext()->getPhpcrSession();
+
         return $session->getWorkspace()->getQueryManager();
     }
 }

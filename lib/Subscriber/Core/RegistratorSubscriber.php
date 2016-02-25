@@ -11,7 +11,6 @@
 
 namespace Sulu\Component\DocumentManager\Subscriber\Core;
 
-use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\Event\AbstractMappingEvent;
 use Sulu\Component\DocumentManager\Event\ClearEvent;
 use Sulu\Component\DocumentManager\Event\ConfigureOptionsEvent;

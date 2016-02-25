@@ -12,6 +12,7 @@
 namespace Sulu\Comonent\DocumentManager\Tests\Unit\Subscriber;
 
 use PHPCR\NodeInterface;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\Event\ReorderEvent;
 use Sulu\Component\DocumentManager\NodeManager;
@@ -34,10 +35,13 @@ class ReorderSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->registry = $this->prophesize(DocumentRegistry::class);
         $this->event = $this->prophesize(ReorderEvent::class);
 
-        $this->subscriber = new ReorderSubscriber(
-            $this->nodeManager->reveal(),
-            $this->registry->reveal()
-        );
+        $this->context = $this->prophesize(DocumentManagerContext::class);
+        $this->context->getNodeManager()->willReturn($this->nodeManager->reveal());
+        $this->context->getRegistry()->willReturn($this->registry->reveal());
+
+        $this->event->getContext()->willReturn($this->context->reveal());
+
+        $this->subscriber = new ReorderSubscriber();
 
         $this->event->getDocument()->willReturn($this->document);
         $this->registry->getNodeForDocument($this->document)->willReturn($this->node->reveal());

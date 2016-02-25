@@ -11,7 +11,6 @@
 
 namespace Sulu\Component\DocumentManager\Subscriber\Phpcr;
 
-use Sulu\Component\DocumentManager\Registry;
 use Sulu\Component\DocumentManager\Event\ClearEvent;
 use Sulu\Component\DocumentManager\Event\CopyEvent;
 use Sulu\Component\DocumentManager\Event\FlushEvent;
@@ -19,8 +18,6 @@ use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Event\MoveEvent;
 use Sulu\Component\DocumentManager\Event\RefreshEvent;
 use Sulu\Component\DocumentManager\Events;
-use Sulu\Component\DocumentManager\NodeManager;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**

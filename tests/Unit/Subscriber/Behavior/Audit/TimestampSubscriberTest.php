@@ -16,8 +16,9 @@ use Sulu\Component\DocumentManager\Behavior\Audit\LocalizedTimestampBehavior;
 use Sulu\Component\DocumentManager\DocumentAccessor;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Subscriber\Behavior\Audit\TimestampSubscriber;
+use Sulu\Component\DocumentManager\Tests\Unit\Subscriber\Behavior\SubscriberTestCase;
 
-class TimestampSubscriberTest extends \PHPUnit_Framework_TestCase
+class TimestampSubscriberTest extends SubscriberTestCase
 {
     /**
      * @var PersistEvent

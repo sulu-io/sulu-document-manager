@@ -12,7 +12,6 @@
 namespace Sulu\Component\DocumentManager\Subscriber\Behavior\Mapping;
 
 use Sulu\Component\DocumentManager\Behavior\Mapping\PathBehavior;
-use Sulu\Component\DocumentManager\DocumentInspector;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Events;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

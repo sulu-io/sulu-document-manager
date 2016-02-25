@@ -12,8 +12,12 @@
 namespace Sulu\Component\DocumentManager\Tests\Unit;
 
 use PHPCR\NodeInterface;
+use PHPCR\SessionInterface;
+use ProxyManager\Factory\LazyLoadingGhostFactory;
 use Sulu\Component\DocumentManager\Collection\QueryResultCollection;
+use Sulu\Component\DocumentManager\DocumentInspectorFactoryInterface;
 use Sulu\Component\DocumentManager\DocumentManager;
+use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\Event\ClearEvent;
 use Sulu\Component\DocumentManager\Event\ConfigureOptionsEvent;
 use Sulu\Component\DocumentManager\Event\CopyEvent;
@@ -27,12 +31,11 @@ use Sulu\Component\DocumentManager\Event\QueryExecuteEvent;
 use Sulu\Component\DocumentManager\Event\RefreshEvent;
 use Sulu\Component\DocumentManager\Event\RemoveEvent;
 use Sulu\Component\DocumentManager\Events;
+use Sulu\Component\DocumentManager\MetadataFactoryInterface;
 use Sulu\Component\DocumentManager\NodeManager;
 use Sulu\Component\DocumentManager\Query\Query;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Sulu\Component\DocumentManager\DocumentRegistry;
-use Sulu\Component\DocumentManager\MetadataFactoryInterface;
 
 class DocumentManagerTest extends \PHPUnit_Framework_TestCase
 {
@@ -81,17 +84,36 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
      */
     private $resultCollection;
 
+    /**
+     * @var SessionInterfaced
+     */
+    private $session;
+
+    /**
+     * @var LazyLoadingGhostFactory
+     */
+    private $proxyFactory;
+
+    /**
+     * @var DocumentInspectorFactoryInterface
+     */
+    private $inspectorFactory;
+
     public function setUp()
     {
+        $this->session = $this->prophesize(SessionInterface::class);
         $this->dispatcher = new EventDispatcher();
-        $this->nodeManager = $this->prophesize(NodeManager::class);
         $this->metadataFactory = $this->prophesize(MetadataFactoryInterface::class);
-        $this->documentRegistry = $this->prophesize(DocumentRegistry::class);
+        $this->proxyFactory = $this->prophesize(LazyLoadingGhostFactory::class);
+        $this->inspectorFactory = $this->prophesize(DocumentInspectorFactoryInterface::class);
+
         $this->manager = new DocumentManager(
+            $this->session->reveal(),
             $this->dispatcher,
-            $this->nodeManager->reveal(),
             $this->metadataFactory->reveal(),
-            $this->documentRegistry->reveal()
+            $this->proxyFactory->reveal(),
+            $this->inspectorFactory->reveal(),
+            'de'
         );
 
         $this->node = $this->prophesize(NodeInterface::class);

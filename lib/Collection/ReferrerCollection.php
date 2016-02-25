@@ -13,10 +13,9 @@ namespace Sulu\Component\DocumentManager\Collection;
 
 use PHPCR\NodeInterface;
 use PHPCR\PropertyInterface;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Events;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Sulu\Component\DocumentManager\DocumentManagerContext;
 
 /**
  * Lazily load documents referring to the given node.

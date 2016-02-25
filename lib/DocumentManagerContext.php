@@ -1,13 +1,18 @@
 <?php
 
+/*
+ * This file is part of Sulu.
+ *
+ * (c) MASSIVE ART WebServices GmbH
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Sulu\Component\DocumentManager;
 
-use Sulu\Component\DocumentManager\MetadataFactoryInterface;
-use Sulu\Component\DocumentManager\NodeManager;
-use Sulu\Component\DocumentManager\DocumentRegistry;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Sulu\Component\DocumentManager\ProxyFactory;
 use PHPCR\SessionInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * This class is available to event subscribers and contains all of the
@@ -65,8 +70,7 @@ class DocumentManagerContext
         DocumentInspectorFactoryInterface $inspectorFactory,
         ProxyFactory $proxyFactory,
         SessionInterface $phpcrSession
-    )
-    {
+    ) {
         $this->metadataFactory = $metadataFactory;
         $this->nodeManager = $nodeManager;
         $this->documentRegistry = $documentRegistry;
@@ -76,7 +80,6 @@ class DocumentManagerContext
         $this->proxyFactory = $proxyFactory;
         $this->phpcrSession = $phpcrSession;
         $proxyFactory->attachContext($this);
-        $inspectorFactory->attachContext($this);
     }
 
     public function getEventDispatcher()
@@ -104,19 +107,18 @@ class DocumentManagerContext
         return $this->proxyFactory;
     }
 
-    public function getDocumentManager() 
+    public function getDocumentManager()
     {
         return $this->documentManager;
     }
 
-    public function getInspector() 
+    public function getInspector()
     {
         return $this->inspectorFactory->getInspector($this);
     }
 
-    public function getPhpcrSession() 
+    public function getPhpcrSession()
     {
         return $this->phpcrSession;
     }
-    
 }
