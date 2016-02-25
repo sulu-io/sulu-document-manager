@@ -111,7 +111,7 @@ class DocumentManagerContext
 
     public function getInspector() 
     {
-        return $this->inspectorFactory->getInspector();
+        return $this->inspectorFactory->getInspector($this);
     }
 
     public function getPhpcrSession() 

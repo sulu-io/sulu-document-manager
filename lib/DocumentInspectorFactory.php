@@ -26,17 +26,12 @@ class DocumentInspectorFactory implements DocumentInspectorFactoryInterface
         $this->pathSegmentRegistry = $pathSegmentRegistry;
     }
 
-    public function attachContext(DocumentManagerContext $context)
-    {
-        $this->context = $context;
-    }
-
-    public function getInspector()
+    public function getInspector(DocumentManagerContext $context)
     {
         return new DocumentInspector(
-            $this->context->getRegistry(),
+            $context->getRegistry(),
             $this->pathSegmentRegistry,
-            $this->context->getProxyFactory()
+            $context->getProxyFactory()
         );
     }
 }

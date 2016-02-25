@@ -11,5 +11,5 @@ use Sulu\Component\DocumentManager\DocumentManagerContext;
  */
 interface DocumentInspectorFactoryInterface
 {
-    public function getInspector();
+    public function getInspector(DocumentManagerContext $context);
 }

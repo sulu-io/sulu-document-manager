@@ -217,7 +217,7 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function getInspector()
     {
-        return $this->inspectorFactory->getInspector();
+        return $this->inspectorFactory->getInspector($this->context);
     }
 
     public function getNodeManager()
