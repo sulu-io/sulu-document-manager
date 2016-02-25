@@ -68,7 +68,7 @@ class GeneralSubscriber implements EventSubscriberInterface
         $context = $event->getContext();
         $document = $event->getDocument();
         $node = $context->getRegistry()->getNodeForDocument($document);
-        $newPath = $event->getContext()->getNodeManager()->copy($node->getPath(), $event->getDestId(), $event->getDestName());
+        $newPath = $context->getNodeManager()->copy($node->getPath(), $event->getDestId(), $event->getDestName());
         $event->setCopiedPath($newPath);
     }
 
@@ -88,7 +88,7 @@ class GeneralSubscriber implements EventSubscriberInterface
         // rehydrate the document
         $hydrateEvent = new HydrateEvent($node, $locale);
         $hydrateEvent->setDocument($document);
-        $hydrateEvent->attachContext($event->getContext());
+        $hydrateEvent->attachContext($context);
         $context->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
     }
 

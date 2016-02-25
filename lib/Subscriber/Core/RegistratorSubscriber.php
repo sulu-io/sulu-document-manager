@@ -89,12 +89,13 @@ class RegistratorSubscriber implements EventSubscriberInterface
         }
 
         $node = $event->getNode();
+        $context = $event->getContext();
 
-        if (!$event->getContext()->getRegistry()->hasNode($node)) {
+        if (!$context->getRegistry()->hasNode($node)) {
             return;
         }
 
-        $document = $event->getContext()->getRegistry()->getDocumentForNode($node);
+        $document = $context->getRegistry()->getDocumentForNode($node);
 
         $event->setDocument($document);
 
@@ -123,18 +124,19 @@ class RegistratorSubscriber implements EventSubscriberInterface
         $locale = $event->getLocale();
         $document = $event->getDocument();
         $options = $event->getOptions();
-        $originalLocale = $event->getContext()->getRegistry()->getOriginalLocaleForDocument($document);
+        $context = $event->getContext();
+        $originalLocale = $context->getRegistry()->getOriginalLocaleForDocument($document);
 
         if (
             (!isset($options['rehydrate']) || false === $options['rehydrate']) &&
-            (true === $event->getContext()->getRegistry()->isHydrated($document) && $originalLocale === $locale)
+            (true === $context->getRegistry()->isHydrated($document) && $originalLocale === $locale)
         ) {
             $event->stopPropagation();
 
             return;
         }
 
-        $event->getContext()->getRegistry()->updateLocale($document, $locale, $locale);
+        $context->getRegistry()->updateLocale($document, $locale, $locale);
     }
 
     /**
@@ -173,12 +175,13 @@ class RegistratorSubscriber implements EventSubscriberInterface
         }
 
         $document = $event->getDocument();
+        $context = $event->getContext();
 
-        if (!$event->getContext()->getRegistry()->hasDocument($document)) {
+        if (!$context->getRegistry()->hasDocument($document)) {
             return;
         }
 
-        $node = $event->getContext()->getRegistry()->getNodeForDocument($document);
+        $node = $context->getRegistry()->getNodeForDocument($document);
         $event->setNode($node);
     }
 
@@ -235,13 +238,14 @@ class RegistratorSubscriber implements EventSubscriberInterface
         $document = $event->getDocument();
         $node = $event->getNode();
         $locale = $event->getLocale();
+        $registry = $event->getContext()->getRegistry();
 
-        if ($event->getContext()->getRegistry()->hasDocument($document)) {
-            $event->getContext()->getRegistry()->updateLocale($document, $locale);
+        if ($registry->hasDocument($document)) {
+            $registry->updateLocale($document, $locale);
 
             return;
         }
 
-        $event->getContext()->getRegistry()->registerDocument($document, $node, $locale);
+        $registry->registerDocument($document, $node, $locale);
     }
 }

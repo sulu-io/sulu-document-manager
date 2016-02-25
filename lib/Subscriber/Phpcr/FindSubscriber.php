@@ -75,11 +75,12 @@ class FindSubscriber implements EventSubscriberInterface
     {
         $options = $event->getOptions();
         $aliasOrClass = $options['type'];
+        $context = $event->getContext();
         $node = $event->getContext()->getNodeManager()->find($event->getId());
 
         $hydrateEvent = new HydrateEvent($node, $event->getLocale(), $options);
-        $hydrateEvent->attachContext($event->getContext());
-        $event->getContext()->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
+        $hydrateEvent->attachContext($context);
+        $context->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
         $document = $hydrateEvent->getDocument();
 
         if ($aliasOrClass) {

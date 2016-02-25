@@ -73,6 +73,7 @@ class MappingSubscriber implements EventSubscriberInterface
         $locale = $event->getLocale();
         $node = $event->getNode();
         $accessor = $event->getAccessor();
+        $registry = $event->getContext()->getRegistry();
 
         foreach ($metadata->getFieldMappings() as $fieldName => $fieldMapping) {
             if (false === $fieldMapping['mapped']) {
@@ -81,7 +82,7 @@ class MappingSubscriber implements EventSubscriberInterface
 
             switch ($fieldMapping['type']) {
                 case 'reference':
-                    $this->persistReference($event->getContext()->getRegistry(), $node, $accessor, $fieldName, $locale, $fieldMapping);
+                    $this->persistReference($registry, $node, $accessor, $fieldName, $locale, $fieldMapping);
                     break;
                 case 'json_array':
                     $this->persistJsonArray($node, $accessor, $fieldName, $locale, $fieldMapping);
@@ -207,6 +208,8 @@ class MappingSubscriber implements EventSubscriberInterface
         $node = $event->getNode();
         $accessor = $event->getAccessor();
         $document = $event->getDocument();
+        $context = $event->getContext();
+        $proxyFactory = $context->getProxyFactory();
 
         foreach ($metadata->getFieldMappings() as $fieldName => $fieldMapping) {
             if (false === $fieldMapping['mapped']) {
@@ -216,7 +219,7 @@ class MappingSubscriber implements EventSubscriberInterface
             switch ($fieldMapping['type']) {
                 case 'reference':
                     $this->hydrateReferenceField(
-                        $event->getContext()->getProxyFactory(),
+                        $proxyFactory,
                         $node,
                         $document,
                         $accessor,

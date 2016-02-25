@@ -235,8 +235,6 @@ class DocumentManager implements DocumentManagerInterface
         return $this->proxyFactory;
     }
     
-    
-
     /**
      * {@inheritdoc}
      */
