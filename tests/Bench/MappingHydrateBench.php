@@ -16,8 +16,10 @@ use PHPCR\ImportUUIDBehaviorInterface;
 /**
  * @Groups({"mapping_hydrate"})
  * @Iterations(4)
+ * @Warmup(10)
  * @Revs(10)
  * @BeforeMethods({"setUp"})
+ * @OutputTimeUnit("milliseconds")
  */
 class MappingHydrateBench extends BaseBench
 {

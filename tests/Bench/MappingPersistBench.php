@@ -13,9 +13,11 @@ namespace Sulu\Component\DocumentManager\Tests\Bench;
 
 /**
  * @Groups({"mapping_persist"})
- * @Revs(10)
- * @Iterations(2)
  * @BeforeMethods({"init"})
+ * @Iterations(4)
+ * @Warmup(10)
+ * @Revs(10)
+ * @OutputTimeUnit("milliseconds")
  */
 class MappingPersistBench extends BaseBench
 {

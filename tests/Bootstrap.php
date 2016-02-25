@@ -19,6 +19,7 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher;
+use Jackalope\Transport\DoctrineDBAL\RepositorySchema;
 
 class Bootstrap
 {
@@ -144,8 +145,15 @@ class Bootstrap
             'host' => 'localhost',
             'user' => 'admin',
             'password' => 'admin',
-            'path' => __DIR__ . '/../data/test.sqlite',
+            //'path' => __DIR__ . '/../data/test.sqlite',
+            'memory' => true,
         ]);
+
+        $schema = new RepositorySchema();
+
+        foreach ($schema->toSql($connection->getDatabasePlatform()) as $sql) {
+            $connection->exec($sql);
+        }
 
         return $connection;
     }
