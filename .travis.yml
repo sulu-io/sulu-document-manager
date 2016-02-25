@@ -8,8 +8,6 @@ php:
 before_script:
   - composer self-update
   - composer install
-  - mkdir data
-  - php bin/testconsole.php jackalope:init:dbal --force
 
 script: 
   - phpunit
