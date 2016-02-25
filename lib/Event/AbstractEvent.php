@@ -18,7 +18,7 @@ abstract class AbstractEvent extends Event
 {
     private $context;
 
-    public function attachContext(DocumentManagerContext $context)
+    public function __construct(DocumentManagerContext $context)
     {
         $this->context = $context;
     }
@@ -27,7 +27,7 @@ abstract class AbstractEvent extends Event
     {
         if (null === $this->context) {
             throw new \RuntimeException(
-                'No context has been attached to this event. Every event originating from a document manager should have a context.'
+                'No DocumentManagerContext has been set on this event, maybe this class has overridden the constructor and forgotten about it?'
             );
         }
 

@@ -74,8 +74,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
     public function testExecuteDocument()
     {
         $resultCollection = $this->prophesize(QueryResultCollection::class);
-        $expectedEvent = new QueryExecuteEvent($this->query);
-        $expectedEvent->attachContext($this->context->reveal());
+        $expectedEvent = new QueryExecuteEvent($this->context->reveal(), $this->query);
         $this->dispatcher->dispatch(Events::QUERY_EXECUTE, $expectedEvent)->will(function ($args) use ($resultCollection) {
             $args[1]->setResult($resultCollection->reveal());
         });

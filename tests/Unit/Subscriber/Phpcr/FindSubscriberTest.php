@@ -98,8 +98,7 @@ class FindSubscriberTest extends \PHPUnit_Framework_TestCase
                 $args[1]->setDocument(new \stdClass());
             });
 
-        $event = new FindEvent($path, $locale, $options);
-        $event->attachContext($this->context->reveal());
+        $event = new FindEvent($this->context->reveal(), $path, $locale, $options);
         $this->subscriber->handleFind($event);
         $this->assertInstanceOf('stdClass', $event->getDocument());
     }

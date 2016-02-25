@@ -83,9 +83,8 @@ class GeneralSubscriber implements EventSubscriberInterface
         $node->revert();
 
         // rehydrate the document
-        $hydrateEvent = new HydrateEvent($node, $locale);
+        $hydrateEvent = new HydrateEvent($context, $node, $locale);
         $hydrateEvent->setDocument($document);
-        $hydrateEvent->attachContext($context);
         $context->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
     }
 

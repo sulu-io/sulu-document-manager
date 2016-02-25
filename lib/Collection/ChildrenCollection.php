@@ -68,8 +68,7 @@ class ChildrenCollection extends AbstractLazyCollection
         $this->initialize();
         $childNode = $this->documents->current();
 
-        $hydrateEvent = new HydrateEvent($childNode, $this->locale, $this->options);
-        $hydrateEvent->attachContext($this->context);
+        $hydrateEvent = new HydrateEvent($this->context, $childNode, $this->locale, $this->options);
         $this->context->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
 
         return $hydrateEvent->getDocument();

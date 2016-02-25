@@ -112,8 +112,7 @@ class Query
             ));
         }
 
-        $event = new QueryExecuteEvent($this, $this->options);
-        $event->attachContext($this->context);
+        $event = new QueryExecuteEvent($this->context, $this, $this->options);
         $this->context->getEventDispatcher()->dispatch(Events::QUERY_EXECUTE, $event);
 
         return $event->getResult();

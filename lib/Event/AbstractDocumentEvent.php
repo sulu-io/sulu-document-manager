@@ -11,6 +11,8 @@
 
 namespace Sulu\Component\DocumentManager\Event;
 
+use Sulu\Component\DocumentManager\DocumentManagerContext;
+
 abstract class AbstractDocumentEvent extends AbstractEvent
 {
     /**
@@ -21,8 +23,9 @@ abstract class AbstractDocumentEvent extends AbstractEvent
     /**
      * @param object $document
      */
-    public function __construct($document)
+    public function __construct(DocumentManagerContext $context, $document)
     {
+        parent::__construct($context);
         $this->document = $document;
     }
 

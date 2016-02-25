@@ -12,6 +12,7 @@
 namespace Sulu\Component\DocumentManager\Event;
 
 use PHPCR\NodeInterface;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 
 class ReorderEvent extends AbstractMappingEvent
 {
@@ -30,8 +31,9 @@ class ReorderEvent extends AbstractMappingEvent
      * @param string $destId
      * @param bool $after
      */
-    public function __construct($document, $destId, $after)
+    public function __construct(DocumentManagerContext $context, $document, $destId, $after)
     {
+        parent::__construct($context);
         $this->document = $document;
         $this->destId = $destId;
         $this->after = $after;

@@ -11,6 +11,8 @@
 
 namespace Sulu\Component\DocumentManager\Event;
 
+use Sulu\Component\DocumentManager\DocumentManagerContext;
+
 class MoveEvent extends AbstractEvent
 {
     /**
@@ -32,8 +34,9 @@ class MoveEvent extends AbstractEvent
      * @param object $document
      * @param string $destId
      */
-    public function __construct($document, $destId)
+    public function __construct(DocumentManagerContext $context, $document, $destId)
     {
+        parent::__construct($context);
         $this->document = $document;
         $this->destId = $destId;
     }

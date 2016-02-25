@@ -81,9 +81,8 @@ class ProxyFactory
 
             // If the parent is not loaded in the correct locale, reload it in the correct locale.
             if ($registry->getOriginalLocaleForDocument($document) !== $locale) {
-                $hydrateEvent = new HydrateEvent($targetNode, $locale);
+                $hydrateEvent = new HydrateEvent($this->context, $targetNode, $locale);
                 $hydrateEvent->setDocument($document);
-                $hydrateEvent->attachContext($this->context);
                 $this->context->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
             }
 
@@ -98,8 +97,7 @@ class ProxyFactory
         ) {
             $locale = $registry->getOriginalLocaleForDocument($fromDocument);
 
-            $hydrateEvent = new HydrateEvent($targetNode, $locale, $options);
-            $hydrateEvent->attachContext($this->context);
+            $hydrateEvent = new HydrateEvent($this->context, $targetNode, $locale, $options);
             $hydrateEvent->setDocument($document);
             $this->context->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
 

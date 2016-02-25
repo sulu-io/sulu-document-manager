@@ -13,6 +13,7 @@ namespace Sulu\Component\DocumentManager\Event;
 
 use Sulu\Component\DocumentManager\Exception\DocumentManagerException;
 use Sulu\Component\DocumentManager\Query\Query;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 
 class QueryCreateEvent extends AbstractEvent
 {
@@ -44,8 +45,9 @@ class QueryCreateEvent extends AbstractEvent
      * @param array $options
      * @param null|string $primarySelector
      */
-    public function __construct($innerQuery, $locale, array $options = [], $primarySelector = null)
+    public function __construct(DocumentManagerContext $context, $innerQuery, $locale, array $options = [], $primarySelector = null)
     {
+        parent::__construct($context);
         $this->innerQuery = $innerQuery;
         $this->locale = $locale;
         $this->options = $options;

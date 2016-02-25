@@ -12,6 +12,7 @@
 namespace Sulu\Component\DocumentManager\Event;
 
 use Sulu\Component\DocumentManager\Exception\DocumentManagerException;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 
 class FindEvent extends AbstractEvent
 {
@@ -37,8 +38,9 @@ class FindEvent extends AbstractEvent
      * @param string $locale
      * @param array $options
      */
-    public function __construct($identifier, $locale, array $options = [])
+    public function __construct(DocumentManagerContext $context, $identifier, $locale, array $options = [])
     {
+        parent::__construct($context);
         $this->identifier = $identifier;
         $this->locale = $locale;
         $this->options = $options;

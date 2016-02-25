@@ -12,6 +12,7 @@
 namespace Sulu\Component\DocumentManager\Event;
 
 use PHPCR\NodeInterface;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 
 class HydrateEvent extends AbstractMappingEvent
 {
@@ -20,8 +21,9 @@ class HydrateEvent extends AbstractMappingEvent
      * @param string $locale
      * @param array $options
      */
-    public function __construct(NodeInterface $node, $locale, array $options = [])
+    public function __construct(DocumentManagerContext $context, NodeInterface $node, $locale, array $options = [])
     {
+        parent::__construct($context);
         $this->locale = $locale;
         $this->node = $node;
         $this->options = $options;

@@ -121,7 +121,7 @@ class GeneralSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->node->revert()->shouldBeCalled();
         $this->documentRegistry->getLocaleForDocument($this->document)->willReturn('fr');
 
-        $event = new HydrateEvent($this->node->reveal(), 'fr');
+        $event = new HydrateEvent($this->context->reveal(), $this->node->reveal(), 'fr');
         $this->eventDispatcher->dispatch(Events::REFRESH, $event);
 
         $this->subscriber->handleRefresh($this->refreshEvent->reveal());

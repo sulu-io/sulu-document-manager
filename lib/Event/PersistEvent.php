@@ -13,6 +13,7 @@ namespace Sulu\Component\DocumentManager\Event;
 
 use PHPCR\NodeInterface;
 use Sulu\Component\DocumentManager\DocumentHelper;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 
 class PersistEvent extends AbstractMappingEvent
 {
@@ -26,8 +27,9 @@ class PersistEvent extends AbstractMappingEvent
      * @param string $locale
      * @param array $options
      */
-    public function __construct($document, $locale, array $options = [])
+    public function __construct(DocumentManagerContext $context, $document, $locale, array $options = [])
     {
+        parent::__construct($context);
         $this->document = $document;
         $this->locale = $locale;
         $this->options = $options;
