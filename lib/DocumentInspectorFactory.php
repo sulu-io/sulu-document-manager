@@ -12,14 +12,14 @@ use Sulu\Component\DocumentManager\DocumentManagerContext;
 class DocumentInspectorFactory implements DocumentInspectorFactoryInterface 
 {
     /**
-     * @var DocumentManagerContext
-     */
-    private $context;
-
-    /**
      * @var PathSegmentRegistry
      */
     private $pathSegmentRegistry;
+
+    /**
+     * @var DocumentInspector
+     */
+    private $inspector;
 
     public function __construct(PathSegmentRegistry $pathSegmentRegistry)
     {
@@ -28,10 +28,16 @@ class DocumentInspectorFactory implements DocumentInspectorFactoryInterface
 
     public function getInspector(DocumentManagerContext $context)
     {
-        return new DocumentInspector(
+        if ($this->inspector) {
+            return $this->inspector;
+        }
+
+        $this->inspector = new DocumentInspector(
             $context->getRegistry(),
             $this->pathSegmentRegistry,
             $context->getProxyFactory()
         );
+
+        return $this->inspector;
     }
 }
