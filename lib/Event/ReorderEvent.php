@@ -27,6 +27,7 @@ class ReorderEvent extends AbstractMappingEvent
     private $after;
 
     /**
+     * @param DocumentManagerContext $context
      * @param object $document
      * @param string $destId
      * @param bool $after

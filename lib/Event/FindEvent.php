@@ -11,10 +11,10 @@
 
 namespace Sulu\Component\DocumentManager\Event;
 
-use Sulu\Component\DocumentManager\Exception\DocumentManagerException;
 use Sulu\Component\DocumentManager\DocumentManagerContext;
+use Sulu\Component\DocumentManager\Exception\DocumentManagerException;
 
-class FindEvent extends AbstractEvent
+class FindEvent extends AbstractDocumentManagerContextEvent
 {
     use EventOptionsTrait;
 
@@ -34,6 +34,7 @@ class FindEvent extends AbstractEvent
     private $document;
 
     /**
+     * @param DocumentManagerContext $context
      * @param string $identifier
      * @param string $locale
      * @param array $options

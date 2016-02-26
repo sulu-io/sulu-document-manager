@@ -11,11 +11,11 @@
 
 namespace Sulu\Component\DocumentManager\Event;
 
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 use Sulu\Component\DocumentManager\Exception\DocumentManagerException;
 use Sulu\Component\DocumentManager\Query\Query;
-use Sulu\Component\DocumentManager\DocumentManagerContext;
 
-class QueryCreateEvent extends AbstractEvent
+class QueryCreateEvent extends AbstractDocumentManagerContextEvent
 {
     use EventOptionsTrait;
 
@@ -40,6 +40,7 @@ class QueryCreateEvent extends AbstractEvent
     private $primarySelector;
 
     /**
+     * @param DocumentManagerContext $context
      * @param string $innerQuery
      * @param string $locale
      * @param array $options

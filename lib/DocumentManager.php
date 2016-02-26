@@ -13,7 +13,6 @@ namespace Sulu\Component\DocumentManager;
 
 use PHPCR\SessionInterface;
 use ProxyManager\Factory\LazyLoadingGhostFactory;
-use Sulu\Component\DocumentManager\Event\AbstractEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -207,7 +206,6 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * TODO : This interface method.
      * {@inheritdoc}
      */
     public function getInspector()
@@ -215,16 +213,31 @@ class DocumentManager implements DocumentManagerInterface
         return $this->inspectorFactory->getInspector($this->context);
     }
 
+    /**
+     * Return the node manager.
+     *
+     * @deprecated This should not be used and will be removed when it is possible to do so.
+     */
     public function getNodeManager()
     {
         return $this->nodeManager;
     }
 
+    /**
+     * Return the document registry.
+     *
+     * @deprecated This should not be used and will be removed when it is possible to do so.
+     */
     public function getRegistry()
     {
         return $this->registry;
     }
 
+    /**
+     * Return the proxy factory.
+     *
+     * @deprecated This should not be used and will be removed when it is possible to do so.
+     */
     public function getProxyFactory()
     {
         return $this->proxyFactory;

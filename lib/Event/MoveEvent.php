@@ -13,7 +13,7 @@ namespace Sulu\Component\DocumentManager\Event;
 
 use Sulu\Component\DocumentManager\DocumentManagerContext;
 
-class MoveEvent extends AbstractEvent
+class MoveEvent extends AbstractDocumentManagerContextEvent
 {
     /**
      * @var object
@@ -31,6 +31,7 @@ class MoveEvent extends AbstractEvent
     private $destName;
 
     /**
+     * @param DocumentManagerContext $context
      * @param object $document
      * @param string $destId
      */

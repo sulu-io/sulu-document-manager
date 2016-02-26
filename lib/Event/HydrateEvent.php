@@ -17,6 +17,7 @@ use Sulu\Component\DocumentManager\DocumentManagerContext;
 class HydrateEvent extends AbstractMappingEvent
 {
     /**
+     * @param DocumentManagerContext $context
      * @param NodeInterface $node
      * @param string $locale
      * @param array $options

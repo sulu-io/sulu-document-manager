@@ -122,4 +122,14 @@ interface DocumentManagerInterface
      * http://doctrine-phpcr-odm.readthedocs.org/en/latest/reference/query-builder.html
      */
     public function createQueryBuilder();
+
+    /**
+     * Retrieve the document inspector.
+     *
+     * NOTE: In the future this will be a factory for retrieving inspectors
+     * for a given object/class.
+     *
+     * @return DocumentInspector
+     */
+    public function getInspector();
 }

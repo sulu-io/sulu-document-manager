@@ -12,7 +12,7 @@
 namespace Sulu\Component\DocumentManager;
 
 /**
- * Document inspector factory.
+ * Document inspector factory for the default DocumentInspector.
  */
 class DocumentInspectorFactory implements DocumentInspectorFactoryInterface
 {
@@ -31,6 +31,9 @@ class DocumentInspectorFactory implements DocumentInspectorFactoryInterface
         $this->pathSegmentRegistry = $pathSegmentRegistry;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getInspector(DocumentManagerContext $context)
     {
         if ($this->inspector) {

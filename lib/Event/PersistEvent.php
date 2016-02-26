@@ -23,6 +23,7 @@ class PersistEvent extends AbstractMappingEvent
     private $parentNode;
 
     /**
+     * @param DocumentManagerContext $context
      * @param object $document
      * @param string $locale
      * @param array $options

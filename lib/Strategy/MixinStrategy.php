@@ -45,6 +45,13 @@ class MixinStrategy implements DocumentStrategyInterface
         $node = $parentNode->addNode($name);
         $node->addMixin($metadata->getPhpcrType());
 
+        // We only generate a new UUID if the document does not already have one.
+        //
+        // If the document DOES already have a UUID then that implies that it was previously
+        // managed by a different document manager and we assume that the UUID should be
+        // preserved (as in the case where we want to preserve the UUID between multiple workspaces).
+        //
+        // In the future this behavior could be made configurable if required.
         if (!$document instanceof UuidBehavior || !$uuid = $document->getUuid()) {
             $uuid = UUIDHelper::generateUUID();
         }

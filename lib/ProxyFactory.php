@@ -52,6 +52,14 @@ class ProxyFactory
         $this->metadataFactory = $metadataFactory;
     }
 
+    /**
+     * Attach the document manager context to the proxy factory.
+     *
+     * Note that because the ProxyFactory is part of the context we cannot pass
+     * the context as a constructor argument.
+     *
+     * @param DocumentManagerContext $context
+     */
     public function attachContext(DocumentManagerContext $context)
     {
         $this->context = $context;

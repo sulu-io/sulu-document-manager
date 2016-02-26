@@ -12,15 +12,11 @@
 namespace Sulu\Component\DocumentManager\Event;
 
 use Sulu\Component\DocumentManager\Metadata;
-use Sulu\Component\DocumentManager\DocumentManagerContext;
-use Symfony\Component\EventDispatcher\Event;
 
-class MetadataLoadEvent extends Event
+class MetadataLoadEvent extends AbstractEvent
 {
     /**
-     * @param NodeInterface $node
-     * @param string $locale
-     * @param array $options
+     * @param Metadata $metadata
      */
     public function __construct(Metadata $metadata)
     {
