@@ -12,6 +12,7 @@
 namespace Sulu\Component\DocumentManager\Tests\Unit;
 
 use PHPCR\NodeInterface;
+use Prophecy\Argument;
 use Sulu\Component\DocumentManager\Collection\QueryResultCollection;
 use Sulu\Component\DocumentManager\DocumentManager;
 use Sulu\Component\DocumentManager\Event\ClearEvent;
@@ -23,23 +24,56 @@ use Sulu\Component\DocumentManager\Event\FlushEvent;
 use Sulu\Component\DocumentManager\Event\MoveEvent;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Event\QueryCreateEvent;
-use Sulu\Component\DocumentManager\Event\QueryExecuteEvent;
 use Sulu\Component\DocumentManager\Event\RefreshEvent;
 use Sulu\Component\DocumentManager\Event\RemoveEvent;
 use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\NodeManager;
 use Sulu\Component\DocumentManager\Query\Query;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class DocumentManagerTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var EventDispatcher
+     */
+    private $dispatcher;
+
+    /**
+     * @var NodeManager
+     */
+    private $nodeManager;
+
+    /**
+     * @var DocumentManager
+     */
+    private $manager;
+
+    /**
+     * @var NodeInterface
+     */
+    private $node;
+
+    /**
+     * @var \stdClass
+     */
+    private $document;
+
+    /**
+     * @var Query
+     */
+    private $query;
+
+    /**
+     * @var QueryResultCollection
+     */
+    private $resultCollection;
+
     public function setUp()
     {
-        $this->dispatcher = new EventDispatcher();
+        $this->dispatcher = $this->prophesize(EventDispatcher::class);
         $this->nodeManager = $this->prophesize(NodeManager::class);
         $this->manager = new DocumentManager(
-            $this->dispatcher,
+            $this->dispatcher->reveal(),
             $this->nodeManager->reveal()
         );
 
@@ -55,9 +89,13 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function testPersist()
     {
-        $subscriber = $this->addSubscriber();
+        $this->dispatcher->dispatch(
+            Events::CONFIGURE_OPTIONS,
+            Argument::type(ConfigureOptionsEvent::class)
+        )->shouldBeCalled();
+
+        $this->dispatcher->dispatch(Events::PERSIST, Argument::type(PersistEvent::class))->shouldBeCalled();
         $this->manager->persist(new \stdClass(), 'fr');
-        $this->assertTrue($subscriber->persist);
     }
 
     /**
@@ -65,9 +103,13 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function testRemove()
     {
-        $subscriber = $this->addSubscriber();
+        $this->dispatcher->dispatch(
+            Events::CONFIGURE_OPTIONS,
+            Argument::type(ConfigureOptionsEvent::class)
+        )->shouldBeCalled();
+
+        $this->dispatcher->dispatch(Events::REMOVE, Argument::type(RemoveEvent::class))->shouldBeCalled();
         $this->manager->remove(new \stdClass());
-        $this->assertTrue($subscriber->remove);
     }
 
     /**
@@ -75,9 +117,13 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function testMove()
     {
-        $subscriber = $this->addSubscriber();
+        $this->dispatcher->dispatch(
+            Events::CONFIGURE_OPTIONS,
+            Argument::type(ConfigureOptionsEvent::class)
+        )->shouldNotBeCalled();
+
+        $this->dispatcher->dispatch(Events::MOVE, Argument::type(MoveEvent::class))->shouldBeCalled();
         $this->manager->move(new \stdClass(), '/path/to');
-        $this->assertTrue($subscriber->move);
     }
 
     /**
@@ -85,9 +131,13 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function testCopy()
     {
-        $subscriber = $this->addSubscriber();
+        $this->dispatcher->dispatch(
+            Events::CONFIGURE_OPTIONS,
+            Argument::type(ConfigureOptionsEvent::class)
+        )->shouldNotBeCalled();
+
+        $this->dispatcher->dispatch(Events::COPY, Argument::type(CopyEvent::class))->shouldBeCalled();
         $this->manager->copy(new \stdClass(), '/path/to');
-        $this->assertTrue($subscriber->copy);
     }
 
     /**
@@ -95,9 +145,18 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreate()
     {
-        $subscriber = $this->addSubscriber();
+        $this->dispatcher->dispatch(
+            Events::CONFIGURE_OPTIONS,
+            Argument::type(ConfigureOptionsEvent::class)
+        )->shouldNotBeCalled();
+
+        $document = $this->document;
+        $this->dispatcher->dispatch(Events::CREATE, Argument::type(CreateEvent::class))->will(
+            function ($arguments) use ($document) {
+                $arguments[1]->setDocument($document);
+            }
+        )->shouldBeCalled();
         $this->manager->create('foo');
-        $this->assertTrue($subscriber->create);
     }
 
     /**
@@ -105,9 +164,13 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function testRefresh()
     {
-        $subscriber = $this->addSubscriber();
+        $this->dispatcher->dispatch(
+            Events::CONFIGURE_OPTIONS,
+            Argument::type(ConfigureOptionsEvent::class)
+        )->shouldNotBeCalled();
+
+        $this->dispatcher->dispatch(Events::REFRESH, Argument::type(RefreshEvent::class))->shouldBeCalled();
         $this->manager->refresh($this->document);
-        $this->assertTrue($subscriber->refresh);
     }
 
     /**
@@ -115,9 +178,13 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function testClear()
     {
-        $subscriber = $this->addSubscriber();
+        $this->dispatcher->dispatch(
+            Events::CONFIGURE_OPTIONS,
+            Argument::type(ConfigureOptionsEvent::class)
+        )->shouldNotBeCalled();
+
+        $this->dispatcher->dispatch(Events::CLEAR, Argument::type(ClearEvent::class))->shouldBeCalled();
         $this->manager->clear();
-        $this->assertTrue($subscriber->clear);
     }
 
     /**
@@ -125,9 +192,13 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function testFlush()
     {
-        $subscriber = $this->addSubscriber();
+        $this->dispatcher->dispatch(
+            Events::CONFIGURE_OPTIONS,
+            Argument::type(ConfigureOptionsEvent::class)
+        )->shouldNotBeCalled();
+
+        $this->dispatcher->dispatch(Events::FLUSH, Argument::type(FlushEvent::class))->shouldBeCalled();
         $this->manager->flush();
-        $this->assertTrue($subscriber->flush);
     }
 
     /**
@@ -135,9 +206,18 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function testFind()
     {
-        $subscriber = $this->addSubscriber();
+        $this->dispatcher->dispatch(
+            Events::CONFIGURE_OPTIONS,
+            Argument::type(ConfigureOptionsEvent::class)
+        )->shouldBeCalled();
+
+        $document = $this->document;
+        $this->dispatcher->dispatch(Events::FIND, Argument::type(FindEvent::class))->will(
+            function ($arguments) use ($document) {
+                $arguments[1]->setDocument($document);
+            }
+        )->shouldBeCalled();
         $this->manager->find('foo', 'fr');
-        $this->assertTrue($subscriber->find);
     }
 
     /**
@@ -147,7 +227,12 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function testFindWithInvalidOptions()
     {
-        $subscriber = $this->addSubscriber();
+        $this->dispatcher->dispatch(
+            Events::CONFIGURE_OPTIONS,
+            Argument::type(ConfigureOptionsEvent::class)
+        )->shouldBeCalled();
+
+        $this->dispatcher->dispatch(Events::FIND, Argument::type(FindEvent::class))->shouldNotBeCalled();
         $this->manager->find('foo', 'bar', ['foo123' => 'bar']);
     }
 
@@ -156,8 +241,18 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function testFindWithOptions()
     {
-        $subscriber = $this->addSubscriber();
-        $this->manager->find('foo', 'bar', ['test.foo' => 'bar']);
+        $this->dispatcher->dispatch(
+            Events::CONFIGURE_OPTIONS,
+            Argument::type(ConfigureOptionsEvent::class)
+        )->shouldBeCalled();
+
+        $document = $this->document;
+        $this->dispatcher->dispatch(Events::FIND, Argument::type(FindEvent::class))->will(
+            function ($arguments) use ($document) {
+                $arguments[1]->setDocument($document);
+            }
+        )->shouldBeCalled();
+        $this->manager->find('foo', 'bar', ['locale' => 'bar']);
     }
 
     /**
@@ -165,9 +260,21 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function testQueryCreate()
     {
-        $subscriber = $this->addSubscriber();
-        $query = $this->manager->createQuery('SELECT foo FROM [foo:bar]', 'fr');
-        $this->assertTrue($subscriber->queryCreate);
+        $sql2 = 'SELECT foo FROM [foo:bar]';
+        $query = $this->prophesize(Query::class);
+
+        $this->dispatcher->dispatch(
+            Events::CONFIGURE_OPTIONS,
+            Argument::type(ConfigureOptionsEvent::class)
+        )->shouldNotBeCalled();
+
+        $this->dispatcher->dispatch(Events::QUERY_CREATE, Argument::type(QueryCreateEvent::class))->will(
+            function ($arguments) use ($query) {
+                $arguments[1]->setQuery($query->reveal());
+            }
+        )->shouldBeCalled();
+
+        $query = $this->manager->createQuery($sql2, 'fr');
         $this->assertInstanceOf(Query::class, $query);
     }
 
@@ -179,131 +286,5 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
     public function testQueryCreateBuilder()
     {
         $this->markTestSkipped('Not supported yet');
-    }
-
-    private function addSubscriber()
-    {
-        $subscriber = new TestDocumentManagerSubscriber($this->query->reveal(), $this->resultCollection->reveal());
-        $this->dispatcher->addSubscriber($subscriber);
-
-        return $subscriber;
-    }
-}
-
-class TestDocumentManagerSubscriber implements EventSubscriberInterface
-{
-    public $persist = false;
-    public $hydrate = false;
-    public $remove = false;
-    public $copy = false;
-    public $move = false;
-    public $create = false;
-    public $clear = false;
-    public $flush = false;
-    public $find = false;
-    public $queryCreate = false;
-    public $queryCreateBuilder = false;
-    public $queryExecute = false;
-    public $refresh = false;
-
-    private $query;
-    private $resultCollection;
-
-    public function __construct(Query $query, QueryResultCollection $resultCollection)
-    {
-        $this->query = $query;
-        $this->resultCollection = $resultCollection;
-    }
-
-    public static function getSubscribedEvents()
-    {
-        return [
-            Events::PERSIST => 'handlePersist',
-            Events::REMOVE => 'handleRemove',
-            Events::MOVE => 'handleMove',
-            Events::COPY => 'handleCopy',
-            Events::CREATE => 'handleCreate',
-            Events::CLEAR => 'handleClear',
-            Events::FLUSH => 'handleFlush',
-            Events::FIND => 'handleFind',
-            Events::QUERY_CREATE => 'handleQueryCreate',
-            Events::QUERY_CREATE_BUILDER => 'handleQueryBuilderCreate',
-            Events::QUERY_EXECUTE => 'handleQueryExecute',
-            Events::REFRESH => 'handleRefresh',
-            Events::REORDER => 'handleReorder',
-            Events::CONFIGURE_OPTIONS => 'handleConfigureOptions',
-        ];
-    }
-
-    public function handleConfigureOptions(ConfigureOptionsEvent $event)
-    {
-        $options = $event->getOptions();
-        $options->setDefaults([
-            'test.foo' => 'bar',
-        ]);
-    }
-
-    public function handlePersist(PersistEvent $event)
-    {
-        $this->persist = true;
-    }
-
-    public function handleRemove(RemoveEvent $event)
-    {
-        $this->remove = true;
-    }
-
-    public function handleCopy(CopyEvent $event)
-    {
-        $this->copy = true;
-    }
-
-    public function handleMove(MoveEvent $event)
-    {
-        $this->move = true;
-    }
-
-    public function handleCreate(CreateEvent $event)
-    {
-        $this->create = true;
-        $event->setDocument(new \stdClass());
-    }
-
-    public function handleClear(ClearEvent $event)
-    {
-        $this->clear = true;
-    }
-
-    public function handleFlush(FlushEvent $event)
-    {
-        $this->flush = true;
-    }
-
-    public function handleFind(FindEvent $event)
-    {
-        $this->find = true;
-        $event->setDocument(new \stdClass());
-    }
-
-    public function handleQueryCreate(QueryCreateEvent $event)
-    {
-        $this->queryCreate = true;
-        $event->setQuery($this->query);
-    }
-
-    public function handleQueryExecute(QueryExecuteEvent $event)
-    {
-        $this->queryExecute = true;
-        $event->setResult($this->resultCollection);
-    }
-
-    public function handleRefresh(RefreshEvent $event)
-    {
-        $this->refresh = true;
-    }
-
-    public function handleReorder(ReorderEvent $event)
-    {
-        $this->reorder = true;
     }
 }

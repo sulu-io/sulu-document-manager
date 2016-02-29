@@ -53,8 +53,9 @@ interface DocumentManagerInterface
      * session.
      *
      * @param object $document
+     * @param array $options
      */
-    public function remove($document);
+    public function remove($document, array $options = []);
 
     /**
      * Move the PHPCR node to which the document is mapped to be a child of the node at the given path or UUID.

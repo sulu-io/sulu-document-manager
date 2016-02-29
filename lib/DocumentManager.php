@@ -72,9 +72,11 @@ class DocumentManager implements DocumentManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function remove($document)
+    public function remove($document, array $options = [])
     {
-        $event = new Event\RemoveEvent($document);
+        $options = $this->getOptionsResolver(Events::REMOVE)->resolve($options);
+
+        $event = new Event\RemoveEvent($document, $options);
         $this->eventDispatcher->dispatch(Events::REMOVE, $event);
     }
 

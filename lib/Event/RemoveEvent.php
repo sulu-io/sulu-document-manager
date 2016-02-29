@@ -11,6 +11,39 @@
 
 namespace Sulu\Component\DocumentManager\Event;
 
-class RemoveEvent extends AbstractDocumentEvent
+class RemoveEvent extends AbstractEvent
 {
+    use EventOptionsTrait;
+
+    /**
+     * @var object
+     */
+    private $document;
+
+    public function __construct($document, $options)
+    {
+        $this->document = $document;
+        $this->options = $options;
+    }
+
+    /**
+     * Returns the document.
+     *
+     * @return object
+     */
+    public function getDocument()
+    {
+        return $this->document;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDebugMessage()
+    {
+        return sprintf(
+            'd:%s',
+            $this->document ? spl_object_hash($this->document) : '<no document>'
+        );
+    }
 }
