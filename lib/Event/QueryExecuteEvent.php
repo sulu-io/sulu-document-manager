@@ -12,10 +12,10 @@
 namespace Sulu\Component\DocumentManager\Event;
 
 use Sulu\Component\DocumentManager\Collection\QueryResultCollection;
-use Sulu\Component\DocumentManager\DocumentManagerContext;
+use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\Query\Query;
 
-class QueryExecuteEvent extends AbstractDocumentManagerContextEvent
+class QueryExecuteEvent extends AbstractManagerEvent
 {
     use EventOptionsTrait;
 
@@ -30,13 +30,13 @@ class QueryExecuteEvent extends AbstractDocumentManagerContextEvent
     private $result;
 
     /**
-     * @param DocumentManagerContext $context
+     * @param DocumentManagerInterface $manager
      * @param Query $query
      * @param array $options
      */
-    public function __construct(DocumentManagerContext $context, Query $query, array $options = [])
+    public function __construct(DocumentManagerInterface $manager, Query $query, array $options = [])
     {
-        parent::__construct($context);
+        parent::__construct($manager);
         $this->query = $query;
         $this->options = $options;
     }

@@ -46,11 +46,11 @@ class ParentSubscriber implements EventSubscriberInterface
     public function handleMove(MoveEvent $event)
     {
         $document = $event->getDocument();
-        $context = $event->getContext();
-        $node = $context->getInspector()
+        $manager = $event->getManager();
+        $node = $manager->getInspector()
             ->getNode($event->getDocument());
 
-        $this->mapParent($context->getProxyFactory(), $document, $node);
+        $this->mapParent($manager->getProxyFactory(), $document, $node);
     }
 
     /**
@@ -81,7 +81,7 @@ class ParentSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $parentNode = $event->getContext()->getInspector()->getNode($parentDocument);
+        $parentNode = $event->getManager()->getInspector()->getNode($parentDocument);
         $event->setParentNode($parentNode);
     }
 
@@ -107,7 +107,7 @@ class ParentSubscriber implements EventSubscriberInterface
             ));
         }
 
-        $this->mapParent($event->getContext()->getProxyFactory(), $document, $node, $event->getOptions());
+        $this->mapParent($event->getManager()->getProxyFactory(), $document, $node, $event->getOptions());
     }
 
     /**
@@ -116,15 +116,15 @@ class ParentSubscriber implements EventSubscriberInterface
     public function handleChangeParent(PersistEvent $event)
     {
         $document = $event->getDocument();
-        $context = $event->getContext();
-        $node = $context->getInspector()->getNode($document);
+        $manager = $event->getManager();
+        $node = $manager->getInspector()->getNode($document);
         $parentNode = $event->getParentNode();
 
         if ($parentNode->getPath() === $node->getParent()->getPath()) {
             return;
         }
 
-        $context->getDocumentManager()->move($document, $parentNode->getPath());
+        $manager->move($document, $parentNode->getPath());
     }
 
     /**

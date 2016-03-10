@@ -14,7 +14,7 @@ namespace Sulu\Component\DocumentManager\tests\Unit\Subscriber\Behavior\Path;
 use PHPCR\NodeInterface;
 use Prophecy\Argument;
 use Sulu\Component\DocumentManager\Behavior\Path\AutoNameBehavior;
-use Sulu\Component\DocumentManager\DocumentManagerContext;
+use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\DocumentStrategyInterface;
 use Sulu\Component\DocumentManager\Event\MoveEvent;
@@ -123,12 +123,12 @@ class AutoNameSubscriberTest extends SubscriberTestCase
         $this->nodeManager = $this->prophesize(NodeManager::class);
         $this->strategy = $this->prophesize(DocumentStrategyInterface::class);
 
-        $this->context = $this->prophesize(DocumentManagerContext::class);
-        $this->context->getNodeManager()->willReturn($this->nodeManager->reveal());
-        $this->context->getRegistry()->willReturn($this->documentRegistry->reveal());
+        $this->manager = $this->prophesize(DocumentManagerInterface::class);
+        $this->manager->getNodeManager()->willReturn($this->nodeManager->reveal());
+        $this->manager->getRegistry()->willReturn($this->documentRegistry->reveal());
 
-        $this->moveEvent->getContext()->willReturn($this->context->reveal());
-        $this->persistEvent->getContext()->willReturn($this->context->reveal());
+        $this->moveEvent->getManager()->willReturn($this->manager->reveal());
+        $this->persistEvent->getManager()->willReturn($this->manager->reveal());
 
         $this->subscriber = new AutoNameSubscriber(
             $this->slugifier->reveal(),

@@ -97,7 +97,7 @@ class ExplicitSubscriber implements EventSubscriberInterface
 
         if ($parentPath) {
             $event->setParentNode(
-                $this->resolveParent($event->getContext()->getNodeManager(), $parentPath, $options)
+                $this->resolveParent($event->getManager()->getNodeManager(), $parentPath, $options)
             );
         }
 

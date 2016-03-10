@@ -18,6 +18,7 @@ use Sulu\Component\DocumentManager\Collection\ChildrenCollection;
 use Sulu\Component\DocumentManager\Collection\ReferrerCollection;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Sulu\Component\DocumentManager\DocumentManagerInterface;
 
 /**
  * Handle creation of proxies.
@@ -35,9 +36,9 @@ class ProxyFactory
     private $metadataFactory;
 
     /**
-     * @var DocumentManagerContext
+     * @var DocumentManagerInterface
      */
-    private $context;
+    private $documentManager;
 
     /**
      * @param LazyLoadingGhostFactory $proxyFactory
@@ -45,24 +46,13 @@ class ProxyFactory
      * @param MetadataFactoryInterface $metadataFactory
      */
     public function __construct(
+        DocumentManagerInterface $documentManager,
         LazyLoadingGhostFactory $proxyFactory,
         MetadataFactoryInterface $metadataFactory
     ) {
+        $this->documentManager = $documentManager;
         $this->proxyFactory = $proxyFactory;
         $this->metadataFactory = $metadataFactory;
-    }
-
-    /**
-     * Attach the document manager context to the proxy factory.
-     *
-     * Note that because the ProxyFactory is part of the context we cannot pass
-     * the context as a constructor argument.
-     *
-     * @param DocumentManagerContext $context
-     */
-    public function attachContext(DocumentManagerContext $context)
-    {
-        $this->context = $context;
     }
 
     /**
@@ -80,7 +70,7 @@ class ProxyFactory
      */
     public function createProxyForNode($fromDocument, NodeInterface $targetNode, $options = [])
     {
-        $registry = $this->context->getRegistry();
+        $registry = $this->documentManager->getRegistry();
 
         // if node is already registered then just return the registered document
         if ($registry->hasNode($targetNode)) {
@@ -89,9 +79,9 @@ class ProxyFactory
 
             // If the parent is not loaded in the correct locale, reload it in the correct locale.
             if ($registry->getOriginalLocaleForDocument($document) !== $locale) {
-                $hydrateEvent = new HydrateEvent($this->context, $targetNode, $locale);
+                $hydrateEvent = new HydrateEvent($this->documentManager, $targetNode, $locale);
                 $hydrateEvent->setDocument($document);
-                $this->context->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
+                $this->documentManager->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
             }
 
             return $document;
@@ -105,9 +95,9 @@ class ProxyFactory
         ) {
             $locale = $registry->getOriginalLocaleForDocument($fromDocument);
 
-            $hydrateEvent = new HydrateEvent($this->context, $targetNode, $locale, $options);
+            $hydrateEvent = new HydrateEvent($this->documentManager, $targetNode, $locale, $options);
             $hydrateEvent->setDocument($document);
-            $this->context->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
+            $this->documentManager->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
 
             $initializer = null;
         };
@@ -129,13 +119,13 @@ class ProxyFactory
      */
     public function createChildrenCollection($document, array $options = [])
     {
-        $registry = $this->context->getRegistry();
+        $registry = $this->documentManager->getRegistry();
         $node = $registry->getNodeForDocument($document);
         $locale = $registry->getOriginalLocaleForDocument($document);
 
         return new ChildrenCollection(
             $node,
-            $this->context,
+            $this->documentManager,
             $locale,
             $options
         );
@@ -150,13 +140,13 @@ class ProxyFactory
      */
     public function createReferrerCollection($document)
     {
-        $registry = $this->context->getRegistry();
+        $registry = $this->documentManager->getRegistry();
         $node = $registry->getNodeForDocument($document);
         $locale = $registry->getOriginalLocaleForDocument($document);
 
         return new ReferrerCollection(
             $node,
-            $this->context,
+            $this->documentManager,
             $locale
         );
     }

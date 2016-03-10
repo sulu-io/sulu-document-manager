@@ -11,9 +11,9 @@
 
 namespace Sulu\Component\DocumentManager\Event;
 
-use Sulu\Component\DocumentManager\DocumentManagerContext;
+use Sulu\Component\DocumentManager\DocumentManagerInterface;
 
-class MoveEvent extends AbstractDocumentManagerContextEvent
+class MoveEvent extends AbstractManagerEvent
 {
     /**
      * @var object
@@ -31,13 +31,13 @@ class MoveEvent extends AbstractDocumentManagerContextEvent
     private $destName;
 
     /**
-     * @param DocumentManagerContext $context
+     * @param DocumentManagerInterface $manager
      * @param object $document
      * @param string $destId
      */
-    public function __construct(DocumentManagerContext $context, $document, $destId)
+    public function __construct(DocumentManagerInterface $manager, $document, $destId)
     {
-        parent::__construct($context);
+        parent::__construct($manager);
         $this->document = $document;
         $this->destId = $destId;
     }

@@ -11,35 +11,35 @@
 
 namespace Sulu\Component\DocumentManager\Event;
 
-use Sulu\Component\DocumentManager\DocumentManagerContext;
+use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Symfony\Component\EventDispatcher\Event;
 
 /** 
- * Abstract class for events which require the DocumentManagerContext - i.e.
+ * Abstract class for events which require the DocumentManagerInterface - i.e.
  * all events for which subscribers require access to a document manager or any
  * of its dependencies.
  */
-abstract class AbstractDocumentManagerContextEvent extends AbstractEvent
+abstract class AbstractManagerEvent extends AbstractEvent
 {
-    private $context;
+    private $manager;
 
     /**
-     * @param DocumentManagerContext $context
+     * @param DocumentManagerInterface $manager
      */
-    public function __construct(DocumentManagerContext $context)
+    public function __construct(DocumentManagerInterface $manager)
     {
-        $this->context = $context;
+        $this->manager = $manager;
     }
 
-    public function getContext()
+    public function getManager()
     {
-        if (null === $this->context) {
+        if (null === $this->manager) {
             throw new \RuntimeException(
-                'No DocumentManagerContext has been set on this event, maybe this class has overridden the constructor and forgotten about it?'
+                'No DocumentManagerInterface has been set on this event, maybe this class has overridden the constructor and forgotten about it?'
             );
         }
 
-        return $this->context;
+        return $this->manager;
     }
 
     /**

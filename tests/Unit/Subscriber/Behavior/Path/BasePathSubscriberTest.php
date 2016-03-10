@@ -14,7 +14,7 @@ namespace Sulu\Component\DocumentManager\Tests\Unit\Subscriber\Behavior\Audit\Pa
 use PHPCR\NodeInterface;
 use Sulu\Component\DocumentManager\Behavior\Path\BasePathBehavior;
 use Sulu\Component\DocumentManager\DocumentManager;
-use Sulu\Component\DocumentManager\DocumentManagerContext;
+use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\NodeManager;
 use Sulu\Component\DocumentManager\Subscriber\Behavior\Path\AliasFilingSubscriber;
@@ -73,9 +73,9 @@ class BasePathSubscriberTest extends SubscriberTestCase
         $this->documentManager = $this->prophesize(DocumentManager::class);
         $this->parentNode = $this->prophesize(NodeInterface::class);
 
-        $this->context = $this->prophesize(DocumentManagerContext::class);
-        $this->context->getNodeManager()->willReturn($this->nodeManager->reveal());
-        $this->persistEvent->getContext()->willReturn($this->context->reveal());
+        $this->manager = $this->prophesize(DocumentManagerInterface::class);
+        $this->manager->getNodeManager()->willReturn($this->nodeManager->reveal());
+        $this->persistEvent->getManager()->willReturn($this->manager->reveal());
 
         $this->subscriber = new BasePathSubscriber(
             '/base/path'

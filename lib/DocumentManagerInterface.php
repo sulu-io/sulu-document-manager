@@ -12,6 +12,9 @@
 namespace Sulu\Component\DocumentManager;
 
 use Sulu\Component\DocumentManager\Query\Query;
+use PHPCR\SessionInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Sulu\Component\DocumentManager\ProxyFactory;
 
 interface DocumentManagerInterface
 {
@@ -153,4 +156,25 @@ interface DocumentManagerInterface
      * @return MetadataFactoryInterface
      */
     public function getMetadataFactory();
+
+    /**
+     * Return the event dispatcher instance.
+     *
+     * @return EventDispatcher
+     */
+    public function getEventDispatcher();
+
+    /**
+     * Return the PHPCR session instance.
+     *
+     * @return SessionInterface
+     */
+    public function getSession();
+
+    /**
+     * Return the proxy factory instance.
+     *
+     * @return ProxyFactory
+     */
+    public function getProxyFactory();
 }

@@ -14,7 +14,7 @@ namespace Sulu\Component\DocumentManager\Event;
 use PHPCR\NodeInterface;
 use Sulu\Component\DocumentManager\DocumentAccessor;
 
-abstract class AbstractMappingEvent extends AbstractDocumentManagerContextEvent
+abstract class AbstractMappingEvent extends AbstractManagerEvent
 {
     use EventOptionsTrait;
 

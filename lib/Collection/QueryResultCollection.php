@@ -12,7 +12,7 @@
 namespace Sulu\Component\DocumentManager\Collection;
 
 use PHPCR\Query\QueryResultInterface;
-use Sulu\Component\DocumentManager\DocumentManagerContext;
+use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Events;
 
@@ -47,19 +47,19 @@ class QueryResultCollection extends AbstractLazyCollection
     private $primarySelector = null;
 
     /**
-     * @var DocumentManagerContext
+     * @var DocumentManagerInterface
      */
-    private $context;
+    private $manager;
 
     public function __construct(
         QueryResultInterface $result,
-        DocumentManagerContext $context,
+        DocumentManagerInterface $manager,
         $locale,
         $options = [],
         $primarySelector = null
     ) {
         $this->result = $result;
-        $this->context = $context;
+        $this->manager = $manager;
         $this->locale = $locale;
         $this->options = $options;
         $this->primarySelector = $primarySelector;
@@ -74,8 +74,8 @@ class QueryResultCollection extends AbstractLazyCollection
         $row = $this->documents->current();
         $node = $row->getNode($this->primarySelector);
 
-        $hydrateEvent = new HydrateEvent($this->context, $node, $this->locale, $this->options);
-        $this->context->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
+        $hydrateEvent = new HydrateEvent($this->manager, $node, $this->locale, $this->options);
+        $this->manager->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
 
         return $hydrateEvent->getDocument();
     }

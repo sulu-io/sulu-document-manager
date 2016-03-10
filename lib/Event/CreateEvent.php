@@ -11,9 +11,9 @@
 
 namespace Sulu\Component\DocumentManager\Event;
 
-use Sulu\Component\DocumentManager\DocumentManagerContext;
+use Sulu\Component\DocumentManager\DocumentManagerInterface;
 
-class CreateEvent extends AbstractDocumentManagerContextEvent
+class CreateEvent extends AbstractManagerEvent
 {
     /**
      * @var object
@@ -26,12 +26,12 @@ class CreateEvent extends AbstractDocumentManagerContextEvent
     private $alias;
 
     /**
-     * @param DocumentManagerContext $context
+     * @param DocumentManagerInterface $manager
      * @param string $alias
      */
-    public function __construct(DocumentManagerContext $context, $alias)
+    public function __construct(DocumentManagerInterface $manager, $alias)
     {
-        parent::__construct($context);
+        parent::__construct($manager);
         $this->alias = $alias;
     }
 

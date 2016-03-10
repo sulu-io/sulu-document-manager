@@ -14,7 +14,7 @@ namespace Sulu\Component\DocumentManager\Event;
 use Sulu\Component\DocumentManager\Exception\DocumentManagerException;
 use Sulu\Component\DocumentManager\Query\QueryBuilder;
 
-class QueryCreateBuilderEvent extends AbstractDocumentManagerContextEvent
+class QueryCreateBuilderEvent extends AbstractManagerEvent
 {
     /**
      * @var

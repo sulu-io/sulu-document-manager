@@ -13,7 +13,7 @@ namespace Sulu\Component\DocumentManager\Tests\Unit\Subscriber\Core;
 
 use PHPCR\NodeInterface;
 use Sulu\Component\DocumentManager\DocumentAccessor;
-use Sulu\Component\DocumentManager\DocumentManagerContext;
+use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
@@ -44,12 +44,12 @@ class MappingSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->persistEvent->getLocale()->willReturn('de');
         $this->persistEvent->getAccessor()->willReturn($this->accessor);
 
-        $this->context = $this->prophesize(DocumentManagerContext::class);
-        $this->context->getProxyFactory()->willReturn($this->proxyFactory->reveal());
-        $this->context->getRegistry()->willReturn($this->documentRegistry->reveal());
+        $this->manager = $this->prophesize(DocumentManagerInterface::class);
+        $this->manager->getProxyFactory()->willReturn($this->proxyFactory->reveal());
+        $this->manager->getRegistry()->willReturn($this->documentRegistry->reveal());
 
-        $this->persistEvent->getContext()->willReturn($this->context->reveal());
-        $this->hydrateEvent->getContext()->willReturn($this->context->reveal());
+        $this->persistEvent->getManager()->willReturn($this->manager->reveal());
+        $this->hydrateEvent->getManager()->willReturn($this->manager->reveal());
 
         $this->subscriber = new MappingSubscriber(
             $this->metadataFactory->reveal(),

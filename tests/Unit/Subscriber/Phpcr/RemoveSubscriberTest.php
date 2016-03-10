@@ -13,7 +13,7 @@ namespace Sulu\Comonent\DocumentManager\Tests\Unit\Subscriber;
 
 use PHPCR\NodeInterface;
 use PHPCR\PropertyInterface;
-use Sulu\Component\DocumentManager\DocumentManagerContext;
+use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\Event\RemoveEvent;
 use Sulu\Component\DocumentManager\NodeManager;
@@ -33,11 +33,11 @@ class RemoveSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->property1 = $this->prophesize(PropertyInterface::class);
         $this->property2 = $this->prophesize(PropertyInterface::class);
 
-        $this->context = $this->prophesize(DocumentManagerContext::class);
-        $this->context->getNodeManager()->willReturn($this->nodeManager->reveal());
-        $this->context->getRegistry()->willReturn($this->documentRegistry->reveal());
+        $this->manager = $this->prophesize(DocumentManagerInterface::class);
+        $this->manager->getNodeManager()->willReturn($this->nodeManager->reveal());
+        $this->manager->getRegistry()->willReturn($this->documentRegistry->reveal());
 
-        $this->removeEvent->getContext()->willReturn($this->context->reveal());
+        $this->removeEvent->getManager()->willReturn($this->manager->reveal());
 
         $this->subscriber = new RemoveSubscriber();
 

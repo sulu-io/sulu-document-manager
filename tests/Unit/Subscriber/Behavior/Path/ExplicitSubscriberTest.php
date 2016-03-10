@@ -12,7 +12,7 @@
 namespace Sulu\Component\DocumentManager\Tests\Unit\Subscriber\Behavior\Audit\Path;
 
 use PHPCR\NodeInterface;
-use Sulu\Component\DocumentManager\DocumentManagerContext;
+use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\DocumentStrategyInterface;
 use Sulu\Component\DocumentManager\Event\ConfigureOptionsEvent;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
@@ -32,9 +32,9 @@ class ExplicitSubscriberTest extends SubscriberTestCase
         $this->configureEvent = $this->prophesize(ConfigureOptionsEvent::class);
         $this->parentNode = $this->prophesize(NodeInterface::class);
         $this->node = $this->prophesize(NodeInterface::class);
-        $this->context = $this->prophesize(DocumentManagerContext::class);
-        $this->context->getNodeManager()->willReturn($this->nodeManager->reveal());
-        $this->persistEvent->getContext()->willReturn($this->context->reveal());
+        $this->manager = $this->prophesize(DocumentManagerInterface::class);
+        $this->manager->getNodeManager()->willReturn($this->nodeManager->reveal());
+        $this->persistEvent->getManager()->willReturn($this->manager->reveal());
 
         $this->subscriber = new ExplicitSubscriber(
             $this->strategy->reveal()

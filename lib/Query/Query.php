@@ -12,7 +12,7 @@
 namespace Sulu\Component\DocumentManager\Query;
 
 use PHPCR\Query\QueryInterface;
-use Sulu\Component\DocumentManager\DocumentManagerContext;
+use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\Event\QueryExecuteEvent;
 use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\Exception\DocumentManagerException;
@@ -36,9 +36,9 @@ class Query
     private $phpcrQuery;
 
     /**
-     * @var DocumentManagerContext
+     * @var DocumentManagerInterface
      */
-    private $context;
+    private $manager;
 
     /**
      * @var null|string
@@ -67,7 +67,7 @@ class Query
 
     public function __construct(
         QueryInterface $phpcrQuery,
-        DocumentManagerContext $context,
+        DocumentManagerInterface $manager,
         $locale = null,
         array $options = [],
         $primarySelector = null
@@ -76,7 +76,7 @@ class Query
         $this->locale = $locale;
         $this->options = $options;
         $this->primarySelector = $primarySelector;
-        $this->context = $context;
+        $this->manager = $manager;
     }
 
     /**
@@ -112,8 +112,8 @@ class Query
             ));
         }
 
-        $event = new QueryExecuteEvent($this->context, $this, $this->options);
-        $this->context->getEventDispatcher()->dispatch(Events::QUERY_EXECUTE, $event);
+        $event = new QueryExecuteEvent($this->manager, $this, $this->options);
+        $this->manager->getEventDispatcher()->dispatch(Events::QUERY_EXECUTE, $event);
 
         return $event->getResult();
     }

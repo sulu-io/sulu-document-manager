@@ -15,7 +15,7 @@ use PHPCR\NodeInterface;
 use PHPCR\PropertyInterface;
 use Prophecy\Argument;
 use Sulu\Component\DocumentManager\Collection\ReferrerCollection;
-use Sulu\Component\DocumentManager\DocumentManagerContext;
+use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\Events;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -28,12 +28,12 @@ class ReferrerCollectionTest extends \PHPUnit_Framework_TestCase
         $this->node = $this->prophesize(NodeInterface::class);
 
         $this->dispatcher = $this->prophesize(EventDispatcherInterface::class);
-        $this->context = $this->prophesize(DocumentManagerContext::class);
-        $this->context->getEventDispatcher()->willReturn($this->dispatcher->reveal());
+        $this->manager = $this->prophesize(DocumentManagerInterface::class);
+        $this->manager->getEventDispatcher()->willReturn($this->dispatcher->reveal());
 
         $this->collection = new ReferrerCollection(
             $this->node->reveal(),
-            $this->context->reveal(),
+            $this->manager->reveal(),
             'fr'
         );
     }

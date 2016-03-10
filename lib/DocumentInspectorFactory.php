@@ -34,16 +34,16 @@ class DocumentInspectorFactory implements DocumentInspectorFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function getInspector(DocumentManagerContext $context)
+    public function getInspector(DocumentManagerInterface $manager)
     {
         if ($this->inspector) {
             return $this->inspector;
         }
 
         $this->inspector = new DocumentInspector(
-            $context->getRegistry(),
+            $manager->getRegistry(),
             $this->pathSegmentRegistry,
-            $context->getProxyFactory()
+            $manager->getProxyFactory()
         );
 
         return $this->inspector;

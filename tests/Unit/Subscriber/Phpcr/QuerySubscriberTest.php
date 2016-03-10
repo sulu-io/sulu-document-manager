@@ -17,7 +17,7 @@ use PHPCR\Query\QueryResultInterface;
 use PHPCR\SessionInterface;
 use PHPCR\WorkspaceInterface;
 use Sulu\Component\DocumentManager\Collection\QueryResultCollection;
-use Sulu\Component\DocumentManager\DocumentManagerContext;
+use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\Event\QueryCreateEvent;
 use Sulu\Component\DocumentManager\Event\QueryExecuteEvent;
 use Sulu\Component\DocumentManager\Query\Query;
@@ -88,12 +88,12 @@ class QuerySubscriberTest extends \PHPUnit_Framework_TestCase
         $this->queryExecuteEvent = $this->prophesize(QueryExecuteEvent::class);
         $this->query = $this->prophesize(Query::class);
 
-        $this->context = $this->prophesize(DocumentManagerContext::class);
-        $this->context->getPhpcrSession()->willReturn($this->session->reveal());
-        $this->context->getEventDispatcher()->willReturn($this->dispatcher->reveal());
+        $this->manager = $this->prophesize(DocumentManagerInterface::class);
+        $this->manager->getSession()->willReturn($this->session->reveal());
+        $this->manager->getEventDispatcher()->willReturn($this->dispatcher->reveal());
 
-        $this->queryCreateEvent->getContext()->willReturn($this->context->reveal());
-        $this->queryExecuteEvent->getContext()->willReturn($this->context->reveal());
+        $this->queryCreateEvent->getManager()->willReturn($this->manager->reveal());
+        $this->queryExecuteEvent->getManager()->willReturn($this->manager->reveal());
 
         $this->subscriber = new QuerySubscriber();
 
@@ -117,7 +117,7 @@ class QuerySubscriberTest extends \PHPUnit_Framework_TestCase
         $this->queryManager->createQuery($query, 'JCR-SQL2')->willReturn($this->phpcrQuery->reveal());
         $this->queryCreateEvent->setQuery(new Query(
             $this->phpcrQuery->reveal(),
-            $this->context->reveal(),
+            $this->manager->reveal(),
             $locale,
             [],
             $primarySelector
@@ -141,7 +141,7 @@ class QuerySubscriberTest extends \PHPUnit_Framework_TestCase
         $this->queryManager->createQuery($this->phpcrQuery->reveal(), 'JCR-SQL2')->willReturn($this->phpcrQuery->reveal());
         $this->queryCreateEvent->setQuery(new Query(
             $this->phpcrQuery->reveal(),
-            $this->context->reveal(),
+            $this->manager->reveal(),
             $locale,
             [],
             $primarySelector
@@ -168,7 +168,7 @@ class QuerySubscriberTest extends \PHPUnit_Framework_TestCase
         $this->queryExecuteEvent->setResult(
             new QueryResultCollection(
                 $this->phpcrResult->reveal(),
-                $this->context->reveal(),
+                $this->manager->reveal(),
                 $locale
             )
         )->shouldBeCalled();

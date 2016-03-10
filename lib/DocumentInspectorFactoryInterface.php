@@ -16,5 +16,5 @@ namespace Sulu\Component\DocumentManager;
  */
 interface DocumentInspectorFactoryInterface
 {
-    public function getInspector(DocumentManagerContext $context);
+    public function getInspector(DocumentManagerInterface $manager);
 }

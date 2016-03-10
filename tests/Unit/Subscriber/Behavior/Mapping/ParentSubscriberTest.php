@@ -16,7 +16,7 @@ use Prophecy\Argument;
 use Sulu\Component\DocumentManager\Behavior\Mapping\ParentBehavior;
 use Sulu\Component\DocumentManager\DocumentInspector;
 use Sulu\Component\DocumentManager\DocumentManager;
-use Sulu\Component\DocumentManager\DocumentManagerContext;
+use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Event\MoveEvent;
 use Sulu\Component\DocumentManager\ProxyFactory;
@@ -93,13 +93,12 @@ class ParentSubscriberTest extends SubscriberTestCase
         $this->inspector = $this->prophesize(DocumentInspector::class);
         $this->documentManager = $this->prophesize(DocumentManager::class);
 
-        $this->context = $this->prophesize(DocumentManagerContext::class);
-        $this->context->getDocumentManager()->willReturn($this->documentManager->reveal());
-        $this->context->getProxyFactory()->willReturn($this->proxyFactory->reveal());
-        $this->context->getInspector()->willReturn($this->inspector->reveal());
+        $this->manager = $this->prophesize(DocumentManagerInterface::class);
+        $this->manager->getProxyFactory()->willReturn($this->proxyFactory->reveal());
+        $this->manager->getInspector()->willReturn($this->inspector->reveal());
 
-        $this->hydrateEvent->getContext()->willReturn($this->context->reveal());
-        $this->moveEvent->getContext()->willReturn($this->context->reveal());
+        $this->hydrateEvent->getManager()->willReturn($this->manager->reveal());
+        $this->moveEvent->getManager()->willReturn($this->manager->reveal());
 
         $this->subscriber = new ParentSubscriber();
 

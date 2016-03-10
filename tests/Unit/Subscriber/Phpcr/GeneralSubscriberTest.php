@@ -12,7 +12,7 @@
 namespace Sulu\Comonent\DocumentManager\Tests\Unit\Subscriber;
 
 use PHPCR\NodeInterface;
-use Sulu\Component\DocumentManager\DocumentManagerContext;
+use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\Event\ClearEvent;
 use Sulu\Component\DocumentManager\Event\CopyEvent;
@@ -46,16 +46,16 @@ class GeneralSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->document = new \stdClass();
         $this->node = $this->prophesize(NodeInterface::class);
 
-        $this->context = $this->prophesize(DocumentManagerContext::class);
-        $this->context->getNodeManager()->willReturn($this->nodeManager->reveal());
-        $this->context->getRegistry()->willReturn($this->documentRegistry->reveal());
-        $this->context->getEventDispatcher()->willReturn($this->eventDispatcher->reveal());
+        $this->manager = $this->prophesize(DocumentManagerInterface::class);
+        $this->manager->getNodeManager()->willReturn($this->nodeManager->reveal());
+        $this->manager->getRegistry()->willReturn($this->documentRegistry->reveal());
+        $this->manager->getEventDispatcher()->willReturn($this->eventDispatcher->reveal());
 
-        $this->moveEvent->getContext()->willReturn($this->context->reveal());
-        $this->copyEvent->getContext()->willReturn($this->context->reveal());
-        $this->clearEvent->getContext()->willReturn($this->context->reveal());
-        $this->flushEvent->getContext()->willReturn($this->context->reveal());
-        $this->refreshEvent->getContext()->willReturn($this->context->reveal());
+        $this->moveEvent->getManager()->willReturn($this->manager->reveal());
+        $this->copyEvent->getManager()->willReturn($this->manager->reveal());
+        $this->clearEvent->getManager()->willReturn($this->manager->reveal());
+        $this->flushEvent->getManager()->willReturn($this->manager->reveal());
+        $this->refreshEvent->getManager()->willReturn($this->manager->reveal());
 
         $this->subscriber = new GeneralSubscriber();
     }
@@ -121,7 +121,7 @@ class GeneralSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->node->revert()->shouldBeCalled();
         $this->documentRegistry->getLocaleForDocument($this->document)->willReturn('fr');
 
-        $event = new HydrateEvent($this->context->reveal(), $this->node->reveal(), 'fr');
+        $event = new HydrateEvent($this->manager->reveal(), $this->node->reveal(), 'fr');
         $this->eventDispatcher->dispatch(Events::REFRESH, $event);
 
         $this->subscriber->handleRefresh($this->refreshEvent->reveal());

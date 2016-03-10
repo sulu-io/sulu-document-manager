@@ -39,11 +39,6 @@ class DocumentManager implements DocumentManagerInterface
     private $nodeManager;
 
     /**
-     * @var DocumentManagerContext
-     */
-    private $context;
-
-    /**
      * @var DocumentRegistry
      */
     private $registry;
@@ -74,19 +69,8 @@ class DocumentManager implements DocumentManagerInterface
         $this->nodeManager = new NodeManager($session);
         $this->registry = new DocumentRegistry($defaultLocale);
         $this->inspectorFactory = $inspectorFactory;
-        $this->proxyFactory = new ProxyFactory($lazyProxyFactory, $metadataFactory);
+        $this->proxyFactory = new ProxyFactory($this, $lazyProxyFactory, $metadataFactory);
         $this->metadataFactory = $metadataFactory;
-
-        $this->context = new DocumentManagerContext(
-            $this,
-            $metadataFactory,
-            $this->nodeManager,
-            $this->registry,
-            $this->eventDispatcher,
-            $this->inspectorFactory,
-            $this->proxyFactory,
-            $session
-        );
     }
 
     /**
@@ -96,7 +80,7 @@ class DocumentManager implements DocumentManagerInterface
     {
         $options = $this->getOptionsResolver(Events::FIND)->resolve($options);
 
-        $event = new Event\FindEvent($this->context, $identifier, $locale, $options);
+        $event = new Event\FindEvent($this, $identifier, $locale, $options);
         $this->eventDispatcher->dispatch(Events::FIND, $event);
 
         return $event->getDocument();
@@ -107,7 +91,7 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function create($alias)
     {
-        $event = new Event\CreateEvent($this->context, $alias);
+        $event = new Event\CreateEvent($this, $alias);
         $this->eventDispatcher->dispatch(Events::CREATE, $event);
 
         return $event->getDocument();
@@ -120,7 +104,7 @@ class DocumentManager implements DocumentManagerInterface
     {
         $options = $this->getOptionsResolver(Events::FIND)->resolve($options);
 
-        $event = new Event\PersistEvent($this->context, $document, $locale, $options);
+        $event = new Event\PersistEvent($this, $document, $locale, $options);
         $this->eventDispatcher->dispatch(Events::PERSIST, $event);
     }
 
@@ -129,7 +113,7 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function remove($document)
     {
-        $event = new Event\RemoveEvent($this->context, $document);
+        $event = new Event\RemoveEvent($this, $document);
         $this->eventDispatcher->dispatch(Events::REMOVE, $event);
     }
 
@@ -138,7 +122,7 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function move($document, $destId)
     {
-        $event = new Event\MoveEvent($this->context, $document, $destId);
+        $event = new Event\MoveEvent($this, $document, $destId);
         $this->eventDispatcher->dispatch(Events::MOVE, $event);
     }
 
@@ -147,7 +131,7 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function copy($document, $destPath)
     {
-        $event = new Event\CopyEvent($this->context, $document, $destPath);
+        $event = new Event\CopyEvent($this, $document, $destPath);
         $this->eventDispatcher->dispatch(Events::COPY, $event);
 
         return $event->getCopiedPath();
@@ -158,7 +142,7 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function reorder($document, $destId, $after = false)
     {
-        $event = new Event\ReorderEvent($this->context, $document, $destId, $after);
+        $event = new Event\ReorderEvent($this, $document, $destId, $after);
         $this->eventDispatcher->dispatch(Events::REORDER, $event);
     }
 
@@ -167,7 +151,7 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function refresh($document)
     {
-        $event = new Event\RefreshEvent($this->context, $document);
+        $event = new Event\RefreshEvent($this, $document);
         $this->eventDispatcher->dispatch(Events::REFRESH, $event);
     }
 
@@ -176,7 +160,7 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function flush()
     {
-        $event = new Event\FlushEvent($this->context, $this->context);
+        $event = new Event\FlushEvent($this);
         $this->eventDispatcher->dispatch(Events::FLUSH, $event);
     }
 
@@ -185,7 +169,7 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function clear()
     {
-        $event = new Event\ClearEvent($this->context, $this->context);
+        $event = new Event\ClearEvent($this, $this);
         $this->eventDispatcher->dispatch(Events::CLEAR, $event);
     }
 
@@ -194,7 +178,7 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function createQuery($query, $locale = null, array $options = [])
     {
-        $event = new Event\QueryCreateEvent($this->context, $query, $locale, $options);
+        $event = new Event\QueryCreateEvent($this, $query, $locale, $options);
         $this->eventDispatcher->dispatch(Events::QUERY_CREATE, $event);
 
         return $event->getQuery();
@@ -205,7 +189,7 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function createQueryBuilder()
     {
-        $event = new Event\QueryCreateBuilderEvent($this->context);
+        $event = new Event\QueryCreateBuilderEvent($this);
         $this->eventDispatcher->dispatch(Events::QUERY_CREATE_BUILDER, $event);
 
         return $event->getQueryBuilder();
@@ -216,13 +200,11 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function getInspector()
     {
-        return $this->inspectorFactory->getInspector($this->context);
+        return $this->inspectorFactory->getInspector($this);
     }
 
     /**
-     * Return the node manager.
-     *
-     * @deprecated This should not be used and will be removed when it is possible to do so.
+     * {@inheritdoc}
      */
     public function getNodeManager()
     {
@@ -230,9 +212,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * Return the document registry.
-     *
-     * @deprecated This should not be used and will be removed when it is possible to do so.
+     * {@inheritdoc}
      */
     public function getRegistry()
     {
@@ -240,13 +220,27 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * Return the proxy factory.
-     *
-     * @deprecated This should not be used and will be removed when it is possible to do so.
+     * {@inheritdoc}
      */
     public function getProxyFactory()
     {
         return $this->proxyFactory;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSession()
+    {
+        return $this->session;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getEventDispatcher()
+    {
+        return $this->eventDispatcher;
     }
 
     /**

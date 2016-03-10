@@ -44,7 +44,7 @@ class PathSubscriber implements EventSubscriberInterface
 
         $event->getAccessor()->set(
             'path',
-            $event->getContext()->getInspector()->getPath($document)
+            $event->getManager()->getInspector()->getPath($document)
         );
     }
 }

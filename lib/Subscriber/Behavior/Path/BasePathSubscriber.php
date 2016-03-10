@@ -53,7 +53,7 @@ class BasePathSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $parentNode = $event->getContext()->getNodeManager()->createPath($this->basePath);
+        $parentNode = $event->getManager()->getNodeManager()->createPath($this->basePath);
         $event->setParentNode($parentNode);
     }
 }

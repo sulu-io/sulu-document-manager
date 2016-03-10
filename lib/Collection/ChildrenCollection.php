@@ -12,9 +12,9 @@
 namespace Sulu\Component\DocumentManager\Collection;
 
 use PHPCR\NodeInterface;
-use Sulu\Component\DocumentManager\DocumentManagerContext;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Events;
+use Sulu\Component\DocumentManager\DocumentManagerInterface;
 
 /**
  * Lazily hydrate query results.
@@ -44,18 +44,18 @@ class ChildrenCollection extends AbstractLazyCollection
     private $initialized = false;
 
     /**
-     * @var DocumentManagerContext
+     * @var DocumentManagerInterface
      */
-    private $context;
+    private $manager;
 
     public function __construct(
         NodeInterface $parentNode,
-        DocumentManagerContext $context,
+        DocumentManagerInterface $manager,
         $locale,
         $options = []
     ) {
         $this->parentNode = $parentNode;
-        $this->context = $context;
+        $this->manager = $manager;
         $this->locale = $locale;
         $this->options = $options;
     }
@@ -68,8 +68,8 @@ class ChildrenCollection extends AbstractLazyCollection
         $this->initialize();
         $childNode = $this->documents->current();
 
-        $hydrateEvent = new HydrateEvent($this->context, $childNode, $this->locale, $this->options);
-        $this->context->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
+        $hydrateEvent = new HydrateEvent($this->manager, $childNode, $this->locale, $this->options);
+        $this->manager->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
 
         return $hydrateEvent->getDocument();
     }
