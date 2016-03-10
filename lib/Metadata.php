@@ -41,12 +41,12 @@ class Metadata
     /**
      * Add a field mapping for field with given name, for example:.
      *
-     * ````
+     * ```
      * $metadata->addFieldMapping(array(
      *     'encoding' => 'content',
      *     'property' => 'phpcr_property_name',
      * ));
-     * ````
+     * ```
      *
      * @param string $name Name of field/property in the mapped class.
      * @param array $mapping {
@@ -150,18 +150,53 @@ class Metadata
         $this->phpcrType = $phpcrType;
     }
 
+    /**
+     * Set a named field value using reflection to access protected
+     * or private properties.
+     *
+     * @param object $document
+     * @param string $field
+     * @param mixed $value
+     * @throws \InvalidArgumentException If the field is not mapped.
+     */
     public function setFieldValue($document, $field, $value)
     {
-        if (!isset($this->fieldMappings[$field])) {
-            throw new \InvalidArgumentException(sprintf(
-                'Field "%s" is not mapped. Mapped fields: "%s"',
-                $field, implode('", "', array_keys($this->fieldMappings))
-            ));
-        }
+        $this->ensureMappingExists($document, $field);
 
         $reflection = $this->getReflectionClass();
         $property = $reflection->getProperty($field);
         $property->setAccessible(true);
         $property->setValue($document, $value);
+    }
+
+    /**
+     * Return the named value using reflection to access protected
+     * or private properties.
+     *
+     * @param object $document
+     * @param string $field
+     * @throws \InvalidArgumentException If the field is not mapped.
+     */
+    public function getFieldValue($document, $field)
+    {
+        $this->ensureMappingExists($document, $field);
+
+        $reflection = $this->getReflectionClass();
+        $property = $reflection->getProperty($field);
+        $property->setAccessible(true);
+
+        return $property->getValue($document);
+    }
+
+    private function ensureMappingExists($document, $field)
+    {
+        if (isset($this->fieldMappings[$field])) {
+            return;
+        }
+
+        throw new \InvalidArgumentException(sprintf(
+            'Field "%s" is not mapped for document "%s". Mapped fields: "%s"',
+            $field, get_class($document), implode('", "', array_keys($this->fieldMappings))
+        ));
     }
 }

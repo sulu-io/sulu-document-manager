@@ -39,6 +39,12 @@ class ClassNameInflector
         return self::getInflector()->getUserClassName($className);
     }
 
+    /**
+     * Return true if the given class name appears to be the name of a proxy class.
+     *
+     * @param string $className
+     * @return bool
+     */
     public static function isProxyClassName($className)
     {
         return self::getInflector()->isProxyClassName($className);

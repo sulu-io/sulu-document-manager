@@ -16,6 +16,16 @@ use ProxyManager\Factory\LazyLoadingGhostFactory;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * A document manager has two roles:
+ *
+ * - Provider of an API for working with documents.  
+ * - A "sub container", providing access to the services which fall
+ *   within the scope of the particular document manager (as there can be many).
+ *
+ * This class is therefore an event dispatcher and a service container and has
+ * no other business logic within it.
+ */
 class DocumentManager implements DocumentManagerInterface
 {
     /**
@@ -54,8 +64,10 @@ class DocumentManager implements DocumentManagerInterface
     private $metadataFactory;
 
     /**
-     * @param EventDispatcherInterface $eventDispatcher
+     * @var SessionInterface
      */
+    private $session;
+
     public function __construct(
         SessionInterface $session,
         EventDispatcherInterface $eventDispatcher,
@@ -64,13 +76,25 @@ class DocumentManager implements DocumentManagerInterface
         DocumentInspectorFactoryInterface $inspectorFactory,
         $defaultLocale
     ) {
+        // the event dispatcher should be unique to this document manager
+        // instance.
         $this->eventDispatcher = $eventDispatcher;
 
-        $this->nodeManager = new NodeManager($session);
-        $this->registry = new DocumentRegistry($defaultLocale);
+        // the inspector factory provides a way for users to instantiate
+        // their own document inspectors.
         $this->inspectorFactory = $inspectorFactory;
-        $this->proxyFactory = new ProxyFactory($this, $lazyProxyFactory, $metadataFactory);
+
+        // the metadata factory is currently intended to be the same for all 
+        // document manager instances.
         $this->metadataFactory = $metadataFactory;
+
+        // the PHPCR session SHOULD be unique to all document managers.
+        $this->session = $session;
+
+        // instantiate other objects scoped to this document manager.
+        $this->nodeManager = new NodeManager($session);
+        $this->proxyFactory = new ProxyFactory($this, $lazyProxyFactory, $metadataFactory);
+        $this->registry = new DocumentRegistry($defaultLocale);
     }
 
     /**
@@ -246,6 +270,14 @@ class DocumentManager implements DocumentManagerInterface
     /**
      * {@inheritdoc}
      */
+    public function getMetadataFactory() 
+    {
+        return $this->metadataFactory;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     private function getOptionsResolver($eventName)
     {
         if (isset($this->optionsResolvers[$eventName])) {
@@ -262,10 +294,4 @@ class DocumentManager implements DocumentManagerInterface
 
         return $resolver;
     }
-
-    public function getMetadataFactory() 
-    {
-        return $this->metadataFactory;
-    }
-    
 }
