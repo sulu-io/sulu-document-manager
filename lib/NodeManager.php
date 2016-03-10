@@ -48,6 +48,13 @@ class NodeManager
      */
     public function find($identifier)
     {
+        // try to return the node, if the identifier looks like an ID, get by
+        // identifier otherwise by path.
+        //
+        // the getNodeByIdentifier() method will throw a RepositoryException,
+        // the getNode() method a ItemNotFoundException. We catch both and
+        // return a DocumentNotFoundException (wrapping the original
+        // exception).
         try {
             if (UUIDHelper::isUUID($identifier)) {
                 return $this->session->getNodeByIdentifier($identifier);
@@ -153,12 +160,17 @@ class NodeManager
     /**
      * Create a path.
      *
+     * All nodes created are given a UUID and the accompanying
+     * `mix:referenceable` mixin.
+     *
+     * The user may specify a custom UUID using the second argument.
+     *
      * @param string $path
-     * @param bool $generateUuid
+     * @param string|null $uuid
      *
      * @return NodeInterface
      */
-    public function createPath($path, $generateUuid = true)
+    public function createPath($path, $uuid = null)
     {
         $current = $this->session->getRootNode();
 
@@ -168,11 +180,9 @@ class NodeManager
                 $current = $current->getNode($segment);
             } else {
                 $current = $current->addNode($segment);
-                $current->addMixin('mix:referenceable');
 
-                if (true === $generateUuid) {
-                    $current->setProperty('jcr:uuid', UUIDHelper::generateUUID());
-                }
+                $current->addMixin('mix:referenceable');
+                $current->setProperty('jcr:uuid', $uuid ?: UUIDHelper::generateUUID());
             }
         }
 
