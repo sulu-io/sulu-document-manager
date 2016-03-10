@@ -17,6 +17,7 @@ use PHPCR\SessionInterface;
 use PHPCR\Util\NodeHelper;
 use PHPCR\Util\UUIDHelper;
 use Sulu\Component\DocumentManager\Exception\DocumentNotFoundException;
+use PHPCR\ItemNotFoundException;
 
 /**
  * The node manager is responsible for talking to the PHPCR implementation.
@@ -57,6 +58,10 @@ class NodeManager
             throw new DocumentNotFoundException(sprintf(
                 'Could not find document with ID or path "%s"', $identifier
             ), null, $e);
+        } catch (ItemNotFoundException $e) {
+            throw new DocumentNotFoundException(sprintf(
+                'Could not find document with ID or path "%s"', $identifier
+            ), null, $e);
         }
     }
 
@@ -70,7 +75,6 @@ class NodeManager
      */
     public function has($identifier)
     {
-        $this->normalizeToPath($identifier);
         try {
             $this->find($identifier);
 
@@ -150,10 +154,11 @@ class NodeManager
      * Create a path.
      *
      * @param string $path
+     * @param bool $generateUuid
      *
      * @return NodeInterface
      */
-    public function createPath($path)
+    public function createPath($path, $generateUuid = true)
     {
         $current = $this->session->getRootNode();
 
@@ -164,7 +169,10 @@ class NodeManager
             } else {
                 $current = $current->addNode($segment);
                 $current->addMixin('mix:referenceable');
-                $current->setProperty('jcr:uuid', UUIDHelper::generateUUID());
+
+                if (true === $generateUuid) {
+                    $current->setProperty('jcr:uuid', UUIDHelper::generateUUID());
+                }
             }
         }
 

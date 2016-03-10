@@ -36,10 +36,20 @@ class ClassNameInflector
      */
     public static function getUserClassName($className)
     {
+        return self::getInflector()->getUserClassName($className);
+    }
+
+    public static function isProxyClassName($className)
+    {
+        return self::getInflector()->isProxyClassName($className);
+    }
+
+    private static function getInflector()
+    {
         if (null === self::$inflector) {
             static::$inflector = new ProxyManagerClassNameInflector('');
         }
 
-        return static::$inflector->getUserClassName($className);
+        return static::$inflector;
     }
 }

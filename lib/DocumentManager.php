@@ -54,6 +54,11 @@ class DocumentManager implements DocumentManagerInterface
     private $proxyFactory;
 
     /**
+     * @var MetadataFactoryInterface
+     */
+    private $metadataFactory;
+
+    /**
      * @param EventDispatcherInterface $eventDispatcher
      */
     public function __construct(
@@ -70,6 +75,7 @@ class DocumentManager implements DocumentManagerInterface
         $this->registry = new DocumentRegistry($defaultLocale);
         $this->inspectorFactory = $inspectorFactory;
         $this->proxyFactory = new ProxyFactory($lazyProxyFactory, $metadataFactory);
+        $this->metadataFactory = $metadataFactory;
 
         $this->context = new DocumentManagerContext(
             $this,
@@ -262,4 +268,10 @@ class DocumentManager implements DocumentManagerInterface
 
         return $resolver;
     }
+
+    public function getMetadataFactory() 
+    {
+        return $this->metadataFactory;
+    }
+    
 }

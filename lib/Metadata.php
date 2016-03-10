@@ -149,4 +149,19 @@ class Metadata
     {
         $this->phpcrType = $phpcrType;
     }
+
+    public function setFieldValue($document, $field, $value)
+    {
+        if (!isset($this->fieldMappings[$field])) {
+            throw new \InvalidArgumentException(sprintf(
+                'Field "%s" is not mapped. Mapped fields: "%s"',
+                $field, implode('", "', array_keys($this->fieldMappings))
+            ));
+        }
+
+        $reflection = $this->getReflectionClass();
+        $property = $reflection->getProperty($field);
+        $property->setAccessible(true);
+        $property->setValue($document, $value);
+    }
 }

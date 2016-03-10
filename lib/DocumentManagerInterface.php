@@ -132,4 +132,25 @@ interface DocumentManagerInterface
      * @return DocumentInspector
      */
     public function getInspector();
+
+    /**
+     * Return the node manager instance.
+     *
+     * @return NodeManager
+     */
+    public function getNodeManager();
+
+    /**
+     * Return the document registry instance.
+     *
+     * @return DocumentRegistry
+     */
+    public function getRegistry();
+
+    /**
+     * Return the metadata factory instance.
+     *
+     * @return MetadataFactoryInterface
+     */
+    public function getMetadataFactory();
 }
