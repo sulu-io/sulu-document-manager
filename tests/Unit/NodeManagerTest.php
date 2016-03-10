@@ -178,8 +178,12 @@ class NodeManagerTest extends \PHPUnit_Framework_TestCase
         $this->node2->addNode('to')->willReturn($this->node3->reveal());
 
         $this->node3->addMixin('mix:referenceable')->shouldBeCalled();
-        $this->node3->setProperty('jcr:uuid', Argument::type('string'))->shouldBeCalled();
 
+        $this->node3->setProperty('jcr:uuid', '72e897c4-b716-426b-a693-dba28b7dd8e5')->shouldBeCalled();
+
+        // seed the better number generator so that we always get the same
+        // UUID.
+        mt_srand(0);
         $this->manager->createPath('/path/to');
     }
 

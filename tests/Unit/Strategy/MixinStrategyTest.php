@@ -17,9 +17,45 @@ use Sulu\Component\DocumentManager\Metadata;
 use Sulu\Component\DocumentManager\MetadataFactoryInterface;
 use Sulu\Component\DocumentManager\Strategy\MixinStrategy;
 use Sulu\Component\DocumentManager\Strategy\Strategy;
+use Sulu\Component\DocumentManager\Behavior\Mapping\UuidBehavior;
 
 class MixinStrategyTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var MetadataFactoryInterface
+     */
+    private $factory;
+
+    /**
+     * @var Metadata
+     */
+    private $metadata;
+
+    /**
+     * @var MixinStrategy
+     */
+    private $strategy;
+
+    /**
+     * @var object
+     */
+    private $document;
+
+    /**
+     * @var UuidBehavior
+     */
+    private $uuidDocument;
+
+    /**
+     * @var NodeInterface
+     */
+    private $parentNode;
+
+    /**
+     * @var NodeInterface
+     */
+    private $node;
+
     public function setUp()
     {
         $this->factory = $this->prophesize(MetadataFactoryInterface::class);
@@ -27,6 +63,7 @@ class MixinStrategyTest extends \PHPUnit_Framework_TestCase
         $this->strategy = new MixinStrategy($this->factory->reveal());
 
         $this->document = new \stdClass();
+        $this->uuidDocument = $this->prophesize(UuidBehavior::class);
         $this->parentNode = $this->prophesize(NodeInterface::class);
         $this->node = $this->prophesize(NodeInterface::class);
     }
@@ -35,7 +72,7 @@ class MixinStrategyTest extends \PHPUnit_Framework_TestCase
      * It should create a PHPCR node for the given document and add the
      * PHPCR type as a mixin and set the UUID.
      */
-    public function testExecutePhpcr()
+    public function testCreateNode()
     {
         $name = 'hello';
 
@@ -46,6 +83,24 @@ class MixinStrategyTest extends \PHPUnit_Framework_TestCase
         $this->node->setProperty('jcr:uuid', Argument::type('string'))->shouldBeCalled();
 
         $this->strategy->createNodeForDocument($this->document, $this->parentNode->reveal(), $name);
+    }
+
+    /**
+     * It should not set the UUID if the document already has one.
+     */
+    public function testCreateNodeKeepExistingUuid()
+    {
+        $name = 'hello';
+        $uuid = '1234';
+
+        $this->uuidDocument->getUuid()->willReturn($uuid);
+        $this->factory->getMetadataForClass(get_class($this->uuidDocument->reveal()))->willReturn($this->metadata->reveal());
+        $this->metadata->getPhpcrType()->willReturn('someType');
+        $this->parentNode->addNode($name)->willReturn($this->node->reveal());
+        $this->node->addMixin('someType')->shouldBeCalled();
+        $this->node->setProperty('jcr:uuid', $uuid)->shouldBeCalled();
+
+        $this->strategy->createNodeForDocument($this->uuidDocument->reveal(), $this->parentNode->reveal(), $name);
     }
 
     /**
