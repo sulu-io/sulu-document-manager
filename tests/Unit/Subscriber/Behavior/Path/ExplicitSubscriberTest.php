@@ -15,6 +15,7 @@ use PHPCR\NodeInterface;
 use Sulu\Component\DocumentManager\DocumentStrategyInterface;
 use Sulu\Component\DocumentManager\Event\ConfigureOptionsEvent;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
+use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\NodeManager;
 use Sulu\Component\DocumentManager\Subscriber\Behavior\Path\ExplicitSubscriber;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -28,6 +29,7 @@ class ExplicitSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->nodeManager = $this->prophesize(NodeManager::class);
         $this->strategy = $this->prophesize(DocumentStrategyInterface::class);
         $this->configureEvent = $this->prophesize(ConfigureOptionsEvent::class);
+        $this->configureEvent->getEventName()->willReturn(Events::PERSIST);
         $this->parentNode = $this->prophesize(NodeInterface::class);
         $this->node = $this->prophesize(NodeInterface::class);
 
@@ -40,7 +42,7 @@ class ExplicitSubscriberTest extends \PHPUnit_Framework_TestCase
     /**
      * It should throw an exception if both path name and node_name options are given.
      *
-     * @expectedException Symfony\Component\OptionsResolver\Exception\InvalidOptionsException
+     * @expectedException \Symfony\Component\OptionsResolver\Exception\InvalidOptionsException
      */
     public function testExceptionNodeNameAndPath()
     {
@@ -55,7 +57,7 @@ class ExplicitSubscriberTest extends \PHPUnit_Framework_TestCase
     /**
      * It should throw an exception if both path name and parent_path options are given.
      *
-     * @expectedException Symfony\Component\OptionsResolver\Exception\InvalidOptionsException
+     * @expectedException \Symfony\Component\OptionsResolver\Exception\InvalidOptionsException
      */
     public function testExceptionParentPathAndPath()
     {
@@ -127,7 +129,7 @@ class ExplicitSubscriberTest extends \PHPUnit_Framework_TestCase
     /**
      * It should throw an exception if node_name is specified but no parent node is available.
      *
-     * @expectedException Sulu\Component\DocumentManager\Exception\DocumentManagerException
+     * @expectedException \Sulu\Component\DocumentManager\Exception\DocumentManagerException
      */
     public function testNodeNameButNotParentNode()
     {

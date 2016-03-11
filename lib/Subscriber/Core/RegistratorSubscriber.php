@@ -36,9 +36,8 @@ class RegistratorSubscriber implements EventSubscriberInterface
     /**
      * @param DocumentRegistry $documentRegistry
      */
-    public function __construct(
-        DocumentRegistry $documentRegistry
-    ) {
+    public function __construct(DocumentRegistry $documentRegistry)
+    {
         $this->documentRegistry = $documentRegistry;
     }
 
@@ -72,6 +71,10 @@ class RegistratorSubscriber implements EventSubscriberInterface
      */
     public function configureOptions(ConfigureOptionsEvent $event)
     {
+        if (!in_array($event->getEventName(), [Events::FIND, Events::PERSIST])) {
+            return;
+        }
+
         $options = $event->getOptions();
         $options->setDefaults([
             'rehydrate' => true,
