@@ -33,13 +33,26 @@ abstract class AbstractFilingSubscriber implements EventSubscriberInterface
 
     public function handlePersist(PersistEvent $event)
     {
-        $document = $event->getDocument();
+        $options = $event->getOptions();
 
-        if (!$this->supports($document)) {
+        // if "path" option has been explicitly set then it takes precedence
+        // over this subscriber.
+        //
+        // here we SHOULD say if the event already has a parent node then
+        // return, however unfortunately in Sulu the StructureFilingSubscriber
+        // depends upon the state of the parent node as set by the preceding
+        // AliasFilingSubscriber. This means that it depends on there being a
+        // parent node in the event and that returning based on the existence
+        // of the parent node changes breaks the system.
+        //
+        // see: https://github.com/sulu-io/sulu/issues/2117
+        if (isset($options['path']) || isset($options['parent_path'])) {
             return;
         }
 
-        if ($event->hasParentNode()) {
+        $document = $event->getDocument();
+
+        if (!$this->supports($document)) {
             return;
         }
 
