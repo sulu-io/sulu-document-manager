@@ -119,7 +119,12 @@ class ExplicitSubscriber implements EventSubscriberInterface
         }
 
         if ($event->hasNode()) {
-            $this->renameNode($event->getNode(), $nodeName);
+            $this->handleExisting(
+                $event->getManager()->getNodeManager(),
+                $event->getNode(),
+                $event->getParentNode(),
+                $nodeName
+            );
 
             return;
         }
@@ -133,8 +138,34 @@ class ExplicitSubscriber implements EventSubscriberInterface
         $event->setNode($node);
     }
 
-    private function renameNode(NodeInterface $node, $nodeName)
+    /**
+     * Handle the existing node.
+     *
+     * If the path of the parent node in the event is different from the path
+     * of the actual parent node path for the document then we perform an
+     * implicit move.
+     *
+     * If the node name is different from the of the PHPCR node, then we rename
+     * the PHPCR node accordingly.
+     *
+     * Otherwise, there is nothing to do.
+     *
+     * @param NodeManager $nodeManager
+     * @param NodeInterface $node  The existing node.
+     * @param NodeInterface $parentNode  The parent node from the event (not necessarily the subject node)
+     * @param string $nodeName  The target name of the node.
+     */
+    private function handleExisting(NodeManager $nodeManager, NodeInterface $node, NodeInterface $parentNode, $nodeName)
     {
+        $realParentPath = PathHelper::getParentPath($node->getPath());
+        $eventParentPath = $parentNode->getPath();
+
+        if ($eventParentPath !== $realParentPath) {
+            $nodeManager->move($node->getIdentifier(), $eventParentPath, $nodeName);
+
+            return;
+        }
+
         if ($node->getName() == $nodeName) {
             return;
         }
@@ -142,6 +173,18 @@ class ExplicitSubscriber implements EventSubscriberInterface
         $node->rename($nodeName);
     }
 
+    /**
+     * Resolve the parent for the given parent path.
+     *
+     * If the parent does not exist and "auto_create" option
+     * is present then create the path.
+     *
+     * @param NodeManager $nodeManager
+     * @param string $parentPath
+     * @param array $options
+     *
+     * @return NodeInterface
+     */
     private function resolveParent(NodeManager $nodeManager, $parentPath, array $options)
     {
         $autoCreate = $options['auto_create'];

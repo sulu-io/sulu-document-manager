@@ -128,8 +128,7 @@ class AliasFilingSubscriberTest extends SubscriberTestCase
      */
     public function testReturnEarlyAlreadyHasParent()
     {
-        $this->persistEvent->getDocument()->willReturn($this->document->reveal());
-        $this->persistEvent->hasParentNode()->willReturn(true);
+        $this->persistEvent->getOptions()->willReturn(['path' => '/path']);
         $this->persistEvent->setParentNode(Argument::cetera())->shouldNotBeCalled();
 
         $this->subscriber->handlePersist($this->persistEvent->reveal());
