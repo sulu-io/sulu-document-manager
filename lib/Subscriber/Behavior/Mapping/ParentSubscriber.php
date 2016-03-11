@@ -60,13 +60,6 @@ class ParentSubscriber implements EventSubscriberInterface
     {
         $document = $event->getDocument();
 
-        $options = $event->getOptions();
-
-        // path takes precedence over this subscriber.
-        if (isset($options['path']) && $options['path']) {
-            return;
-        }
-
         if (!$document instanceof ParentBehavior) {
             return;
         }

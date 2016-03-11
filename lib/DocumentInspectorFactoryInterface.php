@@ -30,6 +30,7 @@ interface DocumentInspectorFactoryInterface
      * manager.
      *
      * @param DocumentManagerInterface
+     *
      * @return DocumentInspector
      */
     public function getInspector(DocumentManagerInterface $manager);

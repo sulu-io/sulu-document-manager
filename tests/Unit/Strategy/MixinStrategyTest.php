@@ -13,11 +13,11 @@ namespace Sulu\Comonent\DocumentManager\tests\Unit\Strategy;
 
 use PHPCR\NodeInterface;
 use Prophecy\Argument;
+use Sulu\Component\DocumentManager\Behavior\Mapping\UuidBehavior;
 use Sulu\Component\DocumentManager\Metadata;
 use Sulu\Component\DocumentManager\MetadataFactoryInterface;
 use Sulu\Component\DocumentManager\Strategy\MixinStrategy;
 use Sulu\Component\DocumentManager\Strategy\Strategy;
-use Sulu\Component\DocumentManager\Behavior\Mapping\UuidBehavior;
 
 class MixinStrategyTest extends \PHPUnit_Framework_TestCase
 {
@@ -124,7 +124,6 @@ class MixinStrategyTest extends \PHPUnit_Framework_TestCase
      */
     public function testResolveMetadataNotManaged()
     {
-        $mixinTypes = ['foobar'];
         $this->node->hasProperty('jcr:mixinTypes')->willReturn(false);
         $result = $this->strategy->resolveMetadataForNode($this->node->reveal());
 

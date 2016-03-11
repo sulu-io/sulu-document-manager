@@ -17,9 +17,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * A document manager has two roles:
+ * A document manager has two roles:.
  *
- * - Provider of an API for working with documents.  
+ * - Provider of an API for working with documents.
  * - A "sub container", providing access to the services which fall
  *   within the scope of the particular document manager (as there can be many).
  *
@@ -84,7 +84,7 @@ class DocumentManager implements DocumentManagerInterface
         // their own document inspectors.
         $this->inspectorFactory = $inspectorFactory;
 
-        // the metadata factory is currently intended to be the same for all 
+        // the metadata factory is currently intended to be the same for all
         // document manager instances.
         $this->metadataFactory = $metadataFactory;
 
@@ -270,7 +270,7 @@ class DocumentManager implements DocumentManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function getMetadataFactory() 
+    public function getMetadataFactory()
     {
         return $this->metadataFactory;
     }

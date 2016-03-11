@@ -14,7 +14,7 @@ namespace Sulu\Component\DocumentManager\Event;
 use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Symfony\Component\EventDispatcher\Event;
 
-/** 
+/**
  * Abstract class for events which require the DocumentManagerInterface - i.e.
  * all events for which subscribers require access to a document manager or any
  * of its dependencies.
@@ -35,7 +35,7 @@ abstract class AbstractManagerEvent extends AbstractEvent
     {
         if (null === $this->manager) {
             throw new \RuntimeException(
-                'No DocumentManagerInterface has been set on this event, maybe this class has overridden the constructor and forgotten about it?'
+                'No DocumentManagerInterface instance has been set on this event, maybe this class has overridden the constructor and forgotten about it?'
             );
         }
 

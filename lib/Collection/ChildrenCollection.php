@@ -12,9 +12,9 @@
 namespace Sulu\Component\DocumentManager\Collection;
 
 use PHPCR\NodeInterface;
+use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Events;
-use Sulu\Component\DocumentManager\DocumentManagerInterface;
 
 /**
  * Lazily hydrate query results.

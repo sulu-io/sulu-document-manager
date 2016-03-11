@@ -43,7 +43,7 @@ interface DocumentManagerRegistryInterface
      *
      * @param string $name
      *
-     * @throws \InvalidArgumentException 
+     * @throws \InvalidArgumentException
      */
     public function getManager($name = null);
 }

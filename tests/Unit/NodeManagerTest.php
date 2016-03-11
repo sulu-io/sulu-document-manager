@@ -16,7 +16,6 @@ use PHPCR\PathNotFoundException;
 use PHPCR\SessionInterface;
 use PHPCR\WorkspaceInterface;
 use Sulu\Component\DocumentManager\NodeManager;
-use Prophecy\Argument;
 
 class NodeManagerTest extends \PHPUnit_Framework_TestCase
 {
@@ -167,7 +166,7 @@ class NodeManagerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * It should create a path
+     * It should create a path.
      */
     public function testCreatePath()
     {
@@ -188,7 +187,7 @@ class NodeManagerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * It should create a path with the given UUID
+     * It should create a path with the given UUID.
      */
     public function testCreatePathWithAGivenUuid()
     {

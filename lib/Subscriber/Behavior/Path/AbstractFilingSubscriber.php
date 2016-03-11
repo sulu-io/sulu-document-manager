@@ -39,10 +39,7 @@ abstract class AbstractFilingSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $options = $event->getOptions();
-
-        // if "path" option has been explicitly set.
-        if (isset($options['path']) || isset($options['parent_path'])) {
+        if ($event->hasParentNode()) {
             return;
         }
 

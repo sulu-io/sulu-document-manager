@@ -11,13 +11,13 @@
 
 namespace Sulu\Component\DocumentManager;
 
+use PHPCR\ItemNotFoundException;
 use PHPCR\NodeInterface;
 use PHPCR\RepositoryException;
 use PHPCR\SessionInterface;
 use PHPCR\Util\NodeHelper;
 use PHPCR\Util\UUIDHelper;
 use Sulu\Component\DocumentManager\Exception\DocumentNotFoundException;
-use PHPCR\ItemNotFoundException;
 
 /**
  * The node manager is responsible for talking to the PHPCR implementation.

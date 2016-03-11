@@ -57,7 +57,7 @@ class AliasFilingSubscriber extends AbstractFilingSubscriber
     }
 
     /**
-     * @param $document
+     * @param object $document
      *
      * @return string
      */

@@ -157,6 +157,7 @@ class Metadata
      * @param object $document
      * @param string $field
      * @param mixed $value
+     *
      * @throws \InvalidArgumentException If the field is not mapped.
      */
     public function setFieldValue($document, $field, $value)
@@ -175,6 +176,7 @@ class Metadata
      *
      * @param object $document
      * @param string $field
+     *
      * @throws \InvalidArgumentException If the field is not mapped.
      */
     public function getFieldValue($document, $field)
