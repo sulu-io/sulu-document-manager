@@ -266,11 +266,19 @@ class MappingSubscriber implements EventSubscriberInterface
                 $this->getDefaultValue($fieldMapping)
             );
 
+            try {
             if ($referencedNode) {
                 $accessor->set(
                     $fieldName,
                     $proxyFactory->createProxyForNode($document, $referencedNode, $options)
                 );
+            }
+            } catch (\Exception $e) {
+                throw new \Exception(sprintf(
+                    'Error hydrating proxy relation "%s" for document "%s"', 
+                    $fieldName,
+                    get_class($document)
+                ), null, $e);
             }
         } catch (InvalidLocaleException $ex) {
             // arguments invalid, no valid propertyname could be generated (e.g. no locale given for localized encoding)
