@@ -87,9 +87,10 @@ class AliasFilingSubscriberTest extends SubscriberTestCase
         $this->metadata = $this->prophesize(Metadata::class);
         $this->parentNode = $this->prophesize(NodeInterface::class);
         $this->manager = $this->prophesize(DocumentManagerInterface::class);
-        $this->manager->getNodeManager()->willReturn($this->nodeManager->reveal());
-        $this->manager->getMetadataFactory()->willReturn($this->metadataFactory->reveal());
-        $this->persistEvent->getManager()->willReturn($this->manager->reveal());
+
+        $this->persistEvent->getNodeManager()->willReturn($this->nodeManager->reveal());
+        $this->persistEvent->getMetadataFactory()->willReturn($this->metadataFactory->reveal());
+        $this->persistEvent->getDocumentManager()->willReturn($this->manager->reveal());
         $this->persistEvent->getOptions()->willReturn([]);
 
         $this->subscriber = new AliasFilingSubscriber();

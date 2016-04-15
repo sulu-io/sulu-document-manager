@@ -58,8 +58,8 @@ class ReferrerCollection extends AbstractLazyCollection
         $this->initialize();
         $referrerNode = $this->documents->current();
 
-        $hydrateEvent = new HydrateEvent($this->manager, $referrerNode, $this->locale);
-        $this->manager->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
+        $hydrateEvent = new HydrateEvent($this->manager->getContext(), $referrerNode, $this->locale);
+        $hydrateEvent->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
 
         return $hydrateEvent->getDocument();
     }

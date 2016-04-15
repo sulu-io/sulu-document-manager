@@ -35,7 +35,7 @@ class PathSubscriberTest extends SubscriberTestCase
         $this->hydrateEvent->getAccessor()->willReturn($this->accessor);
         $this->manager = $this->prophesize(DocumentManagerInterface::class);
         $this->manager->getInspector()->willReturn($this->inspector->reveal());
-        $this->hydrateEvent->getManager()->willReturn($this->manager->reveal());
+        $this->hydrateEvent->getDocumentManager()->willReturn($this->manager->reveal());
 
         $this->subscriber = new PathSubscriber(
             $this->manager->reveal()

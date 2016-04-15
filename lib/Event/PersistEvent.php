@@ -15,6 +15,7 @@ use PHPCR\NodeInterface;
 use Sulu\Component\DocumentManager\DocumentHelper;
 use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\Exception\RuntimeException;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 
 class PersistEvent extends AbstractMappingEvent
 {
@@ -24,14 +25,14 @@ class PersistEvent extends AbstractMappingEvent
     private $parentNode;
 
     /**
-     * @param DocumentManagerInterface $manager
+     * @param DocumentManagerContext $context
      * @param object $document
      * @param string $locale
      * @param array $options
      */
-    public function __construct(DocumentManagerInterface $manager, $document, $locale, array $options = [])
+    public function __construct(DocumentManagerContext $context, $document, $locale, array $options = [])
     {
-        parent::__construct($manager);
+        parent::__construct($context);
         $this->document = $document;
         $this->locale = $locale;
         $this->options = $options;

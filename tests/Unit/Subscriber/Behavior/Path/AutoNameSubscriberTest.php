@@ -124,11 +124,12 @@ class AutoNameSubscriberTest extends SubscriberTestCase
         $this->strategy = $this->prophesize(DocumentStrategyInterface::class);
 
         $this->manager = $this->prophesize(DocumentManagerInterface::class);
-        $this->manager->getNodeManager()->willReturn($this->nodeManager->reveal());
-        $this->manager->getRegistry()->willReturn($this->documentRegistry->reveal());
 
-        $this->moveEvent->getManager()->willReturn($this->manager->reveal());
-        $this->persistEvent->getManager()->willReturn($this->manager->reveal());
+        $this->moveEvent->getDocumentManager()->willReturn($this->manager->reveal());
+        $this->moveEvent->getNodeManager()->willReturn($this->nodeManager->reveal());
+        $this->moveEvent->getDocumentRegistry()->willReturn($this->documentRegistry->reveal());
+        $this->persistEvent->getDocumentManager()->willReturn($this->manager->reveal());
+        $this->persistEvent->getDocumentRegistry()->willReturn($this->documentRegistry->reveal());
 
         $this->subscriber = new AutoNameSubscriber(
             $this->slugifier->reveal(),

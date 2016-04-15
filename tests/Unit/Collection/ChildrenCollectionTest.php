@@ -17,6 +17,7 @@ use Sulu\Component\DocumentManager\Collection\ChildrenCollection;
 use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\Events;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 
 class ChildrenCollectionTest extends \PHPUnit_Framework_TestCase
 {
@@ -27,7 +28,9 @@ class ChildrenCollectionTest extends \PHPUnit_Framework_TestCase
 
         $this->dispatcher = $this->prophesize(EventDispatcherInterface::class);
         $this->manager = $this->prophesize(DocumentManagerInterface::class);
-        $this->manager->getEventDispatcher()->willReturn($this->dispatcher->reveal());
+        $this->context = $this->prophesize(DocumentManagerContext::class);
+        $this->manager->getContext()->willReturn($this->context->reveal());
+        $this->context->getEventDispatcher()->willReturn($this->dispatcher->reveal());
 
         $this->collection = new ChildrenCollection(
             $this->parentNode->reveal(),

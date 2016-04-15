@@ -34,7 +34,7 @@ class DocumentInspectorFactory implements DocumentInspectorFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function getInspector(DocumentManagerInterface $manager)
+    public function getInspector(DocumentManagerContext $context)
     {
         $hash = spl_object_hash($manager);
         if (isset($this->inspector[$hash])) {
@@ -44,7 +44,7 @@ class DocumentInspectorFactory implements DocumentInspectorFactoryInterface
         $this->inspector[$hash] = new DocumentInspector(
             $manager->getRegistry(),
             $this->pathSegmentRegistry,
-            $manager->getProxyFactory()
+            $context->getProxyFactory()
         );
 
         return $this->inspector[$hash];

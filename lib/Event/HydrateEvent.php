@@ -14,18 +14,19 @@ namespace Sulu\Component\DocumentManager\Event;
 use PHPCR\NodeInterface;
 use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\Exception\RuntimeException;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 
 class HydrateEvent extends AbstractMappingEvent
 {
     /**
-     * @param DocumentManagerInterface $manager
+     * @param DocumentManagerContext $context
      * @param NodeInterface $node
      * @param string $locale
      * @param array $options
      */
-    public function __construct(DocumentManagerInterface $manager, NodeInterface $node, $locale, array $options = [])
+    public function __construct(DocumentManagerContext $context, NodeInterface $node, $locale, array $options = [])
     {
-        parent::__construct($manager);
+        parent::__construct($context);
         $this->locale = $locale;
         $this->node = $node;
         $this->options = $options;

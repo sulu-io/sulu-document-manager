@@ -152,7 +152,7 @@ class AutoNameSubscriber implements EventSubscriberInterface
         }
 
         $node = $event->getNode();
-        $defaultLocale = $event->getManager()->getRegistry()->getDefaultLocale();
+        $defaultLocale = $event->getDocumentRegistry()->getDefaultLocale();
 
         if ($defaultLocale != $event->getLocale()) {
             return;
@@ -192,9 +192,9 @@ class AutoNameSubscriber implements EventSubscriberInterface
         }
 
         $destId = $event->getDestId();
-        $manager = $event->getManager();
-        $node = $manager->getRegistry()->getNodeForDocument($document);
-        $destNode = $manager->getNodeManager()->find($destId);
+        $manager = $event->getDocumentManager();
+        $node = $event->getDocumentRegistry()->getNodeForDocument($document);
+        $destNode = $event->getNodeManager()->find($destId);
         $nodeName = $this->resolver->resolveName($destNode, $node->getName());
 
         $event->setDestName($nodeName);

@@ -33,8 +33,8 @@ class ExplicitSubscriberTest extends SubscriberTestCase
         $this->parentNode = $this->prophesize(NodeInterface::class);
         $this->node = $this->prophesize(NodeInterface::class);
         $this->manager = $this->prophesize(DocumentManagerInterface::class);
-        $this->manager->getNodeManager()->willReturn($this->nodeManager->reveal());
-        $this->persistEvent->getManager()->willReturn($this->manager->reveal());
+        $this->persistEvent->getNodeManager()->willReturn($this->nodeManager->reveal());
+        $this->persistEvent->getDocumentManager()->willReturn($this->manager->reveal());
 
         $this->subscriber = new ExplicitSubscriber(
             $this->strategy->reveal()

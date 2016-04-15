@@ -51,10 +51,9 @@ class GeneralSubscriber implements EventSubscriberInterface
      */
     public function handleMove(MoveEvent $event)
     {
-        $manager = $event->getManager();
         $document = $event->getDocument();
-        $node = $manager->getRegistry()->getNodeForDocument($document);
-        $manager->getNodeManager()->move($node->getPath(), $event->getDestId(), $event->getDestName());
+        $node = $event->getDocumentRegistry()->getNodeForDocument($document);
+        $event->getNodeManager()->move($node->getPath(), $event->getDestId(), $event->getDestName());
     }
 
     /**
@@ -62,10 +61,9 @@ class GeneralSubscriber implements EventSubscriberInterface
      */
     public function handleCopy(CopyEvent $event)
     {
-        $manager = $event->getManager();
         $document = $event->getDocument();
-        $node = $manager->getRegistry()->getNodeForDocument($document);
-        $newPath = $manager->getNodeManager()->copy($node->getPath(), $event->getDestId(), $event->getDestName());
+        $node = $event->getDocumentRegistry()->getNodeForDocument($document);
+        $newPath = $event->getNodeManager()->copy($node->getPath(), $event->getDestId(), $event->getDestName());
         $event->setCopiedPath($newPath);
     }
 
@@ -74,18 +72,17 @@ class GeneralSubscriber implements EventSubscriberInterface
      */
     public function handleRefresh(RefreshEvent $event)
     {
-        $manager = $event->getManager();
         $document = $event->getDocument();
-        $node = $manager->getRegistry()->getNodeForDocument($document);
-        $locale = $manager->getRegistry()->getLocaleForDocument($document);
+        $node = $event->getDocumentRegistry()->getNodeForDocument($document);
+        $locale = $event->getDocumentRegistry()->getLocaleForDocument($document);
 
         // revert/reload the node to the persisted state
         $node->revert();
 
         // rehydrate the document
-        $hydrateEvent = new HydrateEvent($manager, $node, $locale);
+        $hydrateEvent = new HydrateEvent($event->getContext(), $node, $locale);
         $hydrateEvent->setDocument($document);
-        $manager->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
+        $event->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
     }
 
     /**
@@ -93,7 +90,7 @@ class GeneralSubscriber implements EventSubscriberInterface
      */
     public function handleClear(ClearEvent $event)
     {
-        $event->getManager()->getNodeManager()->clear();
+        $event->getNodeManager()->clear();
     }
 
     /**
@@ -101,6 +98,6 @@ class GeneralSubscriber implements EventSubscriberInterface
      */
     public function handleFlush(FlushEvent $event)
     {
-        $event->getManager()->getNodeManager()->save();
+        $event->getNodeManager()->save();
     }
 }

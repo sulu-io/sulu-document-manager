@@ -58,7 +58,7 @@ abstract class AbstractFilingSubscriber implements EventSubscriberInterface
 
         $path = $this->generatePath($event);
 
-        $parentNode = $event->getManager()->getNodeManager()->createPath($path);
+        $parentNode = $event->getNodeManager()->createPath($path);
         $event->setParentNode($parentNode);
     }
 

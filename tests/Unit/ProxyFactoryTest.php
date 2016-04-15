@@ -23,6 +23,7 @@ use Sulu\Component\DocumentManager\Metadata;
 use Sulu\Component\DocumentManager\MetadataFactoryInterface;
 use Sulu\Component\DocumentManager\ProxyFactory;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 
 class ProxyFactoryTest extends \PHPUnit_Framework_TestCase
 {
@@ -42,8 +43,10 @@ class ProxyFactoryTest extends \PHPUnit_Framework_TestCase
         $this->proxyFactory = new LazyLoadingGhostFactory();
         $this->document = new TestProxyDocument();
         $this->manager = $this->prophesize(DocumentManagerInterface::class);
-        $this->manager->getEventDispatcher()->willReturn($this->dispatcher->reveal());
-        $this->manager->getRegistry()->willReturn($this->documentRegistry->reveal());
+        $this->context = $this->prophesize(DocumentManagerContext::class);
+        $this->context->getEventDispatcher()->willReturn($this->dispatcher->reveal());
+        $this->context->getDocumentRegistry()->willReturn($this->documentRegistry->reveal());
+        $this->manager->getContext()->willReturn($this->context->reveal());
 
         $this->factory = new ProxyFactory(
             $this->manager->reveal(),

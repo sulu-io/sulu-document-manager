@@ -17,6 +17,7 @@ use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\PathSegmentRegistry;
 use Sulu\Component\DocumentManager\ProxyFactory;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 
 class DocumentInspectorFactoryTest extends \PHPUnit_Framework_TestCase
 {
@@ -45,12 +46,12 @@ class DocumentInspectorFactoryTest extends \PHPUnit_Framework_TestCase
         $this->pathSegmentRegistry = $this->prophesize(PathSegmentRegistry::class);
         $this->registry = $this->prophesize(DocumentRegistry::class);
         $this->proxyFactory = $this->prophesize(ProxyFactory::class);
-        $this->manager1 = $this->prophesize(DocumentManagerInterface::class);
-        $this->manager1->getRegistry()->willReturn($this->registry->reveal());
-        $this->manager1->getProxyFactory()->willReturn($this->proxyFactory->reveal());
-        $this->manager2 = $this->prophesize(DocumentManagerInterface::class);
-        $this->manager2->getRegistry()->willReturn($this->registry->reveal());
-        $this->manager2->getProxyFactory()->willReturn($this->proxyFactory->reveal());
+        $this->context1 = $this->prophesize(DocumentManagerContext::class);
+        $this->context1->getRegistry()->willReturn($this->registry->reveal());
+        $this->context1->getProxyFactory()->willReturn($this->proxyFactory->reveal());
+        $this->context2 = $this->prophesize(DocumentManagerContext::class);
+        $this->context2->getRegistry()->willReturn($this->registry->reveal());
+        $this->context2->getProxyFactory()->willReturn($this->proxyFactory->reveal());
 
         $this->factory = new DocumentInspectorFactory($this->pathSegmentRegistry->reveal());
     }
@@ -60,17 +61,17 @@ class DocumentInspectorFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetInspector()
     {
-        $inspector = $this->factory->getInspector($this->manager1->reveal());
+        $inspector = $this->factory->getInspector($this->context1->reveal());
         $this->assertInstanceOf(DocumentInspector::class, $inspector);
     }
 
     /**
-     * It should return different instances for each manager instance.
+     * It should return different instances for each context instance.
      */
     public function testGetInspectorDifferentInstances()
     {
-        $inspector1 = $this->factory->getInspector($this->manager1->reveal());
-        $inspector2 = $this->factory->getInspector($this->manager2->reveal());
+        $inspector1 = $this->factory->getInspector($this->context1->reveal());
+        $inspector2 = $this->factory->getInspector($this->context2->reveal());
 
         $this->assertNotSame($inspector1, $inspector2);
     }
@@ -80,8 +81,8 @@ class DocumentInspectorFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetInspectorMultipleCalls()
     {
-        $inspector1 = $this->factory->getInspector($this->manager1->reveal());
-        $inspector2 = $this->factory->getInspector($this->manager1->reveal());
+        $inspector1 = $this->factory->getInspector($this->context1->reveal());
+        $inspector2 = $this->factory->getInspector($this->context1->reveal());
 
         $this->assertSame($inspector1, $inspector2);
     }

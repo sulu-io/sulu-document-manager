@@ -11,6 +11,6 @@
 
 namespace Sulu\Component\DocumentManager\Event;
 
-class FlushEvent extends AbstractManagerEvent
+class FlushEvent extends AbstractDocumentManagerContextEvent
 {
 }

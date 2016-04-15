@@ -19,6 +19,7 @@ use Sulu\Component\DocumentManager\Collection\QueryResultCollection;
 use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\Events;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 
 class QueryResultCollectionTest extends \PHPUnit_Framework_TestCase
 {
@@ -27,11 +28,12 @@ class QueryResultCollectionTest extends \PHPUnit_Framework_TestCase
         $this->queryResult = $this->prophesize(QueryResultInterface::class);
         $this->dispatcher = $this->prophesize(EventDispatcherInterface::class);
         $this->manager = $this->prophesize(DocumentManagerInterface::class);
-        $this->manager->getEventDispatcher()->willReturn($this->dispatcher->reveal());
+        $this->context = $this->prophesize(DocumentManagerContext::class);
+        $this->context->getEventDispatcher()->willReturn($this->dispatcher->reveal());
 
         $this->collection = new QueryResultCollection(
             $this->queryResult->reveal(),
-            $this->manager->reveal(),
+            $this->context->reveal(),
             'fr',
             [],
             's'

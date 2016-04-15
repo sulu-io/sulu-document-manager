@@ -13,8 +13,9 @@ namespace Sulu\Component\DocumentManager\Event;
 
 use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\Exception\RuntimeException;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 
-class MoveEvent extends AbstractManagerEvent
+class MoveEvent extends AbstractDocumentManagerContextEvent
 {
     /**
      * @var object
@@ -32,13 +33,13 @@ class MoveEvent extends AbstractManagerEvent
     private $destName;
 
     /**
-     * @param DocumentManagerInterface $manager
+     * @param DocumentManagerContext $context
      * @param object $document
      * @param string $destId
      */
-    public function __construct(DocumentManagerInterface $manager, $document, $destId)
+    public function __construct(DocumentManagerContext $context, $document, $destId)
     {
-        parent::__construct($manager);
+        parent::__construct($context);
         $this->document = $document;
         $this->destId = $destId;
     }

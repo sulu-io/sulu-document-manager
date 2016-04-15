@@ -65,6 +65,6 @@ class AliasFilingSubscriber extends AbstractFilingSubscriber
     {
         $document = $event->getDocument();
 
-        return $event->getManager()->getMetadataFactory()->getMetadataForClass(get_class($document))->getAlias();
+        return $event->getMetadataFactory()->getMetadataForClass(get_class($document))->getAlias();
     }
 }

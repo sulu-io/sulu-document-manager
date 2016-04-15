@@ -42,7 +42,7 @@ class ChildrenSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $proxyFactory = $event->getManager()->getProxyFactory();
+        $proxyFactory = $event->getProxyFactory();
         $accessor = $event->getAccessor();
         $accessor->set('children', $proxyFactory->createChildrenCollection($document, $event->getOptions()));
     }

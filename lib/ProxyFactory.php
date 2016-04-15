@@ -69,7 +69,7 @@ class ProxyFactory
      */
     public function createProxyForNode($fromDocument, NodeInterface $targetNode, $options = [])
     {
-        $registry = $this->documentManager->getRegistry();
+        $registry = $this->documentManager->getContext()->getDocumentRegistry();
 
         // if node is already registered then just return the registered document
         if ($registry->hasNode($targetNode)) {
@@ -78,9 +78,9 @@ class ProxyFactory
 
             // If the parent is not loaded in the correct locale, reload it in the correct locale.
             if ($registry->getOriginalLocaleForDocument($document) !== $locale) {
-                $hydrateEvent = new HydrateEvent($this->documentManager, $targetNode, $locale);
+                $hydrateEvent = new HydrateEvent($this->documentManager->getContext(), $targetNode, $locale);
                 $hydrateEvent->setDocument($document);
-                $this->documentManager->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
+                $this->documentManager->getContext()->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
             }
 
             return $document;
@@ -94,9 +94,9 @@ class ProxyFactory
         ) {
             $locale = $registry->getOriginalLocaleForDocument($fromDocument);
 
-            $hydrateEvent = new HydrateEvent($this->documentManager, $targetNode, $locale, $options);
+            $hydrateEvent = new HydrateEvent($this->documentManager->getContext(), $targetNode, $locale, $options);
             $hydrateEvent->setDocument($document);
-            $this->documentManager->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
+            $this->documentManager->getContext()->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
 
             $initializer = null;
         };
@@ -118,7 +118,7 @@ class ProxyFactory
      */
     public function createChildrenCollection($document, array $options = [])
     {
-        $registry = $this->documentManager->getRegistry();
+        $registry = $this->documentManager->getContext()->getDocumentRegistry();
         $node = $registry->getNodeForDocument($document);
         $locale = $registry->getOriginalLocaleForDocument($document);
 

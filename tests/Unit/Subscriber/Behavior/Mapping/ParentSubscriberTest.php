@@ -96,11 +96,13 @@ class ParentSubscriberTest extends SubscriberTestCase
         $this->documentManager = $this->prophesize(DocumentManager::class);
 
         $this->manager = $this->prophesize(DocumentManagerInterface::class);
-        $this->manager->getProxyFactory()->willReturn($this->proxyFactory->reveal());
         $this->manager->getInspector()->willReturn($this->inspector->reveal());
 
-        $this->hydrateEvent->getManager()->willReturn($this->manager->reveal());
-        $this->moveEvent->getManager()->willReturn($this->manager->reveal());
+        $this->hydrateEvent->getProxyFactory()->willReturn($this->proxyFactory->reveal());
+        $this->moveEvent->getProxyFactory()->willReturn($this->proxyFactory->reveal());
+
+        $this->hydrateEvent->getDocumentManager()->willReturn($this->manager->reveal());
+        $this->moveEvent->getDocumentManager()->willReturn($this->manager->reveal());
 
         $this->subscriber = new ParentSubscriber();
 
@@ -185,7 +187,7 @@ class ParentSubscriberTest extends SubscriberTestCase
     {
         $this->persistEvent->getDocument()->willReturn($this->document->reveal());
         $this->persistEvent->hasParentNode()->willReturn(false);
-        $this->persistEvent->getManager()->willReturn($this->manager->reveal());
+        $this->persistEvent->getDocumentManager()->willReturn($this->manager->reveal());
         $this->persistEvent->setParentNode($this->node->reveal())->shouldBeCalled();
         $this->document->getParent()->willReturn($this->parentDocument);
         $this->inspector->getNode($this->parentDocument)->willReturn($this->node->reveal());

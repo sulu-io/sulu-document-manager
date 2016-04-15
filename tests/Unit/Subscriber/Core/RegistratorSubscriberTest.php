@@ -19,6 +19,7 @@ use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Event\RemoveEvent;
 use Sulu\Component\DocumentManager\Event\ReorderEvent;
 use Sulu\Component\DocumentManager\Subscriber\Core\RegistratorSubscriber;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 
 class RegistratorSubscriberTest extends \PHPUnit_Framework_TestCase
 {
@@ -61,7 +62,6 @@ class RegistratorSubscriberTest extends \PHPUnit_Framework_TestCase
     {
         $this->registry = $this->prophesize(DocumentRegistry::class);
         $this->manager = $this->prophesize(DocumentManagerInterface::class);
-        $this->manager->getRegistry()->willReturn($this->registry->reveal());
         $this->subscriber = new RegistratorSubscriber();
 
         $this->node = $this->prophesize(NodeInterface::class);
@@ -70,9 +70,13 @@ class RegistratorSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->persistEvent = $this->prophesize(PersistEvent::class);
         $this->removeEvent = $this->prophesize(RemoveEvent::class);
 
-        $this->hydrateEvent->getManager()->willReturn($this->manager->reveal());
-        $this->persistEvent->getManager()->willReturn($this->manager->reveal());
-        $this->removeEvent->getManager()->willReturn($this->manager->reveal());
+        $this->hydrateEvent->getDocumentRegistry()->willReturn($this->registry->reveal());
+        $this->persistEvent->getDocumentRegistry()->willReturn($this->registry->reveal());
+        $this->removeEvent->getDocumentRegistry()->willReturn($this->registry->reveal());
+
+        $this->hydrateEvent->getDocumentManager()->willReturn($this->manager->reveal());
+        $this->persistEvent->getDocumentManager()->willReturn($this->manager->reveal());
+        $this->removeEvent->getDocumentManager()->willReturn($this->manager->reveal());
     }
 
     /**
@@ -203,9 +207,10 @@ class RegistratorSubscriberTest extends \PHPUnit_Framework_TestCase
     public function testReorderNodeFomRegistry()
     {
         $reorderEvent = $this->prophesize(ReorderEvent::class);
-        $reorderEvent->getManager()->willReturn($this->manager->reveal());
+        $reorderEvent->getDocumentManager()->willReturn($this->manager->reveal());
         $reorderEvent->hasNode()->willReturn(false);
         $reorderEvent->getDocument()->willReturn($this->document);
+        $reorderEvent->getDocumentRegistry()->willReturn($this->registry->reveal());
         $this->registry->hasDocument($this->document)->willReturn(true);
         $this->registry->getNodeForDocument($this->document)->willReturn($this->node->reveal());
         $reorderEvent->setNode($this->node->reveal())->shouldBeCalled();

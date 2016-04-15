@@ -15,6 +15,7 @@ use PHPCR\Query\QueryResultInterface;
 use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Events;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 
 /**
  * Lazily hydrate query results.
@@ -49,17 +50,17 @@ class QueryResultCollection extends AbstractLazyCollection
     /**
      * @var DocumentManagerInterface
      */
-    private $manager;
+    private $context;
 
     public function __construct(
         QueryResultInterface $result,
-        DocumentManagerInterface $manager,
+        DocumentManagerContext $context,
         $locale,
         $options = [],
         $primarySelector = null
     ) {
         $this->result = $result;
-        $this->manager = $manager;
+        $this->context = $context;
         $this->locale = $locale;
         $this->options = $options;
         $this->primarySelector = $primarySelector;
@@ -74,8 +75,8 @@ class QueryResultCollection extends AbstractLazyCollection
         $row = $this->documents->current();
         $node = $row->getNode($this->primarySelector);
 
-        $hydrateEvent = new HydrateEvent($this->manager, $node, $this->locale, $this->options);
-        $this->manager->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
+        $hydrateEvent = new HydrateEvent($this->context, $node, $this->locale, $this->options);
+        $hydrateEvent->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
 
         return $hydrateEvent->getDocument();
     }

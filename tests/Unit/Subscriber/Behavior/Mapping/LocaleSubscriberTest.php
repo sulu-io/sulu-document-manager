@@ -29,10 +29,9 @@ class LocaleSubscriberTest extends SubscriberTestCase
         $this->accessor = new DocumentAccessor($this->document);
         $this->registry = $this->prophesize(DocumentRegistry::class);
         $this->manager = $this->prophesize(DocumentManagerInterface::class);
-        $this->manager->getRegistry()->willReturn($this->registry->reveal());
-        $this->manager->getRegistry()->willReturn($this->registry->reveal());
         $this->hydrateEvent = $this->prophesize(HydrateEvent::class);
-        $this->hydrateEvent->getManager()->willReturn($this->manager->reveal());
+        $this->hydrateEvent->getDocumentRegistry()->willReturn($this->registry->reveal());
+        $this->hydrateEvent->getDocumentManager()->willReturn($this->manager->reveal());
 
         $this->subscriber = new LocaleSubscriber(
             $this->manager->reveal()

@@ -75,7 +75,7 @@ class MappingSubscriber implements EventSubscriberInterface
         $locale = $event->getLocale();
         $node = $event->getNode();
         $accessor = $event->getAccessor();
-        $registry = $event->getManager()->getRegistry();
+        $registry = $event->getDocumentRegistry();
 
         foreach ($metadata->getFieldMappings() as $fieldName => $fieldMapping) {
             if (false === $fieldMapping['mapped']) {
@@ -210,8 +210,8 @@ class MappingSubscriber implements EventSubscriberInterface
         $node = $event->getNode();
         $accessor = $event->getAccessor();
         $document = $event->getDocument();
-        $manager = $event->getManager();
-        $proxyFactory = $manager->getProxyFactory();
+        $manager = $event->getDocumentManager();
+        $proxyFactory = $event->getProxyFactory();
 
         foreach ($metadata->getFieldMappings() as $fieldName => $fieldMapping) {
             if (false === $fieldMapping['mapped']) {

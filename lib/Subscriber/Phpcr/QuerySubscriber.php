@@ -64,7 +64,7 @@ class QuerySubscriber implements EventSubscriberInterface
         $event->setQuery(
             new Query(
                 $phpcrQuery,
-                $event->getManager(),
+                $event->getContext(),
                 $event->getLocale(),
                 $event->getOptions(),
                 $event->getPrimarySelector()
@@ -97,7 +97,7 @@ class QuerySubscriber implements EventSubscriberInterface
         $phpcrResult = $query->getPhpcrQuery()->execute();
 
         $event->setResult(
-            new QueryResultCollection($phpcrResult, $event->getManager(), $locale, $event->getOptions())
+            new QueryResultCollection($phpcrResult, $event->getContext(), $locale, $event->getOptions())
         );
     }
 
@@ -106,7 +106,7 @@ class QuerySubscriber implements EventSubscriberInterface
      */
     private function getQueryManager(AbstractEvent $event)
     {
-        $session = $event->getManager()->getSession();
+        $session = $event->getSession();
 
         return $session->getWorkspace()->getQueryManager();
     }

@@ -25,6 +25,7 @@ use Sulu\Component\DocumentManager\NodeManager;
 use Sulu\Component\DocumentManager\Subscriber\Phpcr\FindSubscriber;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 
 class FindSubscriberTest extends \PHPUnit_Framework_TestCase
 {
@@ -36,9 +37,9 @@ class FindSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->metadataFactory = $this->prophesize(MetadataFactoryInterface::class);
         $this->metadata = $this->prophesize(Metadata::class);
         $this->document = new \stdClass();
-        $this->manager = $this->prophesize(DocumentManagerInterface::class);
-        $this->manager->getNodeManager()->willReturn($this->nodeManager->reveal());
-        $this->manager->getEventDispatcher()->willReturn($this->eventDispatcher->reveal());
+        $this->context = $this->prophesize(DocumentManagerContext::class);
+        $this->context->getNodeManager()->willReturn($this->nodeManager->reveal());
+        $this->context->getEventDispatcher()->willReturn($this->eventDispatcher->reveal());
         $this->subscriber = new FindSubscriber(
             $this->metadataFactory->reveal()
         );
@@ -98,7 +99,7 @@ class FindSubscriberTest extends \PHPUnit_Framework_TestCase
                 $args[1]->setDocument(new \stdClass());
             });
 
-        $event = new FindEvent($this->manager->reveal(), $path, $locale, $options);
+        $event = new FindEvent($this->context->reveal(), $path, $locale, $options);
         $this->subscriber->handleFind($event);
         $this->assertInstanceOf('stdClass', $event->getDocument());
     }

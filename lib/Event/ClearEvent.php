@@ -11,6 +11,6 @@
 
 namespace Sulu\Component\DocumentManager\Event;
 
-class ClearEvent extends AbstractManagerEvent
+class ClearEvent extends AbstractDocumentManagerContextEvent
 {
 }
