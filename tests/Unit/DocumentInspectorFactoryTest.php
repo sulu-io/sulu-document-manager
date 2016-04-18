@@ -45,9 +45,12 @@ class DocumentInspectorFactoryTest extends \PHPUnit_Framework_TestCase
         $this->pathSegmentRegistry = $this->prophesize(PathSegmentRegistry::class);
         $this->registry = $this->prophesize(DocumentRegistry::class);
         $this->proxyFactory = $this->prophesize(ProxyFactory::class);
-        $this->manager = $this->prophesize(DocumentManagerInterface::class);
-        $this->manager->getRegistry()->willReturn($this->registry->reveal());
-        $this->manager->getProxyFactory()->willReturn($this->proxyFactory->reveal());
+        $this->manager1 = $this->prophesize(DocumentManagerInterface::class);
+        $this->manager1->getRegistry()->willReturn($this->registry->reveal());
+        $this->manager1->getProxyFactory()->willReturn($this->proxyFactory->reveal());
+        $this->manager2 = $this->prophesize(DocumentManagerInterface::class);
+        $this->manager2->getRegistry()->willReturn($this->registry->reveal());
+        $this->manager2->getProxyFactory()->willReturn($this->proxyFactory->reveal());
 
         $this->factory = new DocumentInspectorFactory($this->pathSegmentRegistry->reveal());
     }
@@ -57,7 +60,29 @@ class DocumentInspectorFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetInspector()
     {
-        $inspector = $this->factory->getInspector($this->manager->reveal());
+        $inspector = $this->factory->getInspector($this->manager1->reveal());
         $this->assertInstanceOf(DocumentInspector::class, $inspector);
+    }
+
+    /**
+     * It should return different instances for each manager instance.
+     */
+    public function testGetInspectorDifferentInstances()
+    {
+        $inspector1 = $this->factory->getInspector($this->manager1->reveal());
+        $inspector2 = $this->factory->getInspector($this->manager2->reveal());
+
+        $this->assertNotSame($inspector1, $inspector2);
+    }
+
+    /**
+     * Multiple calls should return the same inspector.
+     */
+    public function testGetInspectorMultipleCalls()
+    {
+        $inspector1 = $this->factory->getInspector($this->manager1->reveal());
+        $inspector2 = $this->factory->getInspector($this->manager1->reveal());
+
+        $this->assertSame($inspector1, $inspector2);
     }
 }
