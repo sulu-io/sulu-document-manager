@@ -267,15 +267,15 @@ class MappingSubscriber implements EventSubscriberInterface
             );
 
             try {
-            if ($referencedNode) {
-                $accessor->set(
+                if ($referencedNode) {
+                    $accessor->set(
                     $fieldName,
                     $proxyFactory->createProxyForNode($document, $referencedNode, $options)
                 );
-            }
+                }
             } catch (\Exception $e) {
                 throw new \Exception(sprintf(
-                    'Error hydrating proxy relation "%s" for document "%s"', 
+                    'Error hydrating proxy relation "%s" for document "%s"',
                     $fieldName,
                     get_class($document)
                 ), null, $e);
