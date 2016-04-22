@@ -19,6 +19,7 @@ use Sulu\Component\DocumentManager\Exception\MetadataNotFoundException;
 use Sulu\Component\DocumentManager\Metadata;
 use Sulu\Component\DocumentManager\MetadataFactoryInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Sulu\Component\DocumentManager\Exception\BadMethodCallException;
 
 /**
  * Simple metadata factory which uses an array map.
@@ -159,7 +160,7 @@ class BaseMetadataFactory implements MetadataFactoryInterface
      */
     public function getMetadataForPhpcrNode(NodeInterface $node)
     {
-        throw new \BadMethodCallException(
+        throw new BadMethodCallException(
             'The BaseMetadataFactory does not implement this method'
         );
     }

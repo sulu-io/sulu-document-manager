@@ -21,6 +21,8 @@ use Sulu\Component\DocumentManager\Event\QueryExecuteEvent;
 use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\Query\Query;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Sulu\Component\DocumentManager\Exception\InvalidArgumentException;
+use Sulu\Component\DocumentManager\Exception\BadMethodCallException;
 
 /**
  * Handles creation of query and query builder objects.
@@ -53,7 +55,7 @@ class QuerySubscriber implements EventSubscriberInterface
         } elseif ($innerQuery instanceof QueryInterface) {
             $phpcrQuery = $innerQuery;
         } else {
-            throw new \InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'Expected inner query to be either a string or a PHPCR query object, got: "%s"',
                 is_object($innerQuery) ? get_class($innerQuery) : gettype($innerQuery)
             ));
@@ -80,7 +82,7 @@ class QuerySubscriber implements EventSubscriberInterface
      */
     public function handleCreateBuilder(QueryCreateBuilderEvent $event)
     {
-        throw new \Exception('Not implemented');
+        throw new BadMethodCallException('Not implemented');
     }
 
     /**

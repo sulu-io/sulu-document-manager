@@ -26,7 +26,7 @@ class MetadataTest extends \PHPUnit_Framework_TestCase
      * It should throw an exception if no class is set and the ReflectionClass
      * is requested.
      *
-     * @expectedException \InvalidArgumentException
+     * @expectedException \Sulu\Component\DocumentManager\Exception\RuntimeException
      */
     public function testNoClassGetReflection()
     {
@@ -70,7 +70,7 @@ class MetadataTest extends \PHPUnit_Framework_TestCase
      * It should throw an exception if trying to get a field that has not been
      * mapped.
      *
-     * @expectedException \InvalidArgumentException
+     * @expectedException Sulu\Component\DocumentManager\Exception\InvalidArgumentException
      * @expectedExceptionMessage Field "asdoo" is not mapped for document "Sulu\Component\DocumentManager\Tests\Unit\TestClass". Mapped fields: "foo"
      */
     public function testGetFieldValueInvalid()

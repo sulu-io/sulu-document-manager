@@ -12,6 +12,7 @@
 namespace Sulu\Component\DocumentManager\Event;
 
 use Sulu\Component\DocumentManager\DocumentManagerInterface;
+use Sulu\Component\DocumentManager\Exception\RuntimeException;
 
 class MoveEvent extends AbstractManagerEvent
 {
@@ -48,7 +49,8 @@ class MoveEvent extends AbstractManagerEvent
     public function getDebugMessage()
     {
         return sprintf(
-            'd:%s did:%s, dnam:%s',
+            '%sd:%s did:%s, dnam:%s',
+            parent::getDebugMessage(),
             $this->document ? spl_object_hash($this->document) : '<no document>',
             $this->destId ?: '<no dest>',
             $this->destName ?: '<no dest name>'
@@ -95,7 +97,7 @@ class MoveEvent extends AbstractManagerEvent
     public function getDestName()
     {
         if (!$this->destName) {
-            throw new \RuntimeException(sprintf(
+            throw new RuntimeException(sprintf(
                 'No destName set in copy/move event when copying/moving document "%s" to "%s". ' .
                 'This should have been set by a listener',
                 spl_object_hash($this->document),

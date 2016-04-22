@@ -349,6 +349,14 @@ class DocumentManager implements DocumentManagerInterface
     /**
      * {@inheritdoc}
      */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     private function getOptionsResolver($eventName)
     {
         if (isset($this->optionsResolvers[$eventName])) {
@@ -367,9 +375,8 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * If the exception is already an instanceof `DocumentManagerException`
-     * (e.g. a `DocumentNotFoundException`) only set the name of the document
-     * manager, otherwise wrap the \Exception in a DocumentManagerException.
+     * If the exception is an instanceof `DocumentManagerException` set the
+     * document manager name that threw
      *
      * @param \Exception $e
      * @param string $context
@@ -394,10 +401,6 @@ class DocumentManager implements DocumentManagerInterface
             throw $exception;
         }
 
-        throw new DocumentManagerException(
-            $message,
-            $this->name,
-            $exception
-        );
+        throw $exception;
     }
 }

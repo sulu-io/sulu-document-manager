@@ -26,6 +26,7 @@ use Sulu\Component\DocumentManager\NameResolver;
 use Sulu\Component\DocumentManager\NodeManager;
 use Symfony\Cmf\Bundle\CoreBundle\Slugifier\SlugifierInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Sulu\Component\DocumentManager\Exception\RuntimeException;
 
 /**
  * Automatically assign a name to the document based on its title.
@@ -124,7 +125,7 @@ class AutoNameSubscriber implements EventSubscriberInterface
         $title = $document->getTitle();
 
         if (!$title) {
-            throw new DocumentManagerException(
+            throw new RuntimeException(
                 sprintf(
                     'Document has no title (title is required for auto name behavior): %s)',
                     DocumentHelper::getDebugTitle($document)

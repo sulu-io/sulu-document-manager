@@ -22,6 +22,8 @@ use Sulu\Component\DocumentManager\MetadataFactoryInterface;
 use Sulu\Component\DocumentManager\PropertyEncoder;
 use Sulu\Component\DocumentManager\ProxyFactory;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Sulu\Component\DocumentManager\Exception\InvalidArgumentException;
+use Sulu\Component\DocumentManager\Exception\BadMethodCallException;
 
 /**
  * This subscriber uses the field map in the metadata to map fields from
@@ -117,7 +119,7 @@ class MappingSubscriber implements EventSubscriberInterface
         }
 
         if ($fieldMapping['multiple']) {
-            throw new \InvalidArgumentException(
+            throw new BadMethodCallException(
                 sprintf(
                     'Mapping references as multiple not currently supported (when mapping "%s")',
                     $fieldName
@@ -274,7 +276,7 @@ class MappingSubscriber implements EventSubscriberInterface
                 );
                 }
             } catch (\Exception $e) {
-                throw new \Exception(sprintf(
+                throw new RuntimeException(sprintf(
                     'Error hydrating proxy relation "%s" for document "%s"',
                     $fieldName,
                     get_class($document)
@@ -356,7 +358,7 @@ class MappingSubscriber implements EventSubscriberInterface
     private function validateFieldValue($value, $fieldName, $fieldMapping)
     {
         if ($fieldMapping['multiple'] && !is_array($value)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf(
                     'Field "%s" is mapped as multiple, and therefore must be an array, got "%s"',
                     $fieldName,

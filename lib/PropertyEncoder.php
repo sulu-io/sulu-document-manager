@@ -12,6 +12,7 @@
 namespace Sulu\Component\DocumentManager;
 
 use Sulu\Component\DocumentManager\Exception\InvalidLocaleException;
+use Sulu\Component\DocumentManager\Exception\InvalidArgumentException;
 
 /**
  * Class responsible for encoding properties to PHPCR nodes.
@@ -43,7 +44,7 @@ class PropertyEncoder
             case 'content':
                 return $this->contentName($name);
             default:
-                throw new \InvalidArgumentException(sprintf(
+                throw new InvalidArgumentException(sprintf(
                     'Invalid encoding "%s"', $encoding
                 ));
         }

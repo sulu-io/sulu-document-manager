@@ -12,6 +12,7 @@
 namespace Sulu\Component\DocumentManager\Event;
 
 use Sulu\Component\DocumentManager\DocumentManagerInterface;
+use Sulu\Component\DocumentManager\Exception\RuntimeException;
 
 class CreateEvent extends AbstractManagerEvent
 {
@@ -43,7 +44,7 @@ class CreateEvent extends AbstractManagerEvent
     public function getDocument()
     {
         if (!$this->document) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'No document has been set, an event listener should have created a document before ' .
                 'this method was called.'
             );

@@ -44,7 +44,8 @@ abstract class AbstractMappingEvent extends AbstractManagerEvent
     public function getDebugMessage()
     {
         return sprintf(
-            'n:%s d:%s l:%s',
+            '%sn:%s d:%s l:%s',
+            parent::getDebugMessage(),
             $this->node ? $this->node->getPath() : '<no node>',
             $this->document ? spl_object_hash($this->document) : '<no document>',
             $this->locale ?: '<no locale>'

@@ -21,6 +21,8 @@ use Sulu\Component\DocumentManager\MetadataFactoryInterface;
 use Sulu\Component\DocumentManager\NodeManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Sulu\Component\DocumentManager\Exception\InvalidArgumentException;
+use Sulu\Component\DocumentManager\Exception\RuntimeException;
 
 /**
  * This class is responsible for finding documents.
@@ -94,7 +96,7 @@ class FindSubscriber implements EventSubscriberInterface
         if ($this->metadataFactory->hasAlias($aliasOrClass)) {
             $class = $this->metadataFactory->getMetadataForAlias($aliasOrClass)->getClass();
         } elseif (!class_exists($aliasOrClass)) {
-            throw new DocumentManagerException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'Unknown class specified and no alias exists for "%s", known aliases: "%s"',
                 $aliasOrClass, implode('", "', $this->metadataFactory->getAliases())
             ));

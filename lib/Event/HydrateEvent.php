@@ -13,6 +13,7 @@ namespace Sulu\Component\DocumentManager\Event;
 
 use PHPCR\NodeInterface;
 use Sulu\Component\DocumentManager\DocumentManagerInterface;
+use Sulu\Component\DocumentManager\Exception\RuntimeException;
 
 class HydrateEvent extends AbstractMappingEvent
 {
@@ -38,7 +39,7 @@ class HydrateEvent extends AbstractMappingEvent
     public function getDocument()
     {
         if (null === $this->document) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'Trying to retrieve document when no document has been set. An event ' .
                 'listener should have set the document.'
             );

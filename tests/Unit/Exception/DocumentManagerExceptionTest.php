@@ -48,7 +48,7 @@ class DocumentManagerExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * It should throw an exception if the document manager name is set twice.
      *
-     * @expectedException \RuntimeException
+     * @expectedException \Sulu\Component\DocumentManager\Exception\RuntimeException
      */
     public function testSetNameTwice()
     {

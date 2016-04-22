@@ -52,7 +52,7 @@ class DocumentRegistryTest extends \PHPUnit_Framework_TestCase
     /**
      * It should throw an exception when an unregistered document is deregistered.
      *
-     * @expectedException \RuntimeException
+     * @expectedException \Sulu\Component\DocumentManager\Exception\RuntimeException
      */
     public function testDeregisterDocumentUnknown()
     {
@@ -76,7 +76,7 @@ class DocumentRegistryTest extends \PHPUnit_Framework_TestCase
     /**
      * Throw an exception if an attempt is made to re-register a document.
      *
-     * @expectedException RuntimeException
+     * @expectedException \Sulu\Component\DocumentManager\Exception\RuntimeException
      * @expectedExceptionMessage is already registered
      */
     public function testDifferentInstanceSameNode()
@@ -89,7 +89,7 @@ class DocumentRegistryTest extends \PHPUnit_Framework_TestCase
     /**
      * It should throw an exception if an unregistered document is passed to get node for document.
      *
-     * @expectedException \RuntimeException
+     * @expectedException \Sulu\Component\DocumentManager\Exception\RuntimeException
      */
     public function testGetNodeForDocumentUnknown()
     {

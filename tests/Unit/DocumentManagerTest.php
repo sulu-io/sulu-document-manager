@@ -217,15 +217,14 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * It should throw an exception with invalid options.
+     *
+     * @expectedException Symfony\Component\OptionsResolver\Exception\UndefinedOptionsException
      */
     public function testFindWithInvalidOptions()
     {
-        try {
-            $this->addSubscriber();
-            $this->manager->find('foo', 'bar', ['foo123' => 'bar']);
-        } catch (DocumentManagerException $e) {
-            $this->assertInstanceOf(UndefinedOptionsException::class, $e->getPrevious());
-        }
+        $this->addSubscriber();
+        $this->manager->find('foo', 'bar', ['foo123' => 'bar']);
+        $this->assertInstanceOf(UndefinedOptionsException::class, $e->getPrevious());
     }
 
     /**
@@ -271,7 +270,7 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * It should wrap exceptions which do not extend DocumentManagerException.
+     * It should not wrap exceptions which do not extend DocumentManagerException.
      */
     public function testNonDocumentManagerException()
     {
@@ -281,8 +280,7 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
             $this->manager->find('foo');
             $this->fail('No exception thrown');
         } catch (\Exception $e) {
-            $this->assertInstanceOf(DocumentManagerException::class, $e);
-            $this->assertSame($e->getPrevious(), $exception);
+            $this->assertInstanceOf(\Exception::class, $e);
         }
     }
 

@@ -11,6 +11,8 @@
 
 namespace Sulu\Component\DocumentManager\Exception;
 
+use Sulu\Component\DocumentManager\Exception\RuntimeException;
+
 /**
  * Domain exception for the document manager.
  */
@@ -60,7 +62,7 @@ class DocumentManagerException extends \Exception
     private function formatMessage($name)
     {
         if ($this->documentManagerName) {
-            throw new \RuntimeException('Cannot set the document manager name as it has already been set in the constructor.');
+            throw new RuntimeException('Cannot set the document manager name as it has already been set in the constructor.');
         }
 
         $this->message = sprintf('[%s] %s', $name, $this->message);

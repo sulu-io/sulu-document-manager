@@ -18,6 +18,7 @@ use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\Metadata;
 use Sulu\Component\DocumentManager\MetadataFactoryInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Sulu\Component\DocumentManager\Exception\RuntimeException;
 
 /**
  * Responsible for instantiating documents from PHPCR nodes and
@@ -104,7 +105,7 @@ class InstantiatorSubscriber implements EventSubscriberInterface
         $class = $metadata->getClass();
 
         if (!class_exists($class)) {
-            throw new \RuntimeException(sprintf(
+            throw new RuntimeException(sprintf(
                 'Document class "%s" does not exist', $class
             ));
         }

@@ -44,7 +44,7 @@ class ExplicitSubscriberTest extends SubscriberTestCase
     /**
      * It should throw an exception if both path name and node_name options are given.
      *
-     * @expectedException Symfony\Component\OptionsResolver\Exception\InvalidOptionsException
+     * @expectedException \Sulu\Component\DocumentManager\Exception\InvalidArgumentException
      */
     public function testExceptionNodeNameAndPath()
     {
@@ -59,7 +59,7 @@ class ExplicitSubscriberTest extends SubscriberTestCase
     /**
      * It should throw an exception if both path name and parent_path options are given.
      *
-     * @expectedException Symfony\Component\OptionsResolver\Exception\InvalidOptionsException
+     * @expectedException \Sulu\Component\DocumentManager\Exception\InvalidArgumentException
      */
     public function testExceptionParentPathAndPath()
     {

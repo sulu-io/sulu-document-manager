@@ -16,6 +16,7 @@ use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\Event\QueryExecuteEvent;
 use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\Exception\DocumentManagerException;
+use Sulu\Component\DocumentManager\Exception\InvalidArgumentException;
 
 /**
  * Based heavily on the PHPCR-ODM Query object.
@@ -106,7 +107,7 @@ class Query
         }
 
         if ($hydrationMode !== self::HYDRATE_DOCUMENT) {
-            throw new DocumentManagerException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'Unknown hydration mode "%s", should be either "document" or "phpcr_node"',
                 $hydrationMode
             ));

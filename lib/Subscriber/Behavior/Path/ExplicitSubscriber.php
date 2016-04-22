@@ -22,6 +22,7 @@ use Sulu\Component\DocumentManager\Exception\DocumentManagerException;
 use Sulu\Component\DocumentManager\NodeManager;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
+use Sulu\Component\DocumentManager\Exception\InvalidArgumentException;
 
 /**
  * Populates or creates the node and/or parent node based on explicit
@@ -199,13 +200,13 @@ class ExplicitSubscriber implements EventSubscriberInterface
     private function validateOptions(array $options)
     {
         if ($options['path'] && $options['node_name']) {
-            throw new InvalidOptionsException(
+            throw new InvalidArgumentException(
                 'Options "path" and "name" are mutually exclusive'
             );
         }
 
         if ($options['path'] && $options['parent_path']) {
-            throw new InvalidOptionsException(
+            throw new InvalidArgumentException(
                 'Options "path" and "parent_path" are mutually exclusive'
             );
         }

@@ -111,7 +111,7 @@ class MappingSubscriberTest extends \PHPUnit_Framework_TestCase
     /**
      * It should throw an exception when mapped non-array values to non-multiple fields.
      *
-     * @expectedException \InvalidArgumentException
+     * @expectedException Sulu\Component\DocumentManager\Exception\InvalidArgumentException
      */
     public function testPersistNonArray()
     {

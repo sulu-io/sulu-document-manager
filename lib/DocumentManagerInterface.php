@@ -176,4 +176,11 @@ interface DocumentManagerInterface
      * @return ProxyFactory
      */
     public function getProxyFactory();
+
+    /**
+     * Return the name of the document manager (can be null).
+     *
+     * @return string
+     */
+    public function getName();
 }

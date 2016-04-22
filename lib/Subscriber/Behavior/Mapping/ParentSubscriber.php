@@ -19,6 +19,7 @@ use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\ProxyFactory;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Sulu\Component\DocumentManager\Exception\RuntimeException;
 
 /**
  * Set the parent and children on the document.
@@ -92,7 +93,7 @@ class ParentSubscriber implements EventSubscriberInterface
         $node = $event->getNode();
 
         if ($node->getDepth() == 0) {
-            throw new \RuntimeException(sprintf(
+            throw new RuntimeException(sprintf(
                 'Cannot apply parent behavior to root node "%s" with type "%s" for document of class "%s"',
                 $node->getPath(),
                 $node->getPrimaryNodeType()->getName(),

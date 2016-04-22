@@ -11,6 +11,9 @@
 
 namespace Sulu\Component\DocumentManager;
 
+use Sulu\Component\DocumentManager\Exception\RuntimeException;
+use Sulu\Component\DocumentManager\Exception\InvalidArgumentException;
+
 class Metadata
 {
     /**
@@ -108,7 +111,7 @@ class Metadata
         }
 
         if (!$this->class) {
-            throw new \InvalidArgumentException(
+            throw new RuntimeException(
                 'Cannot retrieve ReflectionClass on metadata which has no class attribute'
             );
         }
@@ -196,7 +199,7 @@ class Metadata
             return;
         }
 
-        throw new \InvalidArgumentException(sprintf(
+        throw new InvalidArgumentException(sprintf(
             'Field "%s" is not mapped for document "%s". Mapped fields: "%s"',
             $field, get_class($document), implode('", "', array_keys($this->fieldMappings))
         ));

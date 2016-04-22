@@ -53,7 +53,8 @@ class FindEvent extends AbstractManagerEvent
     public function getDebugMessage()
     {
         return sprintf(
-            'i:%s d:%s l:%s',
+            '%si:%s d:%s l:%s',
+            parent::getDebugMessage(),
             $this->identifier,
             $this->document ? spl_object_hash($this->document) : '<no document>',
             $this->locale ?: '<no locale>'
