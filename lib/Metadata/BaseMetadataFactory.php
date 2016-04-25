@@ -15,11 +15,11 @@ use PHPCR\NodeInterface;
 use Sulu\Component\DocumentManager\ClassNameInflector;
 use Sulu\Component\DocumentManager\Event\MetadataLoadEvent;
 use Sulu\Component\DocumentManager\Events;
+use Sulu\Component\DocumentManager\Exception\BadMethodCallException;
 use Sulu\Component\DocumentManager\Exception\MetadataNotFoundException;
 use Sulu\Component\DocumentManager\Metadata;
 use Sulu\Component\DocumentManager\MetadataFactoryInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Sulu\Component\DocumentManager\Exception\BadMethodCallException;
 
 /**
  * Simple metadata factory which uses an array map.

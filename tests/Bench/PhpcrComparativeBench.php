@@ -26,7 +26,7 @@ class PhpcrComparativeBench extends BaseBench
 
     public function benchCreatePersist($params)
     {
-        $manager = $this->getDocumentManager();
+        $manager = $this->getManager();
 
         for ($i = 0; $i < $params['nb_nodes']; ++$i) {
             $document = $manager->create('full');

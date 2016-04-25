@@ -18,10 +18,9 @@ use Sulu\Component\DocumentManager\Event\ConfigureOptionsEvent;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\NodeManager;
 use Sulu\Component\DocumentManager\Subscriber\Behavior\Path\ExplicitSubscriber;
-use Sulu\Component\DocumentManager\Tests\Unit\Subscriber\Behavior\SubscriberTestCase;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class ExplicitSubscriberTest extends SubscriberTestCase
+class ExplicitSubscriberTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
@@ -34,7 +33,7 @@ class ExplicitSubscriberTest extends SubscriberTestCase
         $this->node = $this->prophesize(NodeInterface::class);
         $this->manager = $this->prophesize(DocumentManagerInterface::class);
         $this->persistEvent->getNodeManager()->willReturn($this->nodeManager->reveal());
-        $this->persistEvent->getDocumentManager()->willReturn($this->manager->reveal());
+        $this->persistEvent->getManager()->willReturn($this->manager->reveal());
 
         $this->subscriber = new ExplicitSubscriber(
             $this->strategy->reveal()

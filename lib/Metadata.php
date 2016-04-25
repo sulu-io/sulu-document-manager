@@ -11,8 +11,8 @@
 
 namespace Sulu\Component\DocumentManager;
 
-use Sulu\Component\DocumentManager\Exception\RuntimeException;
 use Sulu\Component\DocumentManager\Exception\InvalidArgumentException;
+use Sulu\Component\DocumentManager\Exception\RuntimeException;
 
 class Metadata
 {

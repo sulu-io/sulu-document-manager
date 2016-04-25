@@ -72,7 +72,7 @@ class RegistratorSubscriber implements EventSubscriberInterface
     {
         // set the default locale
         if (null === $event->getLocale()) {
-            $event->setLocale($event->getDocumentRegistry()->getDefaultLocale());
+            $event->setLocale($event->getRegistry()->getDefaultLocale());
         }
     }
 
@@ -88,13 +88,12 @@ class RegistratorSubscriber implements EventSubscriberInterface
         }
 
         $node = $event->getNode();
-        $manager = $event->getDocumentManager();
 
-        if (!$event->getDocumentRegistry()->hasNode($node)) {
+        if (!$event->getRegistry()->hasNode($node)) {
             return;
         }
 
-        $document = $event->getDocumentRegistry()->getDocumentForNode($node);
+        $document = $event->getRegistry()->getDocumentForNode($node);
 
         $event->setDocument($document);
 
@@ -123,19 +122,18 @@ class RegistratorSubscriber implements EventSubscriberInterface
         $locale = $event->getLocale();
         $document = $event->getDocument();
         $options = $event->getOptions();
-        $manager = $event->getDocumentManager();
-        $originalLocale = $event->getDocumentRegistry()->getOriginalLocaleForDocument($document);
+        $originalLocale = $event->getRegistry()->getOriginalLocaleForDocument($document);
 
         if (
             (!isset($options['rehydrate']) || false === $options['rehydrate']) &&
-            (true === $event->getDocumentRegistry()->isHydrated($document) && $originalLocale === $locale)
+            (true === $event->getRegistry()->isHydrated($document) && $originalLocale === $locale)
         ) {
             $event->stopPropagation();
 
             return;
         }
 
-        $event->getDocumentRegistry()->updateLocale($document, $locale, $locale);
+        $event->getRegistry()->updateLocale($document, $locale, $locale);
     }
 
     /**
@@ -146,7 +144,7 @@ class RegistratorSubscriber implements EventSubscriberInterface
      */
     public function handleEndHydrate(HydrateEvent $event)
     {
-        $event->getDocumentRegistry()->markDocumentAsHydrated($event->getDocument());
+        $event->getRegistry()->markDocumentAsHydrated($event->getDocument());
     }
 
     /**
@@ -159,7 +157,7 @@ class RegistratorSubscriber implements EventSubscriberInterface
      */
     public function handleEndPersist(PersistEvent $event)
     {
-        $event->getDocumentRegistry()->unmarkDocumentAsHydrated($event->getDocument());
+        $event->getRegistry()->unmarkDocumentAsHydrated($event->getDocument());
     }
 
     /**
@@ -174,13 +172,12 @@ class RegistratorSubscriber implements EventSubscriberInterface
         }
 
         $document = $event->getDocument();
-        $manager = $event->getDocumentManager();
 
-        if (!$event->getDocumentRegistry()->hasDocument($document)) {
+        if (!$event->getRegistry()->hasDocument($document)) {
             return;
         }
 
-        $node = $event->getDocumentRegistry()->getNodeForDocument($document);
+        $node = $event->getRegistry()->getNodeForDocument($document);
         $event->setNode($node);
     }
 
@@ -212,7 +209,7 @@ class RegistratorSubscriber implements EventSubscriberInterface
     public function handleRemove(RemoveEvent $event)
     {
         $document = $event->getDocument();
-        $event->getDocumentRegistry()->deregisterDocument($document);
+        $event->getRegistry()->deregisterDocument($document);
     }
 
     /**
@@ -222,7 +219,7 @@ class RegistratorSubscriber implements EventSubscriberInterface
      */
     public function handleClear(ClearEvent $event)
     {
-        $event->getDocumentRegistry()->clear();
+        $event->getRegistry()->clear();
     }
 
     /**
@@ -237,7 +234,7 @@ class RegistratorSubscriber implements EventSubscriberInterface
         $document = $event->getDocument();
         $node = $event->getNode();
         $locale = $event->getLocale();
-        $registry = $event->getDocumentRegistry();
+        $registry = $event->getRegistry();
 
         if ($registry->hasDocument($document)) {
             $registry->updateLocale($document, $locale);

@@ -52,7 +52,7 @@ class GeneralSubscriber implements EventSubscriberInterface
     public function handleMove(MoveEvent $event)
     {
         $document = $event->getDocument();
-        $node = $event->getDocumentRegistry()->getNodeForDocument($document);
+        $node = $event->getRegistry()->getNodeForDocument($document);
         $event->getNodeManager()->move($node->getPath(), $event->getDestId(), $event->getDestName());
     }
 
@@ -62,7 +62,7 @@ class GeneralSubscriber implements EventSubscriberInterface
     public function handleCopy(CopyEvent $event)
     {
         $document = $event->getDocument();
-        $node = $event->getDocumentRegistry()->getNodeForDocument($document);
+        $node = $event->getRegistry()->getNodeForDocument($document);
         $newPath = $event->getNodeManager()->copy($node->getPath(), $event->getDestId(), $event->getDestName());
         $event->setCopiedPath($newPath);
     }
@@ -73,8 +73,8 @@ class GeneralSubscriber implements EventSubscriberInterface
     public function handleRefresh(RefreshEvent $event)
     {
         $document = $event->getDocument();
-        $node = $event->getDocumentRegistry()->getNodeForDocument($document);
-        $locale = $event->getDocumentRegistry()->getLocaleForDocument($document);
+        $node = $event->getRegistry()->getNodeForDocument($document);
+        $locale = $event->getRegistry()->getLocaleForDocument($document);
 
         // revert/reload the node to the persisted state
         $node->revert();

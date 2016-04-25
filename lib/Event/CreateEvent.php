@@ -11,9 +11,8 @@
 
 namespace Sulu\Component\DocumentManager\Event;
 
-use Sulu\Component\DocumentManager\DocumentManagerInterface;
-use Sulu\Component\DocumentManager\Exception\RuntimeException;
 use Sulu\Component\DocumentManager\DocumentManagerContext;
+use Sulu\Component\DocumentManager\Exception\RuntimeException;
 
 class CreateEvent extends AbstractDocumentManagerContextEvent
 {

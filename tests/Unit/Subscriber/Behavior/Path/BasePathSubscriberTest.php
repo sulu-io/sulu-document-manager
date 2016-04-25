@@ -19,9 +19,8 @@ use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\NodeManager;
 use Sulu\Component\DocumentManager\Subscriber\Behavior\Path\AliasFilingSubscriber;
 use Sulu\Component\DocumentManager\Subscriber\Behavior\Path\BasePathSubscriber;
-use Sulu\Component\DocumentManager\Tests\Unit\Subscriber\Behavior\SubscriberTestCase;
 
-class BasePathSubscriberTest extends SubscriberTestCase
+class BasePathSubscriberTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var PersistEvent
@@ -75,7 +74,7 @@ class BasePathSubscriberTest extends SubscriberTestCase
 
         $this->manager = $this->prophesize(DocumentManagerInterface::class);
         $this->persistEvent->getNodeManager()->willReturn($this->nodeManager->reveal());
-        $this->persistEvent->getDocumentManager()->willReturn($this->manager->reveal());
+        $this->persistEvent->getManager()->willReturn($this->manager->reveal());
 
         $this->subscriber = new BasePathSubscriber(
             '/base/path'

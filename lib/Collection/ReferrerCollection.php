@@ -13,7 +13,7 @@ namespace Sulu\Component\DocumentManager\Collection;
 
 use PHPCR\NodeInterface;
 use PHPCR\PropertyInterface;
-use Sulu\Component\DocumentManager\DocumentManagerInterface;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Events;
 
@@ -38,14 +38,14 @@ class ReferrerCollection extends AbstractLazyCollection
     private $initialized = false;
 
     /**
-     * @var DocumentManagerInterface
+     * @var DocumentManagerContext
      */
-    private $manager;
+    private $context;
 
-    public function __construct(NodeInterface $node, DocumentManagerInterface $manager, $locale)
+    public function __construct(NodeInterface $node, DocumentManagerContext $context, $locale)
     {
         $this->node = $node;
-        $this->manager = $manager;
+        $this->context = $context;
         $this->locale = $locale;
         $this->documents = new \ArrayIterator();
     }
@@ -58,7 +58,7 @@ class ReferrerCollection extends AbstractLazyCollection
         $this->initialize();
         $referrerNode = $this->documents->current();
 
-        $hydrateEvent = new HydrateEvent($this->manager->getContext(), $referrerNode, $this->locale);
+        $hydrateEvent = new HydrateEvent($this->context, $referrerNode, $this->locale);
         $hydrateEvent->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
 
         return $hydrateEvent->getDocument();

@@ -13,7 +13,7 @@ namespace Sulu\Comonent\DocumentManager\tests\Unit\Subscriber\Phpcr;
 
 use PHPCR\NodeInterface;
 use Prophecy\Argument;
-use Sulu\Component\DocumentManager\DocumentManagerInterface;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 use Sulu\Component\DocumentManager\Event\FindEvent;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Events;
@@ -25,7 +25,6 @@ use Sulu\Component\DocumentManager\NodeManager;
 use Sulu\Component\DocumentManager\Subscriber\Phpcr\FindSubscriber;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Sulu\Component\DocumentManager\DocumentManagerContext;
 
 class FindSubscriberTest extends \PHPUnit_Framework_TestCase
 {

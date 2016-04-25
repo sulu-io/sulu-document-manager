@@ -16,15 +16,15 @@ use Prophecy\Argument;
 use Sulu\Component\DocumentManager\Behavior\Mapping\ParentBehavior;
 use Sulu\Component\DocumentManager\DocumentInspector;
 use Sulu\Component\DocumentManager\DocumentManager;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Event\MoveEvent;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\ProxyFactory;
 use Sulu\Component\DocumentManager\Subscriber\Behavior\Mapping\ParentSubscriber;
-use Sulu\Component\DocumentManager\Tests\Unit\Subscriber\Behavior\SubscriberTestCase;
 
-class ParentSubscriberTest extends SubscriberTestCase
+class ParentSubscriberTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var HydrateEvent
@@ -95,14 +95,15 @@ class ParentSubscriberTest extends SubscriberTestCase
         $this->inspector = $this->prophesize(DocumentInspector::class);
         $this->documentManager = $this->prophesize(DocumentManager::class);
 
+        $this->context = $this->prophesize(DocumentManagerContext::class);
         $this->manager = $this->prophesize(DocumentManagerInterface::class);
         $this->manager->getInspector()->willReturn($this->inspector->reveal());
 
         $this->hydrateEvent->getProxyFactory()->willReturn($this->proxyFactory->reveal());
         $this->moveEvent->getProxyFactory()->willReturn($this->proxyFactory->reveal());
 
-        $this->hydrateEvent->getDocumentManager()->willReturn($this->manager->reveal());
-        $this->moveEvent->getDocumentManager()->willReturn($this->manager->reveal());
+        $this->hydrateEvent->getManager()->willReturn($this->manager->reveal());
+        $this->moveEvent->getManager()->willReturn($this->manager->reveal());
 
         $this->subscriber = new ParentSubscriber();
 
@@ -187,7 +188,7 @@ class ParentSubscriberTest extends SubscriberTestCase
     {
         $this->persistEvent->getDocument()->willReturn($this->document->reveal());
         $this->persistEvent->hasParentNode()->willReturn(false);
-        $this->persistEvent->getDocumentManager()->willReturn($this->manager->reveal());
+        $this->persistEvent->getManager()->willReturn($this->manager->reveal());
         $this->persistEvent->setParentNode($this->node->reveal())->shouldBeCalled();
         $this->document->getParent()->willReturn($this->parentDocument);
         $this->inspector->getNode($this->parentDocument)->willReturn($this->node->reveal());

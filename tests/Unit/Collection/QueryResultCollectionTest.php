@@ -16,10 +16,10 @@ use PHPCR\Query\QueryResultInterface;
 use PHPCR\Query\RowInterface;
 use Prophecy\Argument;
 use Sulu\Component\DocumentManager\Collection\QueryResultCollection;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\Events;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Sulu\Component\DocumentManager\DocumentManagerContext;
 
 class QueryResultCollectionTest extends \PHPUnit_Framework_TestCase
 {

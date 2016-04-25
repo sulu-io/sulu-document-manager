@@ -17,9 +17,9 @@ use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Event\MoveEvent;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Events;
+use Sulu\Component\DocumentManager\Exception\RuntimeException;
 use Sulu\Component\DocumentManager\ProxyFactory;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Sulu\Component\DocumentManager\Exception\RuntimeException;
 
 /**
  * Set the parent and children on the document.
@@ -47,8 +47,7 @@ class ParentSubscriber implements EventSubscriberInterface
     public function handleMove(MoveEvent $event)
     {
         $document = $event->getDocument();
-        $manager = $event->getDocumentManager();
-        $node = $manager->getInspector()
+        $node = $event->getManager()->getInspector()
             ->getNode($event->getDocument());
 
         $this->mapParent($event->getProxyFactory(), $document, $node);
@@ -75,7 +74,7 @@ class ParentSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $parentNode = $event->getDocumentManager()->getInspector()->getNode($parentDocument);
+        $parentNode = $event->getManager()->getInspector()->getNode($parentDocument);
         $event->setParentNode($parentNode);
     }
 
@@ -110,7 +109,7 @@ class ParentSubscriber implements EventSubscriberInterface
     public function handleChangeParent(PersistEvent $event)
     {
         $document = $event->getDocument();
-        $manager = $event->getDocumentManager();
+        $manager = $event->getContext();
         $node = $manager->getInspector()->getNode($document);
         $parentNode = $event->getParentNode();
 

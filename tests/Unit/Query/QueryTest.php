@@ -14,12 +14,11 @@ namespace Sulu\Comonent\DocumentManager\tests\Unit\Query;
 use PHPCR\Query\QueryInterface;
 use PHPCR\Query\QueryResultInterface;
 use Sulu\Component\DocumentManager\Collection\QueryResultCollection;
-use Sulu\Component\DocumentManager\DocumentManagerInterface;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 use Sulu\Component\DocumentManager\Event\QueryExecuteEvent;
 use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\Query\Query;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Sulu\Component\DocumentManager\DocumentManagerContext;
 
 class QueryTest extends \PHPUnit_Framework_TestCase
 {

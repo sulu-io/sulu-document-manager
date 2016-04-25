@@ -13,9 +13,8 @@ namespace Sulu\Component\DocumentManager\Event;
 
 use PHPCR\NodeInterface;
 use Sulu\Component\DocumentManager\DocumentHelper;
-use Sulu\Component\DocumentManager\DocumentManagerInterface;
-use Sulu\Component\DocumentManager\Exception\RuntimeException;
 use Sulu\Component\DocumentManager\DocumentManagerContext;
+use Sulu\Component\DocumentManager\Exception\RuntimeException;
 
 class PersistEvent extends AbstractMappingEvent
 {

@@ -18,9 +18,8 @@ use Sulu\Component\DocumentManager\DocumentInspector;
 use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Subscriber\Behavior\Mapping\PathSubscriber;
-use Sulu\Component\DocumentManager\Tests\Unit\Subscriber\Behavior\SubscriberTestCase;
 
-class PathSubscriberTest extends SubscriberTestCase
+class PathSubscriberTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
@@ -35,7 +34,7 @@ class PathSubscriberTest extends SubscriberTestCase
         $this->hydrateEvent->getAccessor()->willReturn($this->accessor);
         $this->manager = $this->prophesize(DocumentManagerInterface::class);
         $this->manager->getInspector()->willReturn($this->inspector->reveal());
-        $this->hydrateEvent->getDocumentManager()->willReturn($this->manager->reveal());
+        $this->hydrateEvent->getManager()->willReturn($this->manager->reveal());
 
         $this->subscriber = new PathSubscriber(
             $this->manager->reveal()

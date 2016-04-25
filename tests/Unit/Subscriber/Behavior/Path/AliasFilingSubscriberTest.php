@@ -21,9 +21,8 @@ use Sulu\Component\DocumentManager\Metadata;
 use Sulu\Component\DocumentManager\MetadataFactoryInterface;
 use Sulu\Component\DocumentManager\NodeManager;
 use Sulu\Component\DocumentManager\Subscriber\Behavior\Path\AliasFilingSubscriber;
-use Sulu\Component\DocumentManager\Tests\Unit\Subscriber\Behavior\SubscriberTestCase;
 
-class AliasFilingSubscriberTest extends SubscriberTestCase
+class AliasFilingSubscriberTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var PersistEvent
@@ -90,7 +89,7 @@ class AliasFilingSubscriberTest extends SubscriberTestCase
 
         $this->persistEvent->getNodeManager()->willReturn($this->nodeManager->reveal());
         $this->persistEvent->getMetadataFactory()->willReturn($this->metadataFactory->reveal());
-        $this->persistEvent->getDocumentManager()->willReturn($this->manager->reveal());
+        $this->persistEvent->getManager()->willReturn($this->manager->reveal());
         $this->persistEvent->getOptions()->willReturn([]);
 
         $this->subscriber = new AliasFilingSubscriber();

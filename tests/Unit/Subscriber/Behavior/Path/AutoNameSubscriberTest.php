@@ -23,10 +23,9 @@ use Sulu\Component\DocumentManager\Metadata;
 use Sulu\Component\DocumentManager\NameResolver;
 use Sulu\Component\DocumentManager\NodeManager;
 use Sulu\Component\DocumentManager\Subscriber\Behavior\Path\AutoNameSubscriber;
-use Sulu\Component\DocumentManager\Tests\Unit\Subscriber\Behavior\SubscriberTestCase;
 use Symfony\Cmf\Bundle\CoreBundle\Slugifier\SlugifierInterface;
 
-class AutoNameSubscriberTest extends SubscriberTestCase
+class AutoNameSubscriberTest extends \PHPUnit_Framework_TestCase
 {
     const DEFAULT_LOCALE = 'en';
 
@@ -125,11 +124,11 @@ class AutoNameSubscriberTest extends SubscriberTestCase
 
         $this->manager = $this->prophesize(DocumentManagerInterface::class);
 
-        $this->moveEvent->getDocumentManager()->willReturn($this->manager->reveal());
+        $this->moveEvent->getManager()->willReturn($this->manager->reveal());
         $this->moveEvent->getNodeManager()->willReturn($this->nodeManager->reveal());
-        $this->moveEvent->getDocumentRegistry()->willReturn($this->documentRegistry->reveal());
-        $this->persistEvent->getDocumentManager()->willReturn($this->manager->reveal());
-        $this->persistEvent->getDocumentRegistry()->willReturn($this->documentRegistry->reveal());
+        $this->moveEvent->getRegistry()->willReturn($this->documentRegistry->reveal());
+        $this->persistEvent->getManager()->willReturn($this->manager->reveal());
+        $this->persistEvent->getRegistry()->willReturn($this->documentRegistry->reveal());
 
         $this->subscriber = new AutoNameSubscriber(
             $this->slugifier->reveal(),

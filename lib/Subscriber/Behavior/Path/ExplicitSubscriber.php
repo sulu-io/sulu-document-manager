@@ -19,10 +19,9 @@ use Sulu\Component\DocumentManager\Event\ConfigureOptionsEvent;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\Exception\DocumentManagerException;
+use Sulu\Component\DocumentManager\Exception\InvalidArgumentException;
 use Sulu\Component\DocumentManager\NodeManager;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
-use Sulu\Component\DocumentManager\Exception\InvalidArgumentException;
 
 /**
  * Populates or creates the node and/or parent node based on explicit

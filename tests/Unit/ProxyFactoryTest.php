@@ -17,13 +17,13 @@ use ProxyManager\Factory\LazyLoadingGhostFactory;
 use ProxyManager\Proxy\LazyLoadingInterface;
 use Sulu\Component\DocumentManager\Behavior\Mapping\ParentBehavior;
 use Sulu\Component\DocumentManager\Collection\ChildrenCollection;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\Metadata;
 use Sulu\Component\DocumentManager\MetadataFactoryInterface;
 use Sulu\Component\DocumentManager\ProxyFactory;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Sulu\Component\DocumentManager\DocumentManagerContext;
 
 class ProxyFactoryTest extends \PHPUnit_Framework_TestCase
 {
@@ -45,11 +45,10 @@ class ProxyFactoryTest extends \PHPUnit_Framework_TestCase
         $this->manager = $this->prophesize(DocumentManagerInterface::class);
         $this->context = $this->prophesize(DocumentManagerContext::class);
         $this->context->getEventDispatcher()->willReturn($this->dispatcher->reveal());
-        $this->context->getDocumentRegistry()->willReturn($this->documentRegistry->reveal());
-        $this->manager->getContext()->willReturn($this->context->reveal());
+        $this->context->getRegistry()->willReturn($this->documentRegistry->reveal());
 
         $this->factory = new ProxyFactory(
-            $this->manager->reveal(),
+            $this->context->reveal(),
             $this->proxyFactory,
             $this->metadataFactory->reveal()
         );

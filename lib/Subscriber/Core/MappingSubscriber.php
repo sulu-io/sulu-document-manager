@@ -17,13 +17,13 @@ use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\Event\AbstractMappingEvent;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Events;
+use Sulu\Component\DocumentManager\Exception\BadMethodCallException;
+use Sulu\Component\DocumentManager\Exception\InvalidArgumentException;
 use Sulu\Component\DocumentManager\Exception\InvalidLocaleException;
 use Sulu\Component\DocumentManager\MetadataFactoryInterface;
 use Sulu\Component\DocumentManager\PropertyEncoder;
 use Sulu\Component\DocumentManager\ProxyFactory;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Sulu\Component\DocumentManager\Exception\InvalidArgumentException;
-use Sulu\Component\DocumentManager\Exception\BadMethodCallException;
 
 /**
  * This subscriber uses the field map in the metadata to map fields from
@@ -75,7 +75,7 @@ class MappingSubscriber implements EventSubscriberInterface
         $locale = $event->getLocale();
         $node = $event->getNode();
         $accessor = $event->getAccessor();
-        $registry = $event->getDocumentRegistry();
+        $registry = $event->getRegistry();
 
         foreach ($metadata->getFieldMappings() as $fieldName => $fieldMapping) {
             if (false === $fieldMapping['mapped']) {
@@ -210,7 +210,7 @@ class MappingSubscriber implements EventSubscriberInterface
         $node = $event->getNode();
         $accessor = $event->getAccessor();
         $document = $event->getDocument();
-        $manager = $event->getDocumentManager();
+        $manager = $event->getManager();
         $proxyFactory = $event->getProxyFactory();
 
         foreach ($metadata->getFieldMappings() as $fieldName => $fieldMapping) {

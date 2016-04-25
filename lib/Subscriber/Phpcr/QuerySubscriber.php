@@ -19,10 +19,10 @@ use Sulu\Component\DocumentManager\Event\QueryCreateBuilderEvent;
 use Sulu\Component\DocumentManager\Event\QueryCreateEvent;
 use Sulu\Component\DocumentManager\Event\QueryExecuteEvent;
 use Sulu\Component\DocumentManager\Events;
+use Sulu\Component\DocumentManager\Exception\BadMethodCallException;
+use Sulu\Component\DocumentManager\Exception\InvalidArgumentException;
 use Sulu\Component\DocumentManager\Query\Query;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Sulu\Component\DocumentManager\Exception\InvalidArgumentException;
-use Sulu\Component\DocumentManager\Exception\BadMethodCallException;
 
 /**
  * Handles creation of query and query builder objects.

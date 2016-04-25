@@ -37,9 +37,9 @@ class ReorderSubscriberTest extends \PHPUnit_Framework_TestCase
 
         $this->manager = $this->prophesize(DocumentManagerInterface::class);
         $this->event->getNodeManager()->willReturn($this->nodeManager->reveal());
-        $this->event->getDocumentRegistry()->willReturn($this->registry->reveal());
+        $this->event->getRegistry()->willReturn($this->registry->reveal());
 
-        $this->event->getDocumentManager()->willReturn($this->manager->reveal());
+        $this->event->getManager()->willReturn($this->manager->reveal());
 
         $this->subscriber = new ReorderSubscriber();
 

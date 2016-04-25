@@ -11,9 +11,7 @@
 
 namespace Sulu\Component\DocumentManager;
 
-use PHPCR\SessionInterface;
 use Sulu\Component\DocumentManager\Query\Query;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 interface DocumentManagerInterface
 {

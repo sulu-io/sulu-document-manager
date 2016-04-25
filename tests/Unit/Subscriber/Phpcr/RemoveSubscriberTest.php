@@ -35,9 +35,9 @@ class RemoveSubscriberTest extends \PHPUnit_Framework_TestCase
 
         $this->manager = $this->prophesize(DocumentManagerInterface::class);
         $this->removeEvent->getNodeManager()->willReturn($this->nodeManager->reveal());
-        $this->removeEvent->getDocumentRegistry()->willReturn($this->documentRegistry->reveal());
+        $this->removeEvent->getRegistry()->willReturn($this->documentRegistry->reveal());
 
-        $this->removeEvent->getDocumentManager()->willReturn($this->manager->reveal());
+        $this->removeEvent->getManager()->willReturn($this->manager->reveal());
 
         $this->subscriber = new RemoveSubscriber();
 

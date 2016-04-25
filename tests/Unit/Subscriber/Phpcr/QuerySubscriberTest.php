@@ -17,13 +17,12 @@ use PHPCR\Query\QueryResultInterface;
 use PHPCR\SessionInterface;
 use PHPCR\WorkspaceInterface;
 use Sulu\Component\DocumentManager\Collection\QueryResultCollection;
-use Sulu\Component\DocumentManager\DocumentManagerInterface;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 use Sulu\Component\DocumentManager\Event\QueryCreateEvent;
 use Sulu\Component\DocumentManager\Event\QueryExecuteEvent;
 use Sulu\Component\DocumentManager\Query\Query;
 use Sulu\Component\DocumentManager\Subscriber\Phpcr\QuerySubscriber;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Sulu\Component\DocumentManager\DocumentManagerContext;
 
 class QuerySubscriberTest extends \PHPUnit_Framework_TestCase
 {
@@ -93,7 +92,6 @@ class QuerySubscriberTest extends \PHPUnit_Framework_TestCase
         $this->queryCreateEvent->getSession()->willReturn($this->session->reveal());
         $this->queryCreateEvent->getContext()->willReturn($this->context->reveal());
         $this->queryExecuteEvent->getContext()->willReturn($this->context->reveal());
-
 
         $this->subscriber = new QuerySubscriber();
 

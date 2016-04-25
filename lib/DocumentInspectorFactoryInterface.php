@@ -11,8 +11,6 @@
 
 namespace Sulu\Component\DocumentManager;
 
-use Sulu\Component\DocumentManager\DocumentManagerContext;
-
 /**
  * Document inspector factory.
  *

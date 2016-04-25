@@ -47,9 +47,9 @@ class ReorderSubscriber implements EventSubscriberInterface
         $document = $event->getDocument();
         $siblingId = $event->getDestId();
         $after = $event->getAfter();
-        $manager = $event->getDocumentManager();
+        $manager = $event->getManager();
 
-        $node = $event->getDocumentRegistry()->getNodeForDocument($document);
+        $node = $event->getRegistry()->getNodeForDocument($document);
         $parentNode = $node->getParent();
 
         $nodeName = $node->getName();

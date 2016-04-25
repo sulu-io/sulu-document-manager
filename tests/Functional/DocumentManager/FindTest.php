@@ -29,7 +29,7 @@ class FindTest extends BaseTestCase
             'locales' => ['en'],
         ]);
 
-        $manager = $this->getDocumentManager();
+        $manager = $this->getManager();
         $manager->flush();
 
         $document = $manager->find(self::BASE_PATH);
@@ -45,7 +45,7 @@ class FindTest extends BaseTestCase
             'locales' => ['en', 'de'],
         ]);
 
-        $manager = $this->getDocumentManager();
+        $manager = $this->getManager();
         $manager->flush();
 
         $document = $manager->find(self::BASE_PATH);
@@ -57,7 +57,7 @@ class FindTest extends BaseTestCase
      */
     public function testPersistFindNoLocales()
     {
-        $manager = $this->getDocumentManager();
+        $manager = $this->getManager();
         $document = $manager->create('full');
         $document->setTitle('Hello');
         $document->setBody('This is Hello');

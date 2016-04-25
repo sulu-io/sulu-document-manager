@@ -1,77 +1,221 @@
 <?php
 
+/*
+ * This file is part of Sulu.
+ *
+ * (c) MASSIVE ART WebServices GmbH
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Sulu\Component\DocumentManager;
 
-use Sulu\Component\DocumentManager\NodeManager;
-use Sulu\Component\DocumentManager\DocumentRegistry;
-use Sulu\Component\DocumentManager\ProxyFactory;
-use Symfony\Component\EventDispatcher\EventDispatcher;
-use Sulu\Component\DocumentManager\MetadataFactoryInterface;
-use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use PHPCR\SessionInterface;
+use ProxyManager\Factory\LazyLoadingGhostFactory;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * The document manager context is a container for all the dependencies of a
+ * given document manager.
+ */
 class DocumentManagerContext
 {
-    private $documentManager;
-    private $nodeManager;
-    private $documentRegistry;
-    private $proxyFactory;
+    /**
+     * @var EventDispatcherInterface
+     */
     private $eventDispatcher;
+
+    /**
+     * @var DocumentInspectorFactory
+     */
+    private $inspectorFactory;
+
+    /**
+     * @var NodeManager
+     */
+    private $nodeManager;
+
+    /**
+     * @var DocumentRegistry
+     */
+    private $registry;
+
+    /**
+     * @var ProxyFactory
+     */
+    private $proxyFactory;
+
+    /**
+     * @var MetadataFactoryInterface
+     */
     private $metadataFactory;
+
+    /**
+     * @var SessionInterface
+     */
     private $session;
 
+    /**
+     * @var DocumentManagerInterface
+     */
+    private $manager;
+
+    /**
+     * @var string
+     */
+    private $name;
+
     public function __construct(
-        DocumentManagerInterface $documentManager,
-        NodeManager $nodeManager,
-        DocumentRegistry $documentRegistry,
-        ProxyFactory $proxyFactory,
-        EventDispatcher $eventDispatcher,
+        $name,
+        SessionInterface $session,
+        EventDispatcherInterface $eventDispatcher,
         MetadataFactoryInterface $metadataFactory,
-        SessionInterface $session
-    )
-    {
-        $this->documentManager = $documentManager;
-        $this->nodeManager = $nodeManager;
-        $this->documentRegistry = $documentRegistry;
-        $this->proxyFactory = $proxyFactory;
+        LazyLoadingGhostFactory $lazyProxyFactory,
+        DocumentInspectorFactoryInterface $inspectorFactory,
+        $defaultLocale
+    ) {
+        $this->name = $name;
+
+        // the event dispatcher should be unique to this document manager context
+        // instance.
         $this->eventDispatcher = $eventDispatcher;
-        $this->session = $session;
+
+        // the inspector factory provides a way for users to instantiate
+        // their own document inspectors.
+        $this->inspectorFactory = $inspectorFactory;
+
+        // the metadata factory is currently intended to be the same for all
+        // document mnaager contexts instances.
         $this->metadataFactory = $metadataFactory;
+
+        // the PHPCR session SHOULD be unique to all (end user) document
+        // manager contexts.
+        $this->session = $session;
+
+        // instantiate other objects scoped to this document manager.
+        $this->nodeManager = new NodeManager($session);
+        $this->proxyFactory = new ProxyFactory($this, $lazyProxyFactory, $metadataFactory);
+        $this->registry = new DocumentRegistry($defaultLocale);
     }
 
-    public function getNodeManager() 
+    /**
+     * Return the context name.
+     *
+     * This should be a simple string which can be used to identify the
+     * document context while debugging. It would typically be the name
+     * used to reference the document context/manager within the host application.
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Attach a document manager to this context.
+     *
+     * @param DocumentManagerInterface $manager
+     */
+    public function attachManager(DocumentManagerInterface $manager)
+    {
+        if (isset($this->manager)) {
+            throw new \RuntimeException(sprintf(
+                'This context has already been attached to document manager.',
+                $manager
+            ));
+        }
+
+        $this->manager = $manager;
+    }
+
+    /**
+     * Return the attached document manager.
+     *
+     * @retrun DocumentManagerInterface
+     */
+    public function getManager()
+    {
+        if (!$this->manager) {
+            throw new \RuntimeException(
+                'This document context has not been attached to a document manager.'
+            );
+        }
+
+        return $this->manager;
+    }
+
+    /**
+     * Return the node manager instance.
+     *
+     * @return NodeManager
+     */
+    public function getNodeManager()
     {
         return $this->nodeManager;
     }
 
-    public function getDocumentRegistry() 
+    /**
+     * Return the document registry instance.
+     *
+     * @return DocumentRegistry
+     */
+    public function getRegistry()
     {
-        return $this->documentRegistry;
+        return $this->registry;
     }
 
-    public function getProxyFactory() 
+    /**
+     * Return the proxy factory instance.
+     *
+     * @return ProxyFactory
+     */
+    public function getProxyFactory()
     {
         return $this->proxyFactory;
     }
 
-    public function getEventDispatcher() 
+    /**
+     * Return the PHPCR session instance.
+     *
+     * @return SessionInterface
+     */
+    public function getSession()
+    {
+        return $this->session;
+    }
+
+    /**
+     * Return the event dispatcher instance.
+     *
+     * @return EventDispatcher
+     */
+    public function getEventDispatcher()
     {
         return $this->eventDispatcher;
     }
 
-    public function getMetadataFactory() 
+    /**
+     * Return the metadata factory instance.
+     *
+     * @return MetadataFactoryInterface
+     */
+    public function getMetadataFactory()
     {
         return $this->metadataFactory;
     }
 
-    public function getDocumentManager()
+    /**
+     * Retrieve the document inspector.
+     *
+     * NOTE: In the future this will be a factory for retrieving inspectors
+     * for a given object/class.
+     *
+     * @return DocumentInspector
+     */
+    public function getInspector()
     {
-        return $this->documentManager;
+        return $this->inspectorFactory->getInspector($this);
     }
-
-    public function getSession() 
-    {
-        return $this->session;
-    }
-    
 }

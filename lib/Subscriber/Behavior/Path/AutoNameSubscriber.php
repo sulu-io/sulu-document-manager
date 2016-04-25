@@ -22,11 +22,11 @@ use Sulu\Component\DocumentManager\Event\MoveEvent;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\Exception\DocumentManagerException;
+use Sulu\Component\DocumentManager\Exception\RuntimeException;
 use Sulu\Component\DocumentManager\NameResolver;
 use Sulu\Component\DocumentManager\NodeManager;
 use Symfony\Cmf\Bundle\CoreBundle\Slugifier\SlugifierInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Sulu\Component\DocumentManager\Exception\RuntimeException;
 
 /**
  * Automatically assign a name to the document based on its title.
@@ -152,7 +152,7 @@ class AutoNameSubscriber implements EventSubscriberInterface
         }
 
         $node = $event->getNode();
-        $defaultLocale = $event->getDocumentRegistry()->getDefaultLocale();
+        $defaultLocale = $event->getRegistry()->getDefaultLocale();
 
         if ($defaultLocale != $event->getLocale()) {
             return;
@@ -192,8 +192,8 @@ class AutoNameSubscriber implements EventSubscriberInterface
         }
 
         $destId = $event->getDestId();
-        $manager = $event->getDocumentManager();
-        $node = $event->getDocumentRegistry()->getNodeForDocument($document);
+        $manager = $event->getManager();
+        $node = $event->getRegistry()->getNodeForDocument($document);
         $destNode = $event->getNodeManager()->find($destId);
         $nodeName = $this->resolver->resolveName($destNode, $node->getName());
 

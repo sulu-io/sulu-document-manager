@@ -19,7 +19,7 @@ use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Subscriber\Behavior\Mapping\LocaleSubscriber;
 
-class LocaleSubscriberTest extends SubscriberTestCase
+class LocaleSubscriberTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
@@ -30,8 +30,8 @@ class LocaleSubscriberTest extends SubscriberTestCase
         $this->registry = $this->prophesize(DocumentRegistry::class);
         $this->manager = $this->prophesize(DocumentManagerInterface::class);
         $this->hydrateEvent = $this->prophesize(HydrateEvent::class);
-        $this->hydrateEvent->getDocumentRegistry()->willReturn($this->registry->reveal());
-        $this->hydrateEvent->getDocumentManager()->willReturn($this->manager->reveal());
+        $this->hydrateEvent->getRegistry()->willReturn($this->registry->reveal());
+        $this->hydrateEvent->getManager()->willReturn($this->manager->reveal());
 
         $this->subscriber = new LocaleSubscriber(
             $this->manager->reveal()

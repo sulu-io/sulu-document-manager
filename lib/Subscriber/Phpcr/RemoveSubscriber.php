@@ -39,7 +39,7 @@ class RemoveSubscriber implements EventSubscriberInterface
     public function handleRemove(RemoveEvent $event)
     {
         $document = $event->getDocument();
-        $node = $event->getDocumentRegistry()->getNodeForDocument($document);
+        $node = $event->getRegistry()->getNodeForDocument($document);
         $node->remove();
     }
 }

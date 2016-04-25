@@ -11,13 +11,10 @@
 
 namespace Sulu\Component\DocumentManager\Tests\Unit;
 
-use PHPCR\NodeInterface;
-use PHPCR\SessionInterface;
-use ProxyManager\Factory\LazyLoadingGhostFactory;
+use Prophecy\Argument;
 use Sulu\Component\DocumentManager\Collection\QueryResultCollection;
-use Sulu\Component\DocumentManager\DocumentInspectorFactoryInterface;
 use Sulu\Component\DocumentManager\DocumentManager;
-use Sulu\Component\DocumentManager\DocumentRegistry;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 use Sulu\Component\DocumentManager\Event\ClearEvent;
 use Sulu\Component\DocumentManager\Event\ConfigureOptionsEvent;
 use Sulu\Component\DocumentManager\Event\CopyEvent;
@@ -30,10 +27,9 @@ use Sulu\Component\DocumentManager\Event\QueryCreateEvent;
 use Sulu\Component\DocumentManager\Event\QueryExecuteEvent;
 use Sulu\Component\DocumentManager\Event\RefreshEvent;
 use Sulu\Component\DocumentManager\Event\RemoveEvent;
+use Sulu\Component\DocumentManager\Event\ReorderEvent;
 use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\Exception\DocumentManagerException;
-use Sulu\Component\DocumentManager\MetadataFactoryInterface;
-use Sulu\Component\DocumentManager\NodeManager;
 use Sulu\Component\DocumentManager\Query\Query;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -47,29 +43,9 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
     private $dispatcher;
 
     /**
-     * @var NodeManager
-     */
-    private $nodeManager;
-
-    /**
-     * @var MetadataFactoryInterface
-     */
-    private $metadataFactory;
-
-    /**
-     * @var DocumentRegistry
-     */
-    private $documentRegistry;
-
-    /**
      * @var DocumentManager
      */
     private $manager;
-
-    /**
-     * @var NodeManager
-     */
-    private $node;
 
     /**
      * @var object
@@ -86,39 +62,17 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
      */
     private $resultCollection;
 
-    /**
-     * @var SessionInterfaced
-     */
-    private $session;
-
-    /**
-     * @var LazyLoadingGhostFactory
-     */
-    private $proxyFactory;
-
-    /**
-     * @var DocumentInspectorFactoryInterface
-     */
-    private $inspectorFactory;
-
     public function setUp()
     {
-        $this->session = $this->prophesize(SessionInterface::class);
         $this->dispatcher = new EventDispatcher();
-        $this->metadataFactory = $this->prophesize(MetadataFactoryInterface::class);
-        $this->proxyFactory = $this->prophesize(LazyLoadingGhostFactory::class);
-        $this->inspectorFactory = $this->prophesize(DocumentInspectorFactoryInterface::class);
+        $this->context = $this->prophesize(DocumentManagerContext::class);
+        $this->context->getEventDispatcher()->willReturn($this->dispatcher);
+        $this->context->attachManager(Argument::type(DocumentManager::class))->shouldBeCalled();
 
         $this->manager = new DocumentManager(
-            $this->session->reveal(),
-            $this->dispatcher,
-            $this->metadataFactory->reveal(),
-            $this->proxyFactory->reveal(),
-            $this->inspectorFactory->reveal(),
-            'de'
+            $this->context->reveal()
         );
 
-        $this->node = $this->prophesize(NodeInterface::class);
         $this->document = new \stdClass();
 
         $this->query = $this->prophesize(Query::class);
@@ -143,6 +97,16 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
         $subscriber = $this->addSubscriber();
         $this->manager->remove(new \stdClass());
         $this->assertTrue($subscriber->remove);
+    }
+
+    /**
+     * It issue a reorder event.
+     */
+    public function testReorder()
+    {
+        $subscriber = $this->addSubscriber();
+        $this->manager->reorder(new \stdClass(), 1234);
+        $this->assertTrue($subscriber->reorder);
     }
 
     /**
@@ -265,6 +229,7 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function testDocumentManagerExceptionName()
     {
+        $this->context->getName()->willReturn('default');
         $this->addSubscriber(new DocumentManagerException('Hello'));
         $this->manager->find('foo');
     }
@@ -298,6 +263,7 @@ class TestDocumentManagerSubscriber implements EventSubscriberInterface
     public $persist = false;
     public $hydrate = false;
     public $remove = false;
+    public $reorder = false;
     public $copy = false;
     public $move = false;
     public $create = false;

@@ -50,7 +50,7 @@ abstract class BaseBench
         return $session;
     }
 
-    protected function getDocumentManager()
+    protected function getManager()
     {
         return $this->getContainer()->get('sulu_document_manager.document_manager');
     }

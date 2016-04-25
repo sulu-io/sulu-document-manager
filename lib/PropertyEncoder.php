@@ -11,8 +11,8 @@
 
 namespace Sulu\Component\DocumentManager;
 
-use Sulu\Component\DocumentManager\Exception\InvalidLocaleException;
 use Sulu\Component\DocumentManager\Exception\InvalidArgumentException;
+use Sulu\Component\DocumentManager\Exception\InvalidLocaleException;
 
 /**
  * Class responsible for encoding properties to PHPCR nodes.

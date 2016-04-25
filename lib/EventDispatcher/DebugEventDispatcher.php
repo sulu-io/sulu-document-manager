@@ -66,7 +66,7 @@ class DebugEventDispatcher extends ContainerAwareEventDispatcher
 
             $listenerStopwatch = $this->stopwatch->start($className . '->' . $methodName, 'document_manager_listener');
 
-            $this->depth++;
+            ++$this->depth;
 
             $this->logger->debug(sprintf(
                 '%-40s> %-2s %-20s %s', $name, $this->depth, $methodName, $event->getDebugMessage()
@@ -78,7 +78,7 @@ class DebugEventDispatcher extends ContainerAwareEventDispatcher
                 '%-40s< %-2s %-20s %s', $name, $this->depth, $methodName, $event->getDebugMessage()
             ));
 
-            $this->depth--;
+            --$this->depth;
 
             if ($listenerStopwatch->isStarted()) {
                 $listenerStopwatch->stop();

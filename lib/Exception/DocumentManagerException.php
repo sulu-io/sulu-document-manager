@@ -11,8 +11,6 @@
 
 namespace Sulu\Component\DocumentManager\Exception;
 
-use Sulu\Component\DocumentManager\Exception\RuntimeException;
-
 /**
  * Domain exception for the document manager.
  */

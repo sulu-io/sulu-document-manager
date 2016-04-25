@@ -46,9 +46,9 @@ class MappingSubscriberTest extends \PHPUnit_Framework_TestCase
 
         $this->manager = $this->prophesize(DocumentManagerInterface::class);
 
-        $this->persistEvent->getDocumentManager()->willReturn($this->manager->reveal());
-        $this->hydrateEvent->getDocumentManager()->willReturn($this->manager->reveal());
-        $this->persistEvent->getDocumentRegistry()->willReturn($this->documentRegistry->reveal());
+        $this->persistEvent->getManager()->willReturn($this->manager->reveal());
+        $this->hydrateEvent->getManager()->willReturn($this->manager->reveal());
+        $this->persistEvent->getRegistry()->willReturn($this->documentRegistry->reveal());
         $this->hydrateEvent->getProxyFactory()->willReturn($this->proxyFactory->reveal());
 
         $this->subscriber = new MappingSubscriber(

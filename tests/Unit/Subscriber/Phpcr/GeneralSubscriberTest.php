@@ -12,6 +12,7 @@
 namespace Sulu\Comonent\DocumentManager\Tests\Unit\Subscriber;
 
 use PHPCR\NodeInterface;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\Event\ClearEvent;
@@ -24,7 +25,6 @@ use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\NodeManager;
 use Sulu\Component\DocumentManager\Subscriber\Phpcr\GeneralSubscriber;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Sulu\Component\DocumentManager\DocumentManagerContext;
 
 class GeneralSubscriberTest extends \PHPUnit_Framework_TestCase
 {
@@ -49,19 +49,19 @@ class GeneralSubscriberTest extends \PHPUnit_Framework_TestCase
 
         $this->manager = $this->prophesize(DocumentManagerInterface::class);
 
-        $this->moveEvent->getDocumentManager()->willReturn($this->manager->reveal());
-        $this->copyEvent->getDocumentManager()->willReturn($this->manager->reveal());
-        $this->clearEvent->getDocumentManager()->willReturn($this->manager->reveal());
+        $this->moveEvent->getManager()->willReturn($this->manager->reveal());
+        $this->copyEvent->getManager()->willReturn($this->manager->reveal());
+        $this->clearEvent->getManager()->willReturn($this->manager->reveal());
         $this->context = $this->prophesize(DocumentManagerContext::class);
-        $this->flushEvent->getDocumentManager()->willReturn($this->manager->reveal());
-        $this->refreshEvent->getDocumentManager()->willReturn($this->manager->reveal());
+        $this->flushEvent->getManager()->willReturn($this->manager->reveal());
+        $this->refreshEvent->getManager()->willReturn($this->manager->reveal());
         $this->refreshEvent->getContext()->willReturn($this->context->reveal());
         $this->refreshEvent->getEventDispatcher()->willReturn($this->eventDispatcher->reveal());
 
-        $this->refreshEvent->getDocumentRegistry()->willReturn($this->documentRegistry->reveal());
-        $this->moveEvent->getDocumentRegistry()->willReturn($this->documentRegistry->reveal());
+        $this->refreshEvent->getRegistry()->willReturn($this->documentRegistry->reveal());
+        $this->moveEvent->getRegistry()->willReturn($this->documentRegistry->reveal());
         $this->moveEvent->getNodeManager()->willReturn($this->nodeManager->reveal());
-        $this->copyEvent->getDocumentRegistry()->willReturn($this->documentRegistry->reveal());
+        $this->copyEvent->getRegistry()->willReturn($this->documentRegistry->reveal());
         $this->copyEvent->getNodeManager()->willReturn($this->nodeManager->reveal());
         $this->clearEvent->getNodeManager()->willReturn($this->nodeManager->reveal());
         $this->flushEvent->getNodeManager()->willReturn($this->nodeManager->reveal());

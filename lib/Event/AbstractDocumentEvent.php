@@ -47,7 +47,7 @@ abstract class AbstractDocumentEvent extends AbstractDocumentManagerContextEvent
             '%sd:%s (%s)',
             parent::getDebugMessage(),
             $this->document ? spl_object_hash($this->document) : '<no document>',
-            substr(get_class($this->document),  strrpos(get_class($this->document), '\\') + 1)
+            substr(get_class($this->document), strrpos(get_class($this->document), '\\') + 1)
         );
     }
 }

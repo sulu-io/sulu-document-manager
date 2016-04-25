@@ -13,11 +13,10 @@ namespace Sulu\Component\DocumentManager\Tests\Unit;
 
 use Sulu\Component\DocumentManager\DocumentInspector;
 use Sulu\Component\DocumentManager\DocumentInspectorFactory;
-use Sulu\Component\DocumentManager\DocumentManagerInterface;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\PathSegmentRegistry;
 use Sulu\Component\DocumentManager\ProxyFactory;
-use Sulu\Component\DocumentManager\DocumentManagerContext;
 
 class DocumentInspectorFactoryTest extends \PHPUnit_Framework_TestCase
 {

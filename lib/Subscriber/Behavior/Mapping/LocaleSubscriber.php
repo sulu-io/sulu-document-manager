@@ -48,7 +48,7 @@ class LocaleSubscriber implements EventSubscriberInterface
 
         $event->getAccessor()->set(
             'locale',
-            $event->getDocumentRegistry()->getLocaleForDocument($document)
+            $event->getRegistry()->getLocaleForDocument($document)
         );
     }
 }
