@@ -73,7 +73,8 @@ class DocumentManagerContext
         MetadataFactoryInterface $metadataFactory,
         LazyLoadingGhostFactory $lazyProxyFactory,
         DocumentInspectorFactoryInterface $inspectorFactory,
-        $defaultLocale
+        $defaultLocale,
+        DocumentRegistry $registry = null
     ) {
         $this->name = $name;
 
@@ -96,7 +97,7 @@ class DocumentManagerContext
         // instantiate other objects scoped to this document manager.
         $this->nodeManager = new NodeManager($session);
         $this->proxyFactory = new ProxyFactory($this, $lazyProxyFactory, $metadataFactory);
-        $this->registry = new DocumentRegistry($defaultLocale);
+        $this->registry = $registry ?: new DocumentRegistry($defaultLocale);
         $this->manager = new DocumentManager($this);
     }
 
