@@ -53,7 +53,6 @@ class DocumentManager implements DocumentManagerInterface
     {
         $this->context = $context;
         $this->eventDispatcher = $context->getEventDispatcher();
-        $this->context->attachManager($this);
     }
 
     /**

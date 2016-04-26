@@ -29,7 +29,7 @@
         </service>
 
         <service id="sulu_document_manager.document_manager" class="Sulu\Component\DocumentManager\DocumentManager">
-            <argument type="service" id="sulu_document_manager.context" />
+            <factory service="sulu_document_manager.context" method="getManager" />
         </service>
 
         <service id="sulu_document_manager.document_inspector_factory" class="Sulu\Component\DocumentManager\DocumentInspectorFactory">

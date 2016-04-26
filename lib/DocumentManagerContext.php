@@ -97,6 +97,7 @@ class DocumentManagerContext
         $this->nodeManager = new NodeManager($session);
         $this->proxyFactory = new ProxyFactory($this, $lazyProxyFactory, $metadataFactory);
         $this->registry = new DocumentRegistry($defaultLocale);
+        $this->manager = new DocumentManager($this);
     }
 
     /**
@@ -114,35 +115,12 @@ class DocumentManagerContext
     }
 
     /**
-     * Attach a document manager to this context.
-     *
-     * @param DocumentManagerInterface $manager
-     */
-    public function attachManager(DocumentManagerInterface $manager)
-    {
-        if (isset($this->manager)) {
-            throw new \RuntimeException(sprintf(
-                'This context has already been attached to document manager.',
-                $manager
-            ));
-        }
-
-        $this->manager = $manager;
-    }
-
-    /**
      * Return the attached document manager.
      *
      * @retrun DocumentManagerInterface
      */
     public function getManager()
     {
-        if (!$this->manager) {
-            throw new \RuntimeException(
-                'This document context has not been attached to a document manager.'
-            );
-        }
-
         return $this->manager;
     }
 

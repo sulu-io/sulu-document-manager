@@ -11,7 +11,6 @@
 
 namespace Sulu\Component\DocumentManager\Tests\Unit;
 
-use Prophecy\Argument;
 use Sulu\Component\DocumentManager\Collection\QueryResultCollection;
 use Sulu\Component\DocumentManager\DocumentManager;
 use Sulu\Component\DocumentManager\DocumentManagerContext;
@@ -67,7 +66,6 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
         $this->dispatcher = new EventDispatcher();
         $this->context = $this->prophesize(DocumentManagerContext::class);
         $this->context->getEventDispatcher()->willReturn($this->dispatcher);
-        $this->context->attachManager(Argument::type(DocumentManager::class))->shouldBeCalled();
 
         $this->manager = new DocumentManager(
             $this->context->reveal()

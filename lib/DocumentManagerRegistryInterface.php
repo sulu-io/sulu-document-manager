@@ -46,4 +46,11 @@ interface DocumentManagerRegistryInterface
      * @throws \InvalidArgumentException
      */
     public function getManager($name = null);
+
+    /**
+     * Return the context for the named document manager.
+     *
+     * @return string $name
+     */
+    public function getContext($name = null);
 }
