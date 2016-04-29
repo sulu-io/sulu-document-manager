@@ -12,7 +12,6 @@
 namespace Sulu\Component\DocumentManager\Subscriber\Behavior\Mapping;
 
 use Sulu\Component\DocumentManager\Behavior\Mapping\PathBehavior;
-use Sulu\Component\DocumentManager\DocumentInspector;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Events;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -22,19 +21,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class PathSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var DocumentInspector
-     */
-    private $documentInspector;
-
-    /**
-     * @param DocumentInspector $documentInspector
-     */
-    public function __construct(DocumentInspector $documentInspector)
-    {
-        $this->documentInspector = $documentInspector;
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -58,7 +44,7 @@ class PathSubscriber implements EventSubscriberInterface
 
         $event->getAccessor()->set(
             'path',
-            $this->documentInspector->getPath($document)
+            $event->getManager()->getInspector()->getPath($document)
         );
     }
 }

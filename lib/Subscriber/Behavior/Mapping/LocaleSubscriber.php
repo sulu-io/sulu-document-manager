@@ -12,7 +12,6 @@
 namespace Sulu\Component\DocumentManager\Subscriber\Behavior\Mapping;
 
 use Sulu\Component\DocumentManager\Behavior\Mapping\LocaleBehavior;
-use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\Event\AbstractMappingEvent;
 use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\Exception\DocumentManagerException;
@@ -23,16 +22,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class LocaleSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var DocumentRegistry
-     */
-    private $registry;
-
-    public function __construct(DocumentRegistry $registry)
-    {
-        $this->registry = $registry;
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -59,7 +48,7 @@ class LocaleSubscriber implements EventSubscriberInterface
 
         $event->getAccessor()->set(
             'locale',
-            $this->registry->getLocaleForDocument($document)
+            $event->getRegistry()->getLocaleForDocument($document)
         );
     }
 }

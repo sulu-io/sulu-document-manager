@@ -14,21 +14,49 @@ namespace Sulu\Comonent\DocumentManager\tests\Unit\Collection;
 use PHPCR\NodeInterface;
 use Prophecy\Argument;
 use Sulu\Component\DocumentManager\Collection\ChildrenCollection;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 use Sulu\Component\DocumentManager\Events;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ChildrenCollectionTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var NodeInterface
+     */
+    private $childNode;
+
+    /**
+     * @var NodeInterface
+     */
+    private $parentNode;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $dispatcher;
+
+    /**
+     * @var DocumentManagerContext
+     */
+    private $context;
+
+    /**
+     * @var ChildrenCollection
+     */
+    private $collection;
+
     public function setUp()
     {
         $this->childNode = $this->prophesize(NodeInterface::class);
         $this->parentNode = $this->prophesize(NodeInterface::class);
 
         $this->dispatcher = $this->prophesize(EventDispatcherInterface::class);
+        $this->context = $this->prophesize(DocumentManagerContext::class);
+        $this->context->getEventDispatcher()->willReturn($this->dispatcher->reveal());
 
         $this->collection = new ChildrenCollection(
             $this->parentNode->reveal(),
-            $this->dispatcher->reveal(),
+            $this->context->reveal(),
             'fr'
         );
     }

@@ -59,15 +59,17 @@ class RegistratorSubscriberTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->registry = $this->prophesize(DocumentRegistry::class);
-        $this->subscriber = new RegistratorSubscriber(
-            $this->registry->reveal()
-        );
+        $this->subscriber = new RegistratorSubscriber();
 
         $this->node = $this->prophesize(NodeInterface::class);
         $this->document = new \stdClass();
         $this->hydrateEvent = $this->prophesize(HydrateEvent::class);
         $this->persistEvent = $this->prophesize(PersistEvent::class);
         $this->removeEvent = $this->prophesize(RemoveEvent::class);
+
+        $this->hydrateEvent->getRegistry()->willReturn($this->registry->reveal());
+        $this->persistEvent->getRegistry()->willReturn($this->registry->reveal());
+        $this->removeEvent->getRegistry()->willReturn($this->registry->reveal());
     }
 
     /**
@@ -200,6 +202,7 @@ class RegistratorSubscriberTest extends \PHPUnit_Framework_TestCase
         $reorderEvent = $this->prophesize(ReorderEvent::class);
         $reorderEvent->hasNode()->willReturn(false);
         $reorderEvent->getDocument()->willReturn($this->document);
+        $reorderEvent->getRegistry()->willReturn($this->registry->reveal());
         $this->registry->hasDocument($this->document)->willReturn(true);
         $this->registry->getNodeForDocument($this->document)->willReturn($this->node->reveal());
         $reorderEvent->setNode($this->node->reveal())->shouldBeCalled();

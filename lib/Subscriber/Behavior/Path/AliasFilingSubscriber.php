@@ -13,33 +13,15 @@ namespace Sulu\Component\DocumentManager\Subscriber\Behavior\Path;
 
 use Doctrine\Common\Inflector\Inflector;
 use Sulu\Component\DocumentManager\Behavior\Path\AliasFilingBehavior;
+use Sulu\Component\DocumentManager\Event\AbstractEvent;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Events;
-use Sulu\Component\DocumentManager\MetadataFactoryInterface;
-use Sulu\Component\DocumentManager\NodeManager;
 
 /**
  * Automatically set the parent at a pre-determined location.
  */
 class AliasFilingSubscriber extends AbstractFilingSubscriber
 {
-    /**
-     * @var MetadataFactoryInterface
-     */
-    private $metadataFactory;
-
-    /**
-     * @param NodeManager $nodeManager
-     * @param MetadataFactoryInterface $metadataFactory
-     */
-    public function __construct(
-        NodeManager $nodeManager,
-        MetadataFactoryInterface $metadataFactory
-    ) {
-        parent::__construct($nodeManager);
-        $this->metadataFactory = $metadataFactory;
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -55,13 +37,11 @@ class AliasFilingSubscriber extends AbstractFilingSubscriber
      */
     protected function generatePath(PersistEvent $event)
     {
-        $document = $event->getDocument();
-
         $currentPath = '';
         if ($event->hasParentNode()) {
             $currentPath = $event->getParentNode()->getPath();
         }
-        $parentName = $this->getParentName($document);
+        $parentName = $this->getParentName($event);
 
         return sprintf('%s/%s', $currentPath, Inflector::pluralize($parentName));
     }
@@ -77,12 +57,14 @@ class AliasFilingSubscriber extends AbstractFilingSubscriber
     }
 
     /**
-     * @param $document
+     * @param AbstractEvent $document
      *
      * @return string
      */
-    protected function getParentName($document)
+    protected function getParentName(AbstractEvent $event)
     {
-        return $this->metadataFactory->getMetadataForClass(get_class($document))->getAlias();
+        $document = $event->getDocument();
+
+        return $event->getMetadataFactory()->getMetadataForClass(get_class($document))->getAlias();
     }
 }

@@ -17,7 +17,10 @@ use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\Event\AbstractMappingEvent;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Events;
+use Sulu\Component\DocumentManager\Exception\BadMethodCallException;
+use Sulu\Component\DocumentManager\Exception\InvalidArgumentException;
 use Sulu\Component\DocumentManager\Exception\InvalidLocaleException;
+use Sulu\Component\DocumentManager\Exception\RuntimeException;
 use Sulu\Component\DocumentManager\MetadataFactoryInterface;
 use Sulu\Component\DocumentManager\PropertyEncoder;
 use Sulu\Component\DocumentManager\ProxyFactory;
@@ -40,16 +43,6 @@ class MappingSubscriber implements EventSubscriberInterface
     private $encoder;
 
     /**
-     * @var ProxyFactory
-     */
-    private $proxyFactory;
-
-    /**
-     * @var DocumentRegistry
-     */
-    private $documentRegistry;
-
-    /**
      * @param MetadataFactoryInterface $factory
      * @param PropertyEncoder $encoder
      * @param ProxyFactory $proxyFactory
@@ -57,14 +50,10 @@ class MappingSubscriber implements EventSubscriberInterface
      */
     public function __construct(
         MetadataFactoryInterface $factory,
-        PropertyEncoder $encoder,
-        ProxyFactory $proxyFactory,
-        DocumentRegistry $documentRegistry
+        PropertyEncoder $encoder
     ) {
         $this->factory = $factory;
         $this->encoder = $encoder;
-        $this->proxyFactory = $proxyFactory;
-        $this->documentRegistry = $documentRegistry;
     }
 
     /**
@@ -87,6 +76,7 @@ class MappingSubscriber implements EventSubscriberInterface
         $locale = $event->getLocale();
         $node = $event->getNode();
         $accessor = $event->getAccessor();
+        $registry = $event->getRegistry();
 
         foreach ($metadata->getFieldMappings() as $fieldName => $fieldMapping) {
             if (false === $fieldMapping['mapped']) {
@@ -95,7 +85,7 @@ class MappingSubscriber implements EventSubscriberInterface
 
             switch ($fieldMapping['type']) {
                 case 'reference':
-                    $this->persistReference($node, $accessor, $fieldName, $locale, $fieldMapping);
+                    $this->persistReference($registry, $node, $accessor, $fieldName, $locale, $fieldMapping);
                     break;
                 case 'json_array':
                     $this->persistJsonArray($node, $accessor, $fieldName, $locale, $fieldMapping);
@@ -116,6 +106,7 @@ class MappingSubscriber implements EventSubscriberInterface
      * @param mixed $fieldMapping
      */
     private function persistReference(
+        DocumentRegistry $documentRegistry,
         NodeInterface $node,
         DocumentAccessor $accessor,
         $fieldName,
@@ -129,7 +120,7 @@ class MappingSubscriber implements EventSubscriberInterface
         }
 
         if ($fieldMapping['multiple']) {
-            throw new \InvalidArgumentException(
+            throw new BadMethodCallException(
                 sprintf(
                     'Mapping references as multiple not currently supported (when mapping "%s")',
                     $fieldName
@@ -138,7 +129,7 @@ class MappingSubscriber implements EventSubscriberInterface
         }
 
         try {
-            $referenceNode = $this->documentRegistry->getNodeForDocument($referenceDocument);
+            $referenceNode = $documentRegistry->getNodeForDocument($referenceDocument);
             $phpcrName = $this->encoder->encode($fieldMapping['encoding'], $fieldMapping['property'], $locale);
             $node->setProperty($phpcrName, $referenceNode);
         } catch (InvalidLocaleException $ex) {
@@ -220,6 +211,7 @@ class MappingSubscriber implements EventSubscriberInterface
         $node = $event->getNode();
         $accessor = $event->getAccessor();
         $document = $event->getDocument();
+        $proxyFactory = $event->getProxyFactory();
 
         foreach ($metadata->getFieldMappings() as $fieldName => $fieldMapping) {
             if (false === $fieldMapping['mapped']) {
@@ -229,6 +221,7 @@ class MappingSubscriber implements EventSubscriberInterface
             switch ($fieldMapping['type']) {
                 case 'reference':
                     $this->hydrateReferenceField(
+                        $proxyFactory,
                         $node,
                         $document,
                         $accessor,
@@ -259,6 +252,7 @@ class MappingSubscriber implements EventSubscriberInterface
      * @param array $options
      */
     private function hydrateReferenceField(
+        ProxyFactory $proxyFactory,
         NodeInterface $node,
         $document,
         DocumentAccessor $accessor,
@@ -274,11 +268,19 @@ class MappingSubscriber implements EventSubscriberInterface
                 $this->getDefaultValue($fieldMapping)
             );
 
-            if ($referencedNode) {
-                $accessor->set(
+            try {
+                if ($referencedNode) {
+                    $accessor->set(
+                        $fieldName,
+                        $proxyFactory->createProxyForNode($document, $referencedNode, $options)
+                    );
+                }
+            } catch (\Exception $e) {
+                throw new RuntimeException(sprintf(
+                    'Error hydrating proxy relation "%s" for document "%s"',
                     $fieldName,
-                    $this->proxyFactory->createProxyForNode($document, $referencedNode, $options)
-                );
+                    get_class($document)
+                ), null, $e);
             }
         } catch (InvalidLocaleException $ex) {
             // arguments invalid, no valid propertyname could be generated (e.g. no locale given for localized encoding)
@@ -356,7 +358,7 @@ class MappingSubscriber implements EventSubscriberInterface
     private function validateFieldValue($value, $fieldName, $fieldMapping)
     {
         if ($fieldMapping['multiple'] && !is_array($value)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf(
                     'Field "%s" is mapped as multiple, and therefore must be an array, got "%s"',
                     $fieldName,

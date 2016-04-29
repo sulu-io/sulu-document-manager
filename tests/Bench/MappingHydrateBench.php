@@ -16,8 +16,10 @@ use PHPCR\ImportUUIDBehaviorInterface;
 /**
  * @Groups({"mapping_hydrate"})
  * @Iterations(4)
+ * @Warmup(10)
  * @Revs(10)
  * @BeforeMethods({"setUp"})
+ * @OutputTimeUnit("milliseconds")
  */
 class MappingHydrateBench extends BaseBench
 {
@@ -31,14 +33,14 @@ class MappingHydrateBench extends BaseBench
     public function benchHydrateMapping10()
     {
         for ($index = 0; $index < 10; ++$index) {
-            $this->getDocumentManager()->find('/test/jcr:root/test/to/node-' .  $index);
+            $this->getManager()->find('/test/jcr:root/test/to/node-' .  $index);
         }
     }
 
     public function benchHydrateMapping5()
     {
         for ($index = 0; $index < 5; ++$index) {
-            $this->getDocumentManager()->find('/test/jcr:root/test/to/node-' .  $index);
+            $this->getManager()->find('/test/jcr:root/test/to/node-' .  $index);
         }
     }
 }

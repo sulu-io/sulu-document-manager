@@ -12,8 +12,7 @@
 namespace Sulu\Component\DocumentManager\tests;
 
 use Jackalope\RepositoryFactoryDoctrineDBAL;
-use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
+use Jackalope\Transport\DoctrineDBAL\RepositorySchema;
 use PHPCR\SessionInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -24,16 +23,8 @@ class Bootstrap
 {
     public static function createContainer()
     {
-        $logDir = __DIR__ . '/../data/logs';
-
-        if (!file_exists($logDir)) {
-            mkdir($logDir);
-        }
-
         $container = new ContainerBuilder();
         $container->set('doctrine_phpcr.default_session', self::createSession());
-        $logger = new Logger('test');
-        $logger->pushHandler(new StreamHandler($logDir . '/test.log'));
 
         $dispatcher = new ContainerAwareEventDispatcher($container);
         $container->set('sulu_document_manager.event_dispatcher', $dispatcher);
@@ -144,8 +135,14 @@ class Bootstrap
             'host' => 'localhost',
             'user' => 'admin',
             'password' => 'admin',
-            'path' => __DIR__ . '/../data/test.sqlite',
+            'memory' => true,
         ]);
+
+        $schema = new RepositorySchema();
+
+        foreach ($schema->toSql($connection->getDatabasePlatform()) as $sql) {
+            $connection->exec($sql);
+        }
 
         return $connection;
     }

@@ -16,19 +16,42 @@ use PHPCR\Query\QueryResultInterface;
 use PHPCR\Query\RowInterface;
 use Prophecy\Argument;
 use Sulu\Component\DocumentManager\Collection\QueryResultCollection;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 use Sulu\Component\DocumentManager\Events;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class QueryResultCollectionTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var QueryResultInterface
+     */
+    private $queryResult;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $dispatcher;
+
+    /**
+     * @var DocumentManagerContext
+     */
+    private $context;
+
+    /**
+     * @var QueryResultCollection
+     */
+    private $collection;
+
     public function setUp()
     {
         $this->queryResult = $this->prophesize(QueryResultInterface::class);
         $this->dispatcher = $this->prophesize(EventDispatcherInterface::class);
+        $this->context = $this->prophesize(DocumentManagerContext::class);
+        $this->context->getEventDispatcher()->willReturn($this->dispatcher->reveal());
 
         $this->collection = new QueryResultCollection(
             $this->queryResult->reveal(),
-            $this->dispatcher->reveal(),
+            $this->context->reveal(),
             'fr',
             [],
             's'

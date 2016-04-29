@@ -14,7 +14,7 @@ namespace Sulu\Component\DocumentManager\Event;
 use PHPCR\NodeInterface;
 use Sulu\Component\DocumentManager\DocumentAccessor;
 
-abstract class AbstractMappingEvent extends AbstractEvent
+abstract class AbstractMappingEvent extends AbstractDocumentManagerContextEvent
 {
     use EventOptionsTrait;
 
@@ -44,7 +44,8 @@ abstract class AbstractMappingEvent extends AbstractEvent
     public function getDebugMessage()
     {
         return sprintf(
-            'n:%s d:%s l:%s',
+            '%sn:%s d:%s l:%s',
+            parent::getDebugMessage(),
             $this->node ? $this->node->getPath() : '<no node>',
             $this->document ? spl_object_hash($this->document) : '<no document>',
             $this->locale ?: '<no locale>'

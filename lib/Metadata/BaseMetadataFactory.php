@@ -15,6 +15,7 @@ use PHPCR\NodeInterface;
 use Sulu\Component\DocumentManager\ClassNameInflector;
 use Sulu\Component\DocumentManager\Event\MetadataLoadEvent;
 use Sulu\Component\DocumentManager\Events;
+use Sulu\Component\DocumentManager\Exception\BadMethodCallException;
 use Sulu\Component\DocumentManager\Exception\MetadataNotFoundException;
 use Sulu\Component\DocumentManager\Metadata;
 use Sulu\Component\DocumentManager\MetadataFactoryInterface;
@@ -159,7 +160,7 @@ class BaseMetadataFactory implements MetadataFactoryInterface
      */
     public function getMetadataForPhpcrNode(NodeInterface $node)
     {
-        throw new \BadMethodCallException(
+        throw new BadMethodCallException(
             'The BaseMetadataFactory does not implement this method'
         );
     }

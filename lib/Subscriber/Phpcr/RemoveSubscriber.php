@@ -11,10 +11,8 @@
 
 namespace Sulu\Component\DocumentManager\Subscriber\Phpcr;
 
-use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\Event\RemoveEvent;
 use Sulu\Component\DocumentManager\Events;
-use Sulu\Component\DocumentManager\NodeManager;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -22,24 +20,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class RemoveSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var DocumentRegistry
-     */
-    private $documentRegistry;
-
-    /**
-     * @var NodeManager
-     */
-    private $nodeManager;
-
-    public function __construct(
-        DocumentRegistry $documentRegistry,
-        NodeManager $nodeManager
-    ) {
-        $this->documentRegistry = $documentRegistry;
-        $this->nodeManager = $nodeManager;
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -59,8 +39,7 @@ class RemoveSubscriber implements EventSubscriberInterface
     public function handleRemove(RemoveEvent $event)
     {
         $document = $event->getDocument();
-        $node = $this->documentRegistry->getNodeForDocument($document);
-
+        $node = $event->getRegistry()->getNodeForDocument($document);
         $node->remove();
     }
 }

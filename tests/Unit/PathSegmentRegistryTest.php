@@ -42,7 +42,7 @@ class PathSegmentRegistryTest extends \PHPUnit_Framework_TestCase
     /**
      * It should throw an exception when the given path segment role does not exist.
      *
-     * @expectedException \InvalidArgumentException
+     * @expectedException Sulu\Component\DocumentManager\Exception\InvalidArgumentException
      * @expectedExceptionMessage Unknown path segment "not exist". Known path segments: "base", "foobar"
      */
     public function testThrowException()

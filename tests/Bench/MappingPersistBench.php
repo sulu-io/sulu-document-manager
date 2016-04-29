@@ -13,9 +13,11 @@ namespace Sulu\Component\DocumentManager\Tests\Bench;
 
 /**
  * @Groups({"mapping_persist"})
- * @Revs(10)
- * @Iterations(2)
  * @BeforeMethods({"init"})
+ * @Iterations(4)
+ * @Warmup(10)
+ * @Revs(10)
+ * @OutputTimeUnit("milliseconds")
  */
 class MappingPersistBench extends BaseBench
 {
@@ -27,14 +29,14 @@ class MappingPersistBench extends BaseBench
     public function benchPersistMapping5()
     {
         static $rev = 0;
-        $document = $this->getDocumentManager()->create('mapping_5');
+        $document = $this->getManager()->create('mapping_5');
         $document->one = $rev;
         $document->two = $rev;
         $document->three = $rev;
         $document->four = $rev;
         $document->five = $rev;
 
-        $this->getDocumentManager()->persist($document, 'de', [
+        $this->getManager()->persist($document, 'de', [
             'path' => '/test/to/node-' . $rev,
             'auto_create' => true,
         ]);
@@ -44,7 +46,7 @@ class MappingPersistBench extends BaseBench
     public function benchPersistMapping10()
     {
         static $rev = 0;
-        $document = $this->getDocumentManager()->create('mapping_10');
+        $document = $this->getManager()->create('mapping_10');
         $document->one = $rev;
         $document->two = $rev;
         $document->three = $rev;
@@ -56,7 +58,7 @@ class MappingPersistBench extends BaseBench
         $document->nine = $rev;
         $document->ten = $rev;
 
-        $this->getDocumentManager()->persist($document, 'de', [
+        $this->getManager()->persist($document, 'de', [
             'path' => '/test/to/node-' . $rev,
             'auto_create' => true,
         ]);

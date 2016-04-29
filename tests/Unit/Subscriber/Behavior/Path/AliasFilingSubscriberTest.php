@@ -12,6 +12,7 @@
 namespace Sulu\Component\DocumentManager\Tests\Unit\Subscriber\Behavior\Audit\Path;
 
 use PHPCR\NodeInterface;
+use Prophecy\Argument;
 use Sulu\Component\DocumentManager\Behavior\Path\AliasFilingBehavior;
 use Sulu\Component\DocumentManager\DocumentManager;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
@@ -84,10 +85,11 @@ class AliasFilingSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->metadata = $this->prophesize(Metadata::class);
         $this->parentNode = $this->prophesize(NodeInterface::class);
 
-        $this->subscriber = new AliasFilingSubscriber(
-            $this->nodeManager->reveal(),
-            $this->metadataFactory->reveal()
-        );
+        $this->persistEvent->getNodeManager()->willReturn($this->nodeManager->reveal());
+        $this->persistEvent->getMetadataFactory()->willReturn($this->metadataFactory->reveal());
+        $this->persistEvent->getOptions()->willReturn([]);
+
+        $this->subscriber = new AliasFilingSubscriber();
     }
 
     /**
@@ -114,6 +116,17 @@ class AliasFilingSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->persistEvent->hasParentNode()->shouldBeCalled();
         $this->persistEvent->setParentNode($this->parentNode->reveal())->shouldBeCalled();
         $this->documentManager->find('/tests', 'fr')->willReturn($this->parentDocument);
+
+        $this->subscriber->handlePersist($this->persistEvent->reveal());
+    }
+
+    /**
+     * It should return early if the event already has a parent node.
+     */
+    public function testReturnEarlyAlreadyHasParent()
+    {
+        $this->persistEvent->getOptions()->willReturn(['path' => '/path']);
+        $this->persistEvent->setParentNode(Argument::cetera())->shouldNotBeCalled();
 
         $this->subscriber->handlePersist($this->persistEvent->reveal());
     }

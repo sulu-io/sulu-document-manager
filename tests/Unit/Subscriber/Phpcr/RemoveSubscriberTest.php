@@ -32,10 +32,10 @@ class RemoveSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->property1 = $this->prophesize(PropertyInterface::class);
         $this->property2 = $this->prophesize(PropertyInterface::class);
 
-        $this->subscriber = new RemoveSubscriber(
-            $this->documentRegistry->reveal(),
-            $this->nodeManager->reveal()
-        );
+        $this->removeEvent->getNodeManager()->willReturn($this->nodeManager->reveal());
+        $this->removeEvent->getRegistry()->willReturn($this->documentRegistry->reveal());
+
+        $this->subscriber = new RemoveSubscriber();
 
         $this->documentRegistry->getNodeForDocument($this->document)->willReturn($this->node->reveal());
     }

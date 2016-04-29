@@ -14,6 +14,7 @@ namespace Sulu\Comonent\DocumentManager\tests\Unit\Query;
 use PHPCR\Query\QueryInterface;
 use PHPCR\Query\QueryResultInterface;
 use Sulu\Component\DocumentManager\Collection\QueryResultCollection;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 use Sulu\Component\DocumentManager\Event\QueryExecuteEvent;
 use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\Query\Query;
@@ -26,10 +27,12 @@ class QueryTest extends \PHPUnit_Framework_TestCase
         $this->phpcrQuery = $this->prophesize(QueryInterface::class);
         $this->phpcrResult = $this->prophesize(QueryResultInterface::class);
         $this->dispatcher = $this->prophesize(EventDispatcherInterface::class);
+        $this->context = $this->prophesize(DocumentManagerContext::class);
+        $this->context->getEventDispatcher()->willReturn($this->dispatcher->reveal());
 
         $this->query = new Query(
             $this->phpcrQuery->reveal(),
-            $this->dispatcher->reveal(),
+            $this->context->reveal(),
             'fr',
             [],
             'p'
@@ -71,7 +74,8 @@ class QueryTest extends \PHPUnit_Framework_TestCase
     public function testExecuteDocument()
     {
         $resultCollection = $this->prophesize(QueryResultCollection::class);
-        $this->dispatcher->dispatch(Events::QUERY_EXECUTE, new QueryExecuteEvent($this->query))->will(function ($args) use ($resultCollection) {
+        $expectedEvent = new QueryExecuteEvent($this->context->reveal(), $this->query);
+        $this->dispatcher->dispatch(Events::QUERY_EXECUTE, $expectedEvent)->will(function ($args) use ($resultCollection) {
             $args[1]->setResult($resultCollection->reveal());
         });
 

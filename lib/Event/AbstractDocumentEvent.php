@@ -11,7 +11,9 @@
 
 namespace Sulu\Component\DocumentManager\Event;
 
-abstract class AbstractDocumentEvent extends AbstractEvent
+use Sulu\Component\DocumentManager\DocumentManagerContext;
+
+abstract class AbstractDocumentEvent extends AbstractDocumentManagerContextEvent
 {
     /**
      * @var object
@@ -19,10 +21,12 @@ abstract class AbstractDocumentEvent extends AbstractEvent
     private $document;
 
     /**
+     * @param DocumentManagerContext $context
      * @param object $document
      */
-    public function __construct($document)
+    public function __construct(DocumentManagerContext $context, $document)
     {
+        parent::__construct($context);
         $this->document = $document;
     }
 
@@ -40,8 +44,10 @@ abstract class AbstractDocumentEvent extends AbstractEvent
     public function getDebugMessage()
     {
         return sprintf(
-            'd:%s',
-            $this->document ? spl_object_hash($this->document) : '<no document>'
+            '%sd:%s (%s)',
+            parent::getDebugMessage(),
+            $this->document ? spl_object_hash($this->document) : '<no document>',
+            substr(get_class($this->document), strrpos(get_class($this->document), '\\') + 1)
         );
     }
 }

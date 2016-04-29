@@ -15,8 +15,6 @@ use PHPCR\NodeInterface;
 use Sulu\Component\DocumentManager\Behavior\Path\BasePathBehavior;
 use Sulu\Component\DocumentManager\DocumentManager;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
-use Sulu\Component\DocumentManager\Metadata;
-use Sulu\Component\DocumentManager\MetadataFactoryInterface;
 use Sulu\Component\DocumentManager\NodeManager;
 use Sulu\Component\DocumentManager\Subscriber\Behavior\Path\AliasFilingSubscriber;
 use Sulu\Component\DocumentManager\Subscriber\Behavior\Path\BasePathSubscriber;
@@ -54,16 +52,6 @@ class BasePathSubscriberTest extends \PHPUnit_Framework_TestCase
     private $documentManager;
 
     /**
-     * @var MetadataFactoryInterface
-     */
-    private $metadataFactory;
-
-    /**
-     * @var MetaData
-     */
-    private $metadata;
-
-    /**
      * @var NodeInterface
      */
     private $parentNode;
@@ -81,12 +69,11 @@ class BasePathSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->parentDocument = new \stdClass();
         $this->nodeManager = $this->prophesize(NodeManager::class);
         $this->documentManager = $this->prophesize(DocumentManager::class);
-        $this->metadataFactory = $this->prophesize(MetadataFactoryInterface::class);
-        $this->metadata = $this->prophesize(Metadata::class);
         $this->parentNode = $this->prophesize(NodeInterface::class);
 
+        $this->persistEvent->getNodeManager()->willReturn($this->nodeManager->reveal());
+
         $this->subscriber = new BasePathSubscriber(
-            $this->nodeManager->reveal(),
             '/base/path'
         );
     }
@@ -107,10 +94,6 @@ class BasePathSubscriberTest extends \PHPUnit_Framework_TestCase
     {
         $this->persistEvent->getDocument()->willReturn($this->document->reveal());
         $this->persistEvent->getLocale()->willReturn('fr');
-        $this->metadataFactory->getMetadataForClass(get_class($this->document->reveal()))->willReturn(
-            $this->metadata->reveal()
-        );
-        $this->metadata->getAlias()->willReturn('test');
         $this->nodeManager->createPath('/base/path')->willReturn($this->parentNode->reveal());
 
         $this->persistEvent->setParentNode($this->parentNode->reveal())->shouldBeCalled();

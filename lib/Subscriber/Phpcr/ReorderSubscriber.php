@@ -14,7 +14,6 @@ namespace Sulu\Component\DocumentManager\Subscriber\Phpcr;
 use PHPCR\NodeInterface;
 use PHPCR\Util\PathHelper;
 use PHPCR\Util\UUIDHelper;
-use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\Event\ReorderEvent;
 use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\Exception\DocumentManagerException;
@@ -26,26 +25,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class ReorderSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var NodeManager
-     */
-    private $nodeManager;
-
-    /**
-     * @var DocumentRegistry
-     */
-    private $documentRegistry;
-
-    /**
-     * @param NodeManager $nodeManager
-     * @param DocumentRegistry $documentRegistry
-     */
-    public function __construct(NodeManager $nodeManager, DocumentRegistry $documentRegistry)
-    {
-        $this->nodeManager = $nodeManager;
-        $this->documentRegistry = $documentRegistry;
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -69,11 +48,11 @@ class ReorderSubscriber implements EventSubscriberInterface
         $siblingId = $event->getDestId();
         $after = $event->getAfter();
 
-        $node = $this->documentRegistry->getNodeForDocument($document);
+        $node = $event->getRegistry()->getNodeForDocument($document);
         $parentNode = $node->getParent();
 
         $nodeName = $node->getName();
-        $siblingName = $this->resolveSiblingName($siblingId, $parentNode, $node);
+        $siblingName = $this->resolveSiblingName($event->getNodeManager(), $siblingId, $parentNode, $node);
         if (true === $after) {
             $siblingName = $this->resolveAfterSiblingName($parentNode, $siblingName);
         }
@@ -81,7 +60,7 @@ class ReorderSubscriber implements EventSubscriberInterface
         $parentNode->orderBefore($nodeName, $siblingName);
     }
 
-    private function resolveSiblingName($siblingId, NodeInterface $parentNode, NodeInterface $node)
+    private function resolveSiblingName(NodeManager $nodeManager, $siblingId, NodeInterface $parentNode, NodeInterface $node)
     {
         if (null === $siblingId) {
             return;
@@ -89,7 +68,7 @@ class ReorderSubscriber implements EventSubscriberInterface
 
         $siblingPath = $siblingId;
         if (UUIDHelper::isUUID($siblingId)) {
-            $siblingPath = $this->nodeManager->find($siblingId)->getPath();
+            $siblingPath = $nodeManager->find($siblingId)->getPath();
         }
 
         if ($siblingPath !== null && PathHelper::getParentPath($siblingPath) !== $parentNode->getPath()) {

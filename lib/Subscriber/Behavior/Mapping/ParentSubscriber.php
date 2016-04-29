@@ -13,12 +13,11 @@ namespace Sulu\Component\DocumentManager\Subscriber\Behavior\Mapping;
 
 use PHPCR\NodeInterface;
 use Sulu\Component\DocumentManager\Behavior\Mapping\ParentBehavior;
-use Sulu\Component\DocumentManager\DocumentInspector;
-use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Event\MoveEvent;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Events;
+use Sulu\Component\DocumentManager\Exception\RuntimeException;
 use Sulu\Component\DocumentManager\ProxyFactory;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -27,37 +26,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class ParentSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var ProxyFactory
-     */
-    private $proxyFactory;
-
-    /**
-     * @var DocumentInspector
-     */
-    private $inspector;
-
-    /**
-     * @var DocumentManagerInterface
-     */
-    private $documentManager;
-
-    /**
-     * @param ProxyFactory $proxyFactory
-     * @param DocumentInspector $inspector
-     * @param DocumentManagerInterface $documentManager
-     */
-    public function __construct(
-        ProxyFactory $proxyFactory,
-        DocumentInspector $inspector,
-        DocumentManagerInterface $documentManager
-
-    ) {
-        $this->proxyFactory = $proxyFactory;
-        $this->inspector = $inspector;
-        $this->documentManager = $documentManager;
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -79,8 +47,10 @@ class ParentSubscriber implements EventSubscriberInterface
     public function handleMove(MoveEvent $event)
     {
         $document = $event->getDocument();
-        $node = $this->inspector->getNode($event->getDocument());
-        $this->mapParent($document, $node);
+        $node = $event->getManager()->getInspector()
+            ->getNode($event->getDocument());
+
+        $this->mapParent($event->getProxyFactory(), $document, $node);
     }
 
     /**
@@ -104,7 +74,7 @@ class ParentSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $parentNode = $this->inspector->getNode($parentDocument);
+        $parentNode = $event->getManager()->getInspector()->getNode($parentDocument);
         $event->setParentNode($parentNode);
     }
 
@@ -122,7 +92,7 @@ class ParentSubscriber implements EventSubscriberInterface
         $node = $event->getNode();
 
         if ($node->getDepth() == 0) {
-            throw new \RuntimeException(sprintf(
+            throw new RuntimeException(sprintf(
                 'Cannot apply parent behavior to root node "%s" with type "%s" for document of class "%s"',
                 $node->getPath(),
                 $node->getPrimaryNodeType()->getName(),
@@ -130,7 +100,7 @@ class ParentSubscriber implements EventSubscriberInterface
             ));
         }
 
-        $this->mapParent($document, $node, $event->getOptions());
+        $this->mapParent($event->getProxyFactory(), $document, $node, $event->getOptions());
     }
 
     /**
@@ -139,15 +109,15 @@ class ParentSubscriber implements EventSubscriberInterface
     public function handleChangeParent(PersistEvent $event)
     {
         $document = $event->getDocument();
-
-        $node = $this->inspector->getNode($document);
+        $manager = $event->getManager();
+        $node = $manager->getInspector()->getNode($document);
         $parentNode = $event->getParentNode();
 
         if ($parentNode->getPath() === $node->getParent()->getPath()) {
             return;
         }
 
-        $this->documentManager->move($document, $parentNode->getPath());
+        $manager->move($document, $parentNode->getPath());
     }
 
     /**
@@ -157,7 +127,7 @@ class ParentSubscriber implements EventSubscriberInterface
      * @param NodeInterface $node to determine parent
      * @param array $options options to load parent
      */
-    private function mapParent($document, NodeInterface $node, $options = [])
+    private function mapParent(ProxyFactory $proxyFactory, $document, NodeInterface $node, $options = [])
     {
         // TODO: performance warning: We are eagerly fetching the parent node
         $targetNode = $node->getParent();
@@ -167,6 +137,6 @@ class ParentSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $document->setParent($this->proxyFactory->createProxyForNode($document, $targetNode, $options));
+        $document->setParent($proxyFactory->createProxyForNode($document, $targetNode, $options));
     }
 }

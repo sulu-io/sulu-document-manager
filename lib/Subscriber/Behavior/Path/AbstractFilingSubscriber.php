@@ -11,9 +11,9 @@
 
 namespace Sulu\Component\DocumentManager\Subscriber\Behavior\Path;
 
+use Sulu\Component\DocumentManager\Event\AbstractEvent;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Events;
-use Sulu\Component\DocumentManager\NodeManager;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -21,20 +21,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 abstract class AbstractFilingSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var NodeManager
-     */
-    private $nodeManager;
-
-    /**
-     * @param NodeManager $nodeManager
-     */
-    public function __construct(
-        NodeManager $nodeManager
-    ) {
-        $this->nodeManager = $nodeManager;
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -47,6 +33,23 @@ abstract class AbstractFilingSubscriber implements EventSubscriberInterface
 
     public function handlePersist(PersistEvent $event)
     {
+        $options = $event->getOptions();
+
+        // if "path" option has been explicitly set then it takes precedence
+        // over this subscriber.
+        //
+        // here we SHOULD say if the event already has a parent node then
+        // return, however unfortunately in Sulu the StructureFilingSubscriber
+        // depends upon the state of the parent node as set by the preceding
+        // AliasFilingSubscriber. This means that it depends on there being a
+        // parent node in the event and that returning based on the existence
+        // of the parent node changes breaks the system.
+        //
+        // see: https://github.com/sulu-io/sulu/issues/2117
+        if (isset($options['path']) || isset($options['parent_path'])) {
+            return;
+        }
+
         $document = $event->getDocument();
 
         if (!$this->supports($document)) {
@@ -55,7 +58,7 @@ abstract class AbstractFilingSubscriber implements EventSubscriberInterface
 
         $path = $this->generatePath($event);
 
-        $parentNode = $this->nodeManager->createPath($path);
+        $parentNode = $event->getNodeManager()->createPath($path);
         $event->setParentNode($parentNode);
     }
 
@@ -80,5 +83,5 @@ abstract class AbstractFilingSubscriber implements EventSubscriberInterface
      *
      * @return string
      */
-    abstract protected function getParentName($document);
+    abstract protected function getParentName(AbstractEvent $event);
 }

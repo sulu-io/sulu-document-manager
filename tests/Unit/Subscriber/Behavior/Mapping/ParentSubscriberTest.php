@@ -16,8 +16,11 @@ use Prophecy\Argument;
 use Sulu\Component\DocumentManager\Behavior\Mapping\ParentBehavior;
 use Sulu\Component\DocumentManager\DocumentInspector;
 use Sulu\Component\DocumentManager\DocumentManager;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
+use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Event\MoveEvent;
+use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\ProxyFactory;
 use Sulu\Component\DocumentManager\Subscriber\Behavior\Mapping\ParentSubscriber;
 
@@ -78,9 +81,15 @@ class ParentSubscriberTest extends \PHPUnit_Framework_TestCase
      */
     private $subscriber;
 
+    /**
+     * @var PersistEvent
+     */
+    private $persistEvent;
+
     public function setUp()
     {
         $this->hydrateEvent = $this->prophesize(HydrateEvent::class);
+        $this->persistEvent = $this->prophesize(PersistEvent::class);
         $this->moveEvent = $this->prophesize(MoveEvent::class);
         $this->document = $this->prophesize(ParentBehavior::class);
         $this->notImplementing = new \stdClass();
@@ -91,11 +100,17 @@ class ParentSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->inspector = $this->prophesize(DocumentInspector::class);
         $this->documentManager = $this->prophesize(DocumentManager::class);
 
-        $this->subscriber = new ParentSubscriber(
-            $this->proxyFactory->reveal(),
-            $this->inspector->reveal(),
-            $this->documentManager->reveal()
-        );
+        $this->context = $this->prophesize(DocumentManagerContext::class);
+        $this->manager = $this->prophesize(DocumentManagerInterface::class);
+        $this->manager->getInspector()->willReturn($this->inspector->reveal());
+
+        $this->hydrateEvent->getProxyFactory()->willReturn($this->proxyFactory->reveal());
+        $this->moveEvent->getProxyFactory()->willReturn($this->proxyFactory->reveal());
+
+        $this->hydrateEvent->getManager()->willReturn($this->manager->reveal());
+        $this->moveEvent->getManager()->willReturn($this->manager->reveal());
+
+        $this->subscriber = new ParentSubscriber();
 
         $this->hydrateEvent->getNode()->willReturn($this->node);
     }
@@ -169,5 +184,42 @@ class ParentSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->document->setParent(Argument::any())->shouldBeCalled();
 
         $this->subscriber->handleMove($this->moveEvent->reveal());
+    }
+
+    /**
+     * It should set the parent node on the documnent.
+     */
+    public function testSetParentNodeFromDocument()
+    {
+        $this->persistEvent->getDocument()->willReturn($this->document->reveal());
+        $this->persistEvent->hasParentNode()->willReturn(false);
+        $this->persistEvent->getManager()->willReturn($this->manager->reveal());
+        $this->persistEvent->setParentNode($this->node->reveal())->shouldBeCalled();
+        $this->document->getParent()->willReturn($this->parentDocument);
+        $this->inspector->getNode($this->parentDocument)->willReturn($this->node->reveal());
+
+        $this->subscriber->handleSetParentNodeFromDocument($this->persistEvent->reveal());
+    }
+
+    /**
+     * It should handle changing the parent.
+     */
+    public function testHandleChangeParent()
+    {
+        $eventParent = $this->prophesize(NodeInterface::class);
+        $this->persistEvent->getDocument()->willReturn($this->document->reveal());
+        $this->persistEvent->getManager()->willReturn($this->manager->reveal());
+        $this->persistEvent->getParentNode()->willReturn($eventParent->reveal());
+
+        $this->document->getParent()->willReturn($this->parentDocument);
+        $this->inspector->getNode($this->document->reveal())->willReturn($this->node->reveal());
+        $this->node->getParent()->willReturn($this->parentNode->reveal());
+
+        $eventParent->getPath()->willReturn('/foo');
+        $this->parentNode->getPath()->willReturn('/bar');
+
+        $this->manager->move($this->document->reveal(), '/foo')->shouldBeCalled();
+
+        $this->subscriber->handleChangeParent($this->persistEvent->reveal());
     }
 }

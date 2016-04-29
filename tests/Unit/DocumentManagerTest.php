@@ -11,9 +11,9 @@
 
 namespace Sulu\Component\DocumentManager\Tests\Unit;
 
-use PHPCR\NodeInterface;
 use Sulu\Component\DocumentManager\Collection\QueryResultCollection;
 use Sulu\Component\DocumentManager\DocumentManager;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 use Sulu\Component\DocumentManager\Event\ClearEvent;
 use Sulu\Component\DocumentManager\Event\ConfigureOptionsEvent;
 use Sulu\Component\DocumentManager\Event\CopyEvent;
@@ -26,24 +26,51 @@ use Sulu\Component\DocumentManager\Event\QueryCreateEvent;
 use Sulu\Component\DocumentManager\Event\QueryExecuteEvent;
 use Sulu\Component\DocumentManager\Event\RefreshEvent;
 use Sulu\Component\DocumentManager\Event\RemoveEvent;
+use Sulu\Component\DocumentManager\Event\ReorderEvent;
 use Sulu\Component\DocumentManager\Events;
-use Sulu\Component\DocumentManager\NodeManager;
+use Sulu\Component\DocumentManager\Exception\DocumentManagerException;
 use Sulu\Component\DocumentManager\Query\Query;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\OptionsResolver\Exception\UndefinedOptionsException;
 
 class DocumentManagerTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var mixed
+     */
+    private $dispatcher;
+
+    /**
+     * @var DocumentManager
+     */
+    private $manager;
+
+    /**
+     * @var object
+     */
+    private $document;
+
+    /**
+     * @var Query
+     */
+    private $query;
+
+    /**
+     * @var QueryResultCollection
+     */
+    private $resultCollection;
+
     public function setUp()
     {
         $this->dispatcher = new EventDispatcher();
-        $this->nodeManager = $this->prophesize(NodeManager::class);
+        $this->context = $this->prophesize(DocumentManagerContext::class);
+        $this->context->getEventDispatcher()->willReturn($this->dispatcher);
+
         $this->manager = new DocumentManager(
-            $this->dispatcher,
-            $this->nodeManager->reveal()
+            $this->context->reveal()
         );
 
-        $this->node = $this->prophesize(NodeInterface::class);
         $this->document = new \stdClass();
 
         $this->query = $this->prophesize(Query::class);
@@ -68,6 +95,16 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
         $subscriber = $this->addSubscriber();
         $this->manager->remove(new \stdClass());
         $this->assertTrue($subscriber->remove);
+    }
+
+    /**
+     * It issue a reorder event.
+     */
+    public function testReorder()
+    {
+        $subscriber = $this->addSubscriber();
+        $this->manager->reorder(new \stdClass(), 1234);
+        $this->assertTrue($subscriber->reorder);
     }
 
     /**
@@ -147,8 +184,9 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function testFindWithInvalidOptions()
     {
-        $subscriber = $this->addSubscriber();
+        $this->addSubscriber();
         $this->manager->find('foo', 'bar', ['foo123' => 'bar']);
+        $this->assertInstanceOf(UndefinedOptionsException::class, $e->getPrevious());
     }
 
     /**
@@ -156,7 +194,7 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function testFindWithOptions()
     {
-        $subscriber = $this->addSubscriber();
+        $this->addSubscriber();
         $this->manager->find('foo', 'bar', ['test.foo' => 'bar']);
     }
 
@@ -181,9 +219,37 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
         $this->markTestSkipped('Not supported yet');
     }
 
-    private function addSubscriber()
+    /**
+     * It should set the document manager name on instances of DocumentManagerException.
+     *
+     * @expectedException \Sulu\Component\DocumentManager\Exception\DocumentManagerException
+     * @expectedExceptionMessage [default] Hello
+     */
+    public function testDocumentManagerExceptionName()
     {
-        $subscriber = new TestDocumentManagerSubscriber($this->query->reveal(), $this->resultCollection->reveal());
+        $this->context->getName()->willReturn('default');
+        $this->addSubscriber(new DocumentManagerException('Hello'));
+        $this->manager->find('foo');
+    }
+
+    /**
+     * It should not wrap exceptions which do not extend DocumentManagerException.
+     */
+    public function testNonDocumentManagerException()
+    {
+        try {
+            $exception = $exception = new \Exception('Hello');
+            $this->addSubscriber($exception);
+            $this->manager->find('foo');
+            $this->fail('No exception thrown');
+        } catch (\Exception $e) {
+            $this->assertInstanceOf(\Exception::class, $e);
+        }
+    }
+
+    private function addSubscriber(\Exception $exception = null)
+    {
+        $subscriber = new TestDocumentManagerSubscriber($this->query->reveal(), $this->resultCollection->reveal(), $exception);
         $this->dispatcher->addSubscriber($subscriber);
 
         return $subscriber;
@@ -195,6 +261,7 @@ class TestDocumentManagerSubscriber implements EventSubscriberInterface
     public $persist = false;
     public $hydrate = false;
     public $remove = false;
+    public $reorder = false;
     public $copy = false;
     public $move = false;
     public $create = false;
@@ -208,11 +275,13 @@ class TestDocumentManagerSubscriber implements EventSubscriberInterface
 
     private $query;
     private $resultCollection;
+    private $exception;
 
-    public function __construct(Query $query, QueryResultCollection $resultCollection)
+    public function __construct(Query $query, QueryResultCollection $resultCollection, \Exception $exception = null)
     {
         $this->query = $query;
         $this->resultCollection = $resultCollection;
+        $this->exception = $exception;
     }
 
     public static function getSubscribedEvents()
@@ -281,6 +350,9 @@ class TestDocumentManagerSubscriber implements EventSubscriberInterface
 
     public function handleFind(FindEvent $event)
     {
+        if ($this->exception) {
+            throw $this->exception;
+        }
         $this->find = true;
         $event->setDocument(new \stdClass());
     }

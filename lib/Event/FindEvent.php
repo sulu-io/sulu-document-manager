@@ -11,9 +11,10 @@
 
 namespace Sulu\Component\DocumentManager\Event;
 
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 use Sulu\Component\DocumentManager\Exception\DocumentManagerException;
 
-class FindEvent extends AbstractEvent
+class FindEvent extends AbstractDocumentManagerContextEvent
 {
     use EventOptionsTrait;
 
@@ -33,12 +34,14 @@ class FindEvent extends AbstractEvent
     private $document;
 
     /**
+     * @param DocumentManagerContext $context
      * @param string $identifier
      * @param string $locale
      * @param array $options
      */
-    public function __construct($identifier, $locale, array $options = [])
+    public function __construct(DocumentManagerContext $context, $identifier, $locale, array $options = [])
     {
+        parent::__construct($context);
         $this->identifier = $identifier;
         $this->locale = $locale;
         $this->options = $options;
@@ -50,7 +53,8 @@ class FindEvent extends AbstractEvent
     public function getDebugMessage()
     {
         return sprintf(
-            'i:%s d:%s l:%s',
+            '%si:%s d:%s l:%s',
+            parent::getDebugMessage(),
             $this->identifier,
             $this->document ? spl_object_hash($this->document) : '<no document>',
             $this->locale ?: '<no locale>'

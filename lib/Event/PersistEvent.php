@@ -13,6 +13,8 @@ namespace Sulu\Component\DocumentManager\Event;
 
 use PHPCR\NodeInterface;
 use Sulu\Component\DocumentManager\DocumentHelper;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
+use Sulu\Component\DocumentManager\Exception\RuntimeException;
 
 class PersistEvent extends AbstractMappingEvent
 {
@@ -22,12 +24,14 @@ class PersistEvent extends AbstractMappingEvent
     private $parentNode;
 
     /**
+     * @param DocumentManagerContext $context
      * @param object $document
      * @param string $locale
      * @param array $options
      */
-    public function __construct($document, $locale, array $options = [])
+    public function __construct(DocumentManagerContext $context, $document, $locale, array $options = [])
     {
+        parent::__construct($context);
         $this->document = $document;
         $this->locale = $locale;
         $this->options = $options;
@@ -39,7 +43,7 @@ class PersistEvent extends AbstractMappingEvent
     public function getDebugMessage()
     {
         return sprintf(
-            '%s p:%s',
+            '%sp:%s',
             parent::getDebugMessage(),
             $this->parentNode ? $this->parentNode->getPath() : '<no parent node>'
         );
@@ -69,7 +73,7 @@ class PersistEvent extends AbstractMappingEvent
     public function getNode()
     {
         if (!$this->node) {
-            throw new \RuntimeException(sprintf(
+            throw new RuntimeException(sprintf(
                 'Trying to retrieve node when no node has been set. An event ' .
                 'listener should have set the node when persisting document "%s"',
                 DocumentHelper::getDebugTitle($this->document)
@@ -87,7 +91,7 @@ class PersistEvent extends AbstractMappingEvent
     public function getParentNode()
     {
         if (!$this->parentNode) {
-            throw new \RuntimeException(sprintf(
+            throw new RuntimeException(sprintf(
                 'Trying to retrieve parent node when no parent node has been set. An event ' .
                 'listener should have set the node when persisting document "%s"',
                 DocumentHelper::getDebugTitle($this->document)

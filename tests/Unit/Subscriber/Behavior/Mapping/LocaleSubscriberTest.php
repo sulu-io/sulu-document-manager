@@ -22,16 +22,15 @@ class LocaleSubscriberTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->hydrateEvent = $this->prophesize(HydrateEvent::class);
         $this->notImplementing = new \stdClass();
         $this->node = $this->prophesize(NodeInterface::class);
         $this->document = new TestLocaleDocument();
         $this->accessor = new DocumentAccessor($this->document);
         $this->registry = $this->prophesize(DocumentRegistry::class);
+        $this->hydrateEvent = $this->prophesize(HydrateEvent::class);
+        $this->hydrateEvent->getRegistry()->willReturn($this->registry->reveal());
 
-        $this->subscriber = new LocaleSubscriber(
-            $this->registry->reveal()
-        );
+        $this->subscriber = new LocaleSubscriber();
     }
 
     /**

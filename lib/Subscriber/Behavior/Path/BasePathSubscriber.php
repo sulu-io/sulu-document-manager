@@ -14,7 +14,6 @@ namespace Sulu\Component\DocumentManager\Subscriber\Behavior\Path;
 use Sulu\Component\DocumentManager\Behavior\Path\BasePathBehavior;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Events;
-use Sulu\Component\DocumentManager\NodeManager;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -23,24 +22,16 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class BasePathSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var NodeManager
-     */
-    private $nodeManager;
-
-    /**
      * @var string
      */
     private $basePath;
 
     /**
-     * @param NodeManager $nodeManager
      * @param string $basePath
      */
     public function __construct(
-        NodeManager $nodeManager,
         $basePath
     ) {
-        $this->nodeManager = $nodeManager;
         $this->basePath = $basePath;
     }
 
@@ -62,7 +53,7 @@ class BasePathSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $parentNode = $this->nodeManager->createPath($this->basePath);
+        $parentNode = $event->getNodeManager()->createPath($this->basePath);
         $event->setParentNode($parentNode);
     }
 }

@@ -21,6 +21,46 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ExplicitSubscriberTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var PersistEvent
+     */
+    private $persistEvent;
+
+    /**
+     * @var stdClass
+     */
+    private $document;
+
+    /**
+     * @var NodeManager
+     */
+    private $nodeManager;
+
+    /**
+     * @var DocumentStrategyInterface
+     */
+    private $strategy;
+
+    /**
+     * @var ConfigureOptionsEvent
+     */
+    private $configureEvent;
+
+    /**
+     * @var NodeInterface
+     */
+    private $parentNode;
+
+    /**
+     * @var NodeInterface
+     */
+    private $node;
+
+    /**
+     * @var ExplicitSubscriber
+     */
+    private $subscriber;
+
     public function setUp()
     {
         $this->persistEvent = $this->prophesize(PersistEvent::class);
@@ -30,17 +70,17 @@ class ExplicitSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->configureEvent = $this->prophesize(ConfigureOptionsEvent::class);
         $this->parentNode = $this->prophesize(NodeInterface::class);
         $this->node = $this->prophesize(NodeInterface::class);
+        $this->persistEvent->getNodeManager()->willReturn($this->nodeManager->reveal());
 
         $this->subscriber = new ExplicitSubscriber(
-            $this->strategy->reveal(),
-            $this->nodeManager->reveal()
+            $this->strategy->reveal()
         );
     }
 
     /**
      * It should throw an exception if both path name and node_name options are given.
      *
-     * @expectedException Symfony\Component\OptionsResolver\Exception\InvalidOptionsException
+     * @expectedException \Sulu\Component\DocumentManager\Exception\InvalidArgumentException
      */
     public function testExceptionNodeNameAndPath()
     {
@@ -55,7 +95,7 @@ class ExplicitSubscriberTest extends \PHPUnit_Framework_TestCase
     /**
      * It should throw an exception if both path name and parent_path options are given.
      *
-     * @expectedException Symfony\Component\OptionsResolver\Exception\InvalidOptionsException
+     * @expectedException \Sulu\Component\DocumentManager\Exception\InvalidArgumentException
      */
     public function testExceptionParentPathAndPath()
     {
@@ -157,6 +197,7 @@ class ExplicitSubscriberTest extends \PHPUnit_Framework_TestCase
 
         $this->nodeManager->find('/path/to')->willReturn($this->parentNode->reveal());
 
+        $this->persistEvent->getParentNode()->willReturn($this->parentNode->reveal());
         $this->persistEvent->getDocument()->willReturn($this->document);
         $this->persistEvent->setParentNode($this->parentNode->reveal())->shouldBeCalled();
         $this->persistEvent->getOptions()->willReturn($options);
@@ -164,7 +205,39 @@ class ExplicitSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->persistEvent->getNode()->willReturn($this->node->reveal());
         $this->persistEvent->hasParentNode()->willReturn(true);
         $this->node->getName()->willReturn('barbar');
+        $this->parentNode->getPath()->willReturn('path');
+        $this->node->getPath()->willReturn('path/to');
         $this->node->rename('booboo')->shouldBeCalled();
+
+        $this->subscriber->handlePersist($this->persistEvent->reveal());
+    }
+
+    /**
+     * It should implicitly move the node if the parent node in the event is different from
+     * that of the subject node.
+     */
+    public function testImplicitMove()
+    {
+        $options = $this->resolveOptions([
+            'parent_path' => '/path/to',
+            'node_name' => 'booboo',
+        ]);
+
+        $this->nodeManager->find('/path/to')->willReturn($this->parentNode->reveal());
+
+        $this->persistEvent->getParentNode()->willReturn($this->parentNode->reveal());
+        $this->persistEvent->getDocument()->willReturn($this->document);
+        $this->persistEvent->setParentNode($this->parentNode->reveal())->shouldBeCalled();
+        $this->persistEvent->getOptions()->willReturn($options);
+        $this->persistEvent->hasNode()->willReturn(true);
+        $this->persistEvent->getNode()->willReturn($this->node->reveal());
+        $this->persistEvent->hasParentNode()->willReturn(true);
+        $this->node->getName()->willReturn('barbar');
+
+        $this->parentNode->getPath()->willReturn('path/there');
+        $this->node->getPath()->willReturn('path/booboo');
+        $this->node->getIdentifier()->willReturn('1234');
+        $this->nodeManager->move('1234', 'path/there', 'booboo')->shouldBeCalled();
 
         $this->subscriber->handlePersist($this->persistEvent->reveal());
     }

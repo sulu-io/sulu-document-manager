@@ -11,7 +11,10 @@
 
 namespace Sulu\Component\DocumentManager\Event;
 
-class CreateEvent extends AbstractEvent
+use Sulu\Component\DocumentManager\DocumentManagerContext;
+use Sulu\Component\DocumentManager\Exception\RuntimeException;
+
+class CreateEvent extends AbstractDocumentManagerContextEvent
 {
     /**
      * @var object
@@ -24,10 +27,12 @@ class CreateEvent extends AbstractEvent
     private $alias;
 
     /**
+     * @param DocumentManagerContext $context
      * @param string $alias
      */
-    public function __construct($alias)
+    public function __construct(DocumentManagerContext $context, $alias)
     {
+        parent::__construct($context);
         $this->alias = $alias;
     }
 
@@ -39,7 +44,7 @@ class CreateEvent extends AbstractEvent
     public function getDocument()
     {
         if (!$this->document) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'No document has been set, an event listener should have created a document before ' .
                 'this method was called.'
             );

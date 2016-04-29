@@ -13,6 +13,7 @@ namespace Sulu\Component\DocumentManager;
 
 use ProxyManager\Proxy\LazyLoadingInterface;
 use Sulu\Component\DocumentManager\Exception\DocumentManagerException;
+use Sulu\Component\DocumentManager\Exception\RuntimeException;
 
 class DocumentAccessor
 {
@@ -50,7 +51,7 @@ class DocumentAccessor
     public function set($field, $value)
     {
         if (!$this->has($field)) {
-            throw new DocumentManagerException(sprintf(
+            throw new RuntimeException(sprintf(
                 'Document "%s" must have property "%s" (it is probably required by a behavior)',
                 get_class($this->document), $field
             ));

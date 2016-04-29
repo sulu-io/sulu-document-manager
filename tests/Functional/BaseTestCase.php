@@ -46,7 +46,7 @@ abstract class BaseTestCase extends \PHPUnit_Framework_TestCase
         return $this->container;
     }
 
-    protected function getDocumentManager()
+    protected function getManager()
     {
         return $this->getContainer()->get('sulu_document_manager.document_manager');
     }
@@ -57,7 +57,7 @@ abstract class BaseTestCase extends \PHPUnit_Framework_TestCase
             'locales' => ['en'],
         ], $options);
 
-        $manager = $this->getDocumentManager();
+        $manager = $this->getManager();
         $document = $manager->create('full');
 
         foreach ($options['locales'] as $locale) {

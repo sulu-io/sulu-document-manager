@@ -25,16 +25,16 @@ class MappingTest extends BaseTestCase
      */
     public function testMapping()
     {
-        $document = $this->getDocumentManager()->create('full');
+        $document = $this->getManager()->create('full');
         $document->setTitle('Hallo');
         $document->setBody('body');
         $document->setStatus('published');
 
-        $this->getDocumentManager()->persist($document, 'de', [
+        $this->getManager()->persist($document, 'de', [
             'path' => '/test/foo',
             'auto_create' => true,
         ]);
-        $this->getDocumentManager()->flush();
+        $this->getManager()->flush();
 
         $node = $this->getSession()->getNode('/test/foo');
 
@@ -52,7 +52,7 @@ class MappingTest extends BaseTestCase
      */
     public function testMappingReference()
     {
-        $manager = $this->getDocumentManager();
+        $manager = $this->getManager();
 
         $reference = $manager->create('full');
         $manager->persist($reference, 'de', [

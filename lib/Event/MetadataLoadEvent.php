@@ -16,9 +16,7 @@ use Sulu\Component\DocumentManager\Metadata;
 class MetadataLoadEvent extends AbstractEvent
 {
     /**
-     * @param NodeInterface $node
-     * @param string $locale
-     * @param array $options
+     * @param Metadata $metadata
      */
     public function __construct(Metadata $metadata)
     {

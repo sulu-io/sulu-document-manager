@@ -13,14 +13,15 @@ namespace Sulu\Component\DocumentManager\Subscriber\Phpcr;
 
 use PHPCR\Query\QueryInterface;
 use PHPCR\Query\QueryManagerInterface;
-use PHPCR\SessionInterface;
 use Sulu\Component\DocumentManager\Collection\QueryResultCollection;
+use Sulu\Component\DocumentManager\Event\AbstractEvent;
 use Sulu\Component\DocumentManager\Event\QueryCreateBuilderEvent;
 use Sulu\Component\DocumentManager\Event\QueryCreateEvent;
 use Sulu\Component\DocumentManager\Event\QueryExecuteEvent;
 use Sulu\Component\DocumentManager\Events;
+use Sulu\Component\DocumentManager\Exception\BadMethodCallException;
+use Sulu\Component\DocumentManager\Exception\InvalidArgumentException;
 use Sulu\Component\DocumentManager\Query\Query;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -28,26 +29,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class QuerySubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var SessionInterface
-     */
-    private $session;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @param SessionInterface $session
-     * @param EventDispatcherInterface $eventDispatcher
-     */
-    public function __construct(SessionInterface $session, EventDispatcherInterface $eventDispatcher)
-    {
-        $this->session = $session;
-        $this->eventDispatcher = $eventDispatcher;
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -70,11 +51,11 @@ class QuerySubscriber implements EventSubscriberInterface
         $innerQuery = $event->getInnerQuery();
 
         if (is_string($innerQuery)) {
-            $phpcrQuery = $this->getQueryManager()->createQuery($innerQuery, QueryInterface::JCR_SQL2);
+            $phpcrQuery = $this->getQueryManager($event)->createQuery($innerQuery, QueryInterface::JCR_SQL2);
         } elseif ($innerQuery instanceof QueryInterface) {
             $phpcrQuery = $innerQuery;
         } else {
-            throw new \InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'Expected inner query to be either a string or a PHPCR query object, got: "%s"',
                 is_object($innerQuery) ? get_class($innerQuery) : gettype($innerQuery)
             ));
@@ -83,7 +64,7 @@ class QuerySubscriber implements EventSubscriberInterface
         $event->setQuery(
             new Query(
                 $phpcrQuery,
-                $this->eventDispatcher,
+                $event->getContext(),
                 $event->getLocale(),
                 $event->getOptions(),
                 $event->getPrimarySelector()
@@ -101,7 +82,7 @@ class QuerySubscriber implements EventSubscriberInterface
      */
     public function handleCreateBuilder(QueryCreateBuilderEvent $event)
     {
-        throw new \Exception('Not implemented');
+        throw new BadMethodCallException('Not implemented');
     }
 
     /**
@@ -116,15 +97,17 @@ class QuerySubscriber implements EventSubscriberInterface
         $phpcrResult = $query->getPhpcrQuery()->execute();
 
         $event->setResult(
-            new QueryResultCollection($phpcrResult, $this->eventDispatcher, $locale, $event->getOptions())
+            new QueryResultCollection($phpcrResult, $event->getContext(), $locale, $event->getOptions())
         );
     }
 
     /**
      * @return QueryManagerInterface
      */
-    private function getQueryManager()
+    private function getQueryManager(AbstractEvent $event)
     {
-        return $this->session->getWorkspace()->getQueryManager();
+        $session = $event->getSession();
+
+        return $session->getWorkspace()->getQueryManager();
     }
 }

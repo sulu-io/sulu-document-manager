@@ -23,6 +23,11 @@ use Symfony\Component\Stopwatch\Stopwatch;
 class DebugEventDispatcher extends ContainerAwareEventDispatcher
 {
     /**
+     * @var int
+     */
+    private $depth = 0;
+
+    /**
      * @var Stopwatch
      */
     private $stopwatch;
@@ -61,11 +66,19 @@ class DebugEventDispatcher extends ContainerAwareEventDispatcher
 
             $listenerStopwatch = $this->stopwatch->start($className . '->' . $methodName, 'document_manager_listener');
 
+            ++$this->depth;
+
+            $this->logger->debug(sprintf(
+                '%-40s> %-2s %-20s %s', $name, $this->depth, $methodName, $event->getDebugMessage()
+            ));
+
             call_user_func($listener, $event, $eventName, $this);
 
             $this->logger->debug(sprintf(
-                '%-40s%-20s %s', $name, $methodName, $event->getDebugMessage()
+                '%-40s< %-2s %-20s %s', $name, $this->depth, $methodName, $event->getDebugMessage()
             ));
+
+            --$this->depth;
 
             if ($listenerStopwatch->isStarted()) {
                 $listenerStopwatch->stop();

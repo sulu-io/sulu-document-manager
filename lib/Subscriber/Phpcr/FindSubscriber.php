@@ -17,6 +17,7 @@ use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\Exception\DocumentManagerException;
 use Sulu\Component\DocumentManager\Exception\DocumentNotFoundException;
+use Sulu\Component\DocumentManager\Exception\InvalidArgumentException;
 use Sulu\Component\DocumentManager\MetadataFactoryInterface;
 use Sulu\Component\DocumentManager\NodeManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -33,28 +34,14 @@ class FindSubscriber implements EventSubscriberInterface
     private $metadataFactory;
 
     /**
-     * @var NodeManager
-     */
-    private $nodeManager;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
      * @param MetadataFactoryInterface $metadataFactory
      * @param NodeManager $nodeManager
      * @param EventDispatcherInterface $eventDispatcher
      */
     public function __construct(
-        MetadataFactoryInterface $metadataFactory,
-        NodeManager $nodeManager,
-        EventDispatcherInterface $eventDispatcher
+        MetadataFactoryInterface $metadataFactory
     ) {
         $this->metadataFactory = $metadataFactory;
-        $this->nodeManager = $nodeManager;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -89,10 +76,10 @@ class FindSubscriber implements EventSubscriberInterface
     {
         $options = $event->getOptions();
         $aliasOrClass = $options['type'];
-        $node = $this->nodeManager->find($event->getId());
+        $node = $event->getNodeManager()->find($event->getId());
 
-        $hydrateEvent = new HydrateEvent($node, $event->getLocale(), $options);
-        $this->eventDispatcher->dispatch(Events::HYDRATE, $hydrateEvent);
+        $hydrateEvent = new HydrateEvent($event->getContext(), $node, $event->getLocale(), $options);
+        $event->getEventDispatcher()->dispatch(Events::HYDRATE, $hydrateEvent);
         $document = $hydrateEvent->getDocument();
 
         if ($aliasOrClass) {
@@ -107,7 +94,7 @@ class FindSubscriber implements EventSubscriberInterface
         if ($this->metadataFactory->hasAlias($aliasOrClass)) {
             $class = $this->metadataFactory->getMetadataForAlias($aliasOrClass)->getClass();
         } elseif (!class_exists($aliasOrClass)) {
-            throw new DocumentManagerException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'Unknown class specified and no alias exists for "%s", known aliases: "%s"',
                 $aliasOrClass, implode('", "', $this->metadataFactory->getAliases())
             ));

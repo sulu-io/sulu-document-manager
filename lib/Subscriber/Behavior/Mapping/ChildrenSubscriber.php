@@ -14,7 +14,6 @@ namespace Sulu\Component\DocumentManager\Subscriber\Behavior\Mapping;
 use Sulu\Component\DocumentManager\Behavior\Mapping\ChildrenBehavior;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Events;
-use Sulu\Component\DocumentManager\ProxyFactory;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -22,19 +21,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class ChildrenSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var ProxyFactory
-     */
-    private $proxyFactory;
-
-    /**
-     * @param ProxyFactory $proxyFactory
-     */
-    public function __construct(ProxyFactory $proxyFactory)
-    {
-        $this->proxyFactory = $proxyFactory;
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -56,7 +42,8 @@ class ChildrenSubscriber implements EventSubscriberInterface
             return;
         }
 
+        $proxyFactory = $event->getProxyFactory();
         $accessor = $event->getAccessor();
-        $accessor->set('children', $this->proxyFactory->createChildrenCollection($document, $event->getOptions()));
+        $accessor->set('children', $proxyFactory->createChildrenCollection($document, $event->getOptions()));
     }
 }

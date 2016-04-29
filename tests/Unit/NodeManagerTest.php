@@ -49,6 +49,11 @@ class NodeManagerTest extends \PHPUnit_Framework_TestCase
      */
     private $node2;
 
+    /**
+     * @var NodeInterface
+     */
+    private $node3;
+
     public function setUp()
     {
         $this->session = $this->prophesize(SessionInterface::class);
@@ -59,6 +64,7 @@ class NodeManagerTest extends \PHPUnit_Framework_TestCase
 
         $this->node1 = $this->prophesize(NodeInterface::class);
         $this->node2 = $this->prophesize(NodeInterface::class);
+        $this->node3 = $this->prophesize(NodeInterface::class);
 
         $this->session->getWorkspace()->willReturn($this->workspace->reveal());
     }
@@ -157,5 +163,42 @@ class NodeManagerTest extends \PHPUnit_Framework_TestCase
         $this->node1->getNodes()->willReturn([]);
 
         $this->manager->purgeWorkspace();
+    }
+
+    /**
+     * It should create a path.
+     */
+    public function testCreatePath()
+    {
+        $this->session->getRootNode()->willReturn($this->node1->reveal());
+        $this->node1->hasNode('path')->willReturn(true);
+        $this->node1->getNode('path')->willReturn($this->node2->reveal());
+        $this->node2->hasNode('to')->willReturn(false);
+        $this->node2->addNode('to')->willReturn($this->node3->reveal());
+
+        $this->node3->addMixin('mix:referenceable')->shouldBeCalled();
+
+        $this->node3->setProperty('jcr:uuid', '72e897c4-b716-426b-a693-dba28b7dd8e5')->shouldBeCalled();
+
+        // seed the better number generator so that we always get the same
+        // UUID.
+        mt_srand(0);
+        $this->manager->createPath('/path/to');
+    }
+
+    /**
+     * It should create a path with the given UUID.
+     */
+    public function testCreatePathWithAGivenUuid()
+    {
+        $uuid = '1234';
+        $this->session->getRootNode()->willReturn($this->node1->reveal());
+        $this->node1->hasNode('path')->willReturn(false);
+        $this->node1->addNode('path')->willReturn($this->node2->reveal());
+
+        $this->node2->addMixin('mix:referenceable')->shouldBeCalled();
+        $this->node2->setProperty('jcr:uuid', $uuid)->shouldBeCalled();
+
+        $this->manager->createPath('/path', $uuid);
     }
 }

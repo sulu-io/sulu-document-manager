@@ -121,11 +121,13 @@ class AutoNameSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->nodeManager = $this->prophesize(NodeManager::class);
         $this->strategy = $this->prophesize(DocumentStrategyInterface::class);
 
+        $this->moveEvent->getNodeManager()->willReturn($this->nodeManager->reveal());
+        $this->moveEvent->getRegistry()->willReturn($this->documentRegistry->reveal());
+        $this->persistEvent->getRegistry()->willReturn($this->documentRegistry->reveal());
+
         $this->subscriber = new AutoNameSubscriber(
-            $this->documentRegistry->reveal(),
             $this->slugifier->reveal(),
             $this->resolver->reveal(),
-            $this->nodeManager->reveal(),
             $this->strategy->reveal()
         );
     }

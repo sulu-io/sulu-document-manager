@@ -13,6 +13,7 @@ namespace Sulu\Component\DocumentManager;
 
 use PHPCR\NodeInterface;
 use Sulu\Component\DocumentManager\Exception\DocumentManagerException;
+use Sulu\Component\DocumentManager\Exception\RuntimeException;
 
 /**
  * Handles the mapping between managed documents and nodes.
@@ -261,7 +262,7 @@ class DocumentRegistry
         $oid = spl_object_hash($document);
 
         if (!isset($this->documentMap[$oid])) {
-            throw new \RuntimeException(sprintf(
+            throw new RuntimeException(sprintf(
                 'Document "%s" with OID "%s" is not managed, there are "%s" managed objects,',
                 get_class($document), $oid, count($this->documentMap)
             ));
@@ -274,7 +275,7 @@ class DocumentRegistry
     private function assertNodeExists($identifier)
     {
         if (!isset($this->nodeDocumentMap[$identifier])) {
-            throw new \RuntimeException(sprintf(
+            throw new RuntimeException(sprintf(
                 'Node with identifier "%s" is not managed, there are "%s" managed objects,',
                 $identifier, count($this->documentMap)
             ));
@@ -307,7 +308,7 @@ class DocumentRegistry
     private function validateDocumentRegistration($document, NodeInterface $node, $oid, $uuid)
     {
         if (null === $uuid) {
-            throw new DocumentManagerException(sprintf(
+            throw new RuntimeException(sprintf(
                 'Node "%s" of type "%s" has no UUID. Only referencable nodes can be registered by the document manager',
                 $node->getPath(), $node->getPrimaryNodeType()->getName()
             ));
@@ -315,7 +316,7 @@ class DocumentRegistry
 
         if (isset($this->nodeMap[$uuid])) {
             $registeredDocument = $this->nodeDocumentMap[$uuid];
-            throw new \RuntimeException(sprintf(
+            throw new RuntimeException(sprintf(
                 'Document "%s" (%s) is already registered for node "%s" (%s) when trying to register document "%s" (%s)',
                 spl_object_hash($registeredDocument),
                 get_class($registeredDocument),

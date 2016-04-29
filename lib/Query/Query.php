@@ -12,10 +12,11 @@
 namespace Sulu\Component\DocumentManager\Query;
 
 use PHPCR\Query\QueryInterface;
+use Sulu\Component\DocumentManager\DocumentManagerContext;
 use Sulu\Component\DocumentManager\Event\QueryExecuteEvent;
 use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\Exception\DocumentManagerException;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Sulu\Component\DocumentManager\Exception\InvalidArgumentException;
 
 /**
  * Based heavily on the PHPCR-ODM Query object.
@@ -36,9 +37,9 @@ class Query
     private $phpcrQuery;
 
     /**
-     * @var EventDispatcherInterface
+     * @var DocumentManagerContext
      */
-    private $dispatcher;
+    private $context;
 
     /**
      * @var null|string
@@ -65,25 +66,18 @@ class Query
      */
     private $firstResult;
 
-    /**
-     * @param QueryInterface $phpcrQuery
-     * @param EventDispatcherInterface $dispatcher
-     * @param null|string $locale
-     * @param array $options
-     * @param null|string $primarySelector
-     */
     public function __construct(
         QueryInterface $phpcrQuery,
-        EventDispatcherInterface $dispatcher,
+        DocumentManagerContext $context,
         $locale = null,
         array $options = [],
         $primarySelector = null
     ) {
         $this->phpcrQuery = $phpcrQuery;
-        $this->dispatcher = $dispatcher;
         $this->locale = $locale;
         $this->options = $options;
         $this->primarySelector = $primarySelector;
+        $this->context = $context;
     }
 
     /**
@@ -113,14 +107,14 @@ class Query
         }
 
         if ($hydrationMode !== self::HYDRATE_DOCUMENT) {
-            throw new DocumentManagerException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'Unknown hydration mode "%s", should be either "document" or "phpcr_node"',
                 $hydrationMode
             ));
         }
 
-        $event = new QueryExecuteEvent($this, $this->options);
-        $this->dispatcher->dispatch(Events::QUERY_EXECUTE, $event);
+        $event = new QueryExecuteEvent($this->context, $this, $this->options);
+        $this->context->getEventDispatcher()->dispatch(Events::QUERY_EXECUTE, $event);
 
         return $event->getResult();
     }

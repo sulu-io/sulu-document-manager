@@ -18,17 +18,22 @@
             <argument type="service" id="service_container"/>
         </service>
 
-        <service id="sulu_document_manager.document_manager" class="Sulu\Component\DocumentManager\DocumentManager">
+        <service id="sulu_document_manager.context" class="Sulu\Component\DocumentManager\DocumentManagerContext">
+            <argument>default</argument>
+            <argument type="service" id="doctrine_phpcr.default_session"/>
             <argument type="service" id="sulu_document_manager.event_dispatcher"/>
-            <argument type="service" id="sulu_document_manager.node_manager"/>
-        </service>
-
-        <service id="sulu_document_manager.document_registry" class="Sulu\Component\DocumentManager\DocumentRegistry" public="false">
+            <argument type="service" id="sulu_document_manager.metadata_factory"/>
+            <argument type="service" id="sulu_document_manager.proxy_manager.factory.ghost"/>
+            <argument type="service" id="sulu_document_manager.document_inspector_factory"/>
             <argument>%sulu_document_manager.default_locale%</argument>
         </service>
 
-        <service id="sulu_document_manager.node_manager" class="Sulu\Component\DocumentManager\NodeManager" public="false">
-            <argument type="service" id="doctrine_phpcr.default_session"/>
+        <service id="sulu_document_manager.document_manager" class="Sulu\Component\DocumentManager\DocumentManager">
+            <factory service="sulu_document_manager.context" method="getManager" />
+        </service>
+
+        <service id="sulu_document_manager.document_inspector_factory" class="Sulu\Component\DocumentManager\DocumentInspectorFactory">
+            <argument type="service" id="sulu_document_manager.path_segment_registry" />
         </service>
 
         <service id="sulu_document_manager.metadata_factory.base" class="Sulu\Component\DocumentManager\Metadata\BaseMetadataFactory" public="false">
@@ -65,20 +70,7 @@
             </argument>
         </service>
 
-        <service id="sulu_document_manager.document_inspector" class="Sulu\Component\DocumentManager\DocumentInspector">
-            <argument type="service" id="sulu_document_manager.document_registry"/>
-            <argument type="service" id="sulu_document_manager.path_segment_registry"/>
-            <argument type="service" id="sulu_document_manager.proxy_factory"/>
-        </service>
-
         <!-- Proxy manager -->
-        <service id="sulu_document_manager.proxy_factory" class="Sulu\Component\DocumentManager\ProxyFactory">
-            <argument type="service" id="sulu_document_manager.proxy_manager.factory.ghost"/>
-            <argument type="service" id="sulu_document_manager.event_dispatcher"/>
-            <argument type="service" id="sulu_document_manager.document_registry"/>
-            <argument type="service" id="sulu_document_manager.metadata_factory"/>
-        </service>
-
         <service id="sulu_document_manager.proxy_manager.factory.ghost" class="ProxyManager\Factory\LazyLoadingGhostFactory"/>
 
     </services>

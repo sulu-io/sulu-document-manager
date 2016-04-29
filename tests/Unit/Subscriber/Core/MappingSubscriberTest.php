@@ -12,6 +12,7 @@
 namespace Sulu\Component\DocumentManager\Tests\Unit\Subscriber\Core;
 
 use PHPCR\NodeInterface;
+use Prophecy\Argument;
 use Sulu\Component\DocumentManager\DocumentAccessor;
 use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
@@ -43,11 +44,12 @@ class MappingSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->persistEvent->getLocale()->willReturn('de');
         $this->persistEvent->getAccessor()->willReturn($this->accessor);
 
+        $this->persistEvent->getRegistry()->willReturn($this->documentRegistry->reveal());
+        $this->hydrateEvent->getProxyFactory()->willReturn($this->proxyFactory->reveal());
+
         $this->subscriber = new MappingSubscriber(
             $this->metadataFactory->reveal(),
-            $this->encoder->reveal(),
-            $this->proxyFactory->reveal(),
-            $this->documentRegistry->reveal()
+            $this->encoder->reveal()
         );
 
         $this->metadataFactory->getMetadataForClass('stdClass')->willReturn($this->metadata->reveal());
@@ -105,7 +107,7 @@ class MappingSubscriberTest extends \PHPUnit_Framework_TestCase
     /**
      * It should throw an exception when mapped non-array values to non-multiple fields.
      *
-     * @expectedException \InvalidArgumentException
+     * @expectedException Sulu\Component\DocumentManager\Exception\InvalidArgumentException
      */
     public function testPersistNonArray()
     {
@@ -255,6 +257,77 @@ class MappingSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->metadataFactory->hasMetadataForClass('stdClass')->willReturn(true);
         $this->node->getPropertyValueWithDefault('sys:hello', null)->willReturn(json_encode(['key' => 'value']));
         $this->accessor->set('test', ['key' => 'value'])->shouldBeCalled();
+
+        $this->subscriber->handleHydrate($this->hydrateEvent->reveal());
+    }
+
+    /**
+     * It should hydrate a reference field.
+     */
+    public function testHydrateReference()
+    {
+        $referenceNode = $this->prophesize(NodeInterface::class);
+
+        $this->metadata->getFieldMappings()->willReturn(
+            [
+                'test' => [
+                    'encoding' => 'system',
+                    'property' => 'hello',
+                    'mapped' => true,
+                    'type' => 'reference',
+                    'multiple' => false,
+                    'default' => null,
+                ],
+            ]
+        );
+
+        $this->hydrateEvent->getOptions()->willReturn([]);
+
+        $this->hydrateEvent->getNode()->willReturn($this->node->reveal());
+        $this->encoder->encode('system', 'hello', 'de')->willReturn('sys:hello');
+        $this->metadataFactory->hasMetadataForClass('stdClass')->willReturn(true);
+        $this->node->getPropertyValueWithDefault('sys:hello', null)->willReturn($referenceNode);
+
+        $this->subscriber->handleHydrate($this->hydrateEvent->reveal());
+        $this->proxyFactory->createProxyForNode(
+            $this->document,
+            $referenceNode->reveal(),
+            []
+        )->shouldHaveBeenCalled();
+    }
+
+    /**
+     * It should wrap proxy manager exceptions.
+     *
+     * @expectedException \Sulu\Component\DocumentManager\Exception\RuntimeException
+     * @expectedExceptionMessage Error hydrating proxy relation "test" for document "stdClass"
+     */
+    public function testHydrateReferenceProxyException()
+    {
+        $referenceNode = $this->prophesize(NodeInterface::class);
+
+        $this->metadata->getFieldMappings()->willReturn(
+            [
+                'test' => [
+                    'encoding' => 'system',
+                    'property' => 'hello',
+                    'mapped' => true,
+                    'type' => 'reference',
+                    'multiple' => false,
+                    'default' => null,
+                ],
+            ]
+        );
+
+        $this->hydrateEvent->getOptions()->willReturn([]);
+
+        $this->hydrateEvent->getNode()->willReturn($this->node->reveal());
+        $this->encoder->encode('system', 'hello', 'de')->willReturn('sys:hello');
+        $this->metadataFactory->hasMetadataForClass('stdClass')->willReturn(true);
+        $this->node->getPropertyValueWithDefault('sys:hello', null)->willReturn($referenceNode);
+        $this->proxyFactory->createProxyForNode(Argument::cetera())->willThrow(
+            new \RuntimeException('foo')
+        );
 
         $this->subscriber->handleHydrate($this->hydrateEvent->reveal());
     }

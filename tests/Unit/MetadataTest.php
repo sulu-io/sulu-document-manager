@@ -26,7 +26,7 @@ class MetadataTest extends \PHPUnit_Framework_TestCase
      * It should throw an exception if no class is set and the ReflectionClass
      * is requested.
      *
-     * @expectedException \InvalidArgumentException
+     * @expectedException \Sulu\Component\DocumentManager\Exception\RuntimeException
      */
     public function testNoClassGetReflection()
     {
@@ -49,4 +49,41 @@ class MetadataTest extends \PHPUnit_Framework_TestCase
         $this->metadata->setClass('\stdClass');
         $this->assertNotSame($reflection, $this->metadata->getReflectionClass());
     }
+
+    /**
+     * It should set properties on documents.
+     * It should get properties on documents.
+     */
+    public function testGetSetFieldValue()
+    {
+        $object = new TestClass();
+        $this->metadata->setClass(TestClass::class);
+        $this->metadata->addFieldMapping('foo', []);
+
+        $this->assertEquals('bar', $this->metadata->getFieldValue($object, 'foo'));
+
+        $this->metadata->setFieldValue($object, 'foo', 'foo');
+        $this->assertEquals('foo', $this->metadata->getFieldValue($object, 'foo'));
+    }
+
+    /**
+     * It should throw an exception if trying to get a field that has not been
+     * mapped.
+     *
+     * @expectedException Sulu\Component\DocumentManager\Exception\InvalidArgumentException
+     * @expectedExceptionMessage Field "asdoo" is not mapped for document "Sulu\Component\DocumentManager\Tests\Unit\TestClass". Mapped fields: "foo"
+     */
+    public function testGetFieldValueInvalid()
+    {
+        $object = new TestClass();
+        $this->metadata->setClass(TestClass::class);
+        $this->metadata->addFieldMapping('foo', []);
+
+        $this->metadata->getFieldValue($object, 'asdoo');
+    }
+}
+
+class TestClass
+{
+    private $foo = 'bar';
 }

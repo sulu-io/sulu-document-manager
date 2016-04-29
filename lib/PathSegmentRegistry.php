@@ -11,6 +11,8 @@
 
 namespace Sulu\Component\DocumentManager;
 
+use Sulu\Component\DocumentManager\Exception\InvalidArgumentException;
+
 /**
  * Provides a centralized repository of path components.
  *
@@ -46,7 +48,7 @@ class PathSegmentRegistry
     public function getPathSegment($name)
     {
         if (!isset($this->pathSegments[$name])) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf(
                     'Unknown path segment "%s". Known path segments: "%s"',
                     $name,

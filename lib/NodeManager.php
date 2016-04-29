@@ -11,6 +11,7 @@
 
 namespace Sulu\Component\DocumentManager;
 
+use PHPCR\ItemNotFoundException;
 use PHPCR\NodeInterface;
 use PHPCR\RepositoryException;
 use PHPCR\SessionInterface;
@@ -47,6 +48,15 @@ class NodeManager
      */
     public function find($identifier)
     {
+        $exceptionMessage = sprintf('Could not find document with ID or path "%s"', $identifier);
+
+        // try to return the node, if the identifier looks like an ID, get by
+        // identifier otherwise by path.
+        //
+        // the getNodeByIdentifier() method will throw a RepositoryException,
+        // the getNode() method a ItemNotFoundException. We catch both and
+        // return a DocumentNotFoundException (wrapping the original
+        // exception).
         try {
             if (UUIDHelper::isUUID($identifier)) {
                 return $this->session->getNodeByIdentifier($identifier);
@@ -54,9 +64,9 @@ class NodeManager
 
             return $this->session->getNode($identifier);
         } catch (RepositoryException $e) {
-            throw new DocumentNotFoundException(sprintf(
-                'Could not find document with ID or path "%s"', $identifier
-            ), null, $e);
+            throw new DocumentNotFoundException($exceptionMessage, null, $e);
+        } catch (ItemNotFoundException $e) {
+            throw new DocumentNotFoundException($exceptionMessage, null, $e);
         }
     }
 
@@ -70,7 +80,6 @@ class NodeManager
      */
     public function has($identifier)
     {
-        $this->normalizeToPath($identifier);
         try {
             $this->find($identifier);
 
@@ -149,11 +158,17 @@ class NodeManager
     /**
      * Create a path.
      *
+     * All nodes created are given a UUID and the accompanying
+     * `mix:referenceable` mixin.
+     *
+     * The user may specify a custom UUID using the second argument.
+     *
      * @param string $path
+     * @param string|null $uuid
      *
      * @return NodeInterface
      */
-    public function createPath($path)
+    public function createPath($path, $uuid = null)
     {
         $current = $this->session->getRootNode();
 
@@ -163,8 +178,9 @@ class NodeManager
                 $current = $current->getNode($segment);
             } else {
                 $current = $current->addNode($segment);
+
                 $current->addMixin('mix:referenceable');
-                $current->setProperty('jcr:uuid', UUIDHelper::generateUUID());
+                $current->setProperty('jcr:uuid', $uuid ?: UUIDHelper::generateUUID());
             }
         }
 
