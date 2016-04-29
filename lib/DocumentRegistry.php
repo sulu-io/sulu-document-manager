@@ -262,7 +262,7 @@ class DocumentRegistry
         $oid = spl_object_hash($document);
 
         if (!isset($this->documentMap[$oid])) {
-            throw new RuntimeException(spl_object_hash($this) . sprintf(
+            throw new RuntimeException(sprintf(
                 'Document "%s" with OID "%s" is not managed, there are "%s" managed objects,',
                 get_class($document), $oid, count($this->documentMap)
             ));

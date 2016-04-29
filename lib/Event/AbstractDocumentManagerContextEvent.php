@@ -81,7 +81,7 @@ abstract class AbstractDocumentManagerContextEvent extends AbstractEvent
      */
     public function getDebugMessage()
     {
-        return $this->getContext()->getName();
+        return sprintf('[%s] ', $this->getContext()->getName());
     }
 
     public function getContext()
