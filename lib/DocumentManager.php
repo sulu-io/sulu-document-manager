@@ -14,7 +14,6 @@ namespace Sulu\Component\DocumentManager;
 use Sulu\Component\DocumentManager\Exception\DocumentManagerException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use PHPCR\RepositoryException;
 
 /**
  * A document manager has two roles:.

@@ -13,7 +13,6 @@ namespace Sulu\Comonent\DocumentManager\Tests\Unit\Subscriber;
 
 use PHPCR\NodeInterface;
 use Sulu\Component\DocumentManager\DocumentManagerContext;
-use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\Event\ClearEvent;
 use Sulu\Component\DocumentManager\Event\CopyEvent;
@@ -47,14 +46,7 @@ class GeneralSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->document = new \stdClass();
         $this->node = $this->prophesize(NodeInterface::class);
 
-        $this->manager = $this->prophesize(DocumentManagerInterface::class);
-
-        $this->moveEvent->getManager()->willReturn($this->manager->reveal());
-        $this->copyEvent->getManager()->willReturn($this->manager->reveal());
-        $this->clearEvent->getManager()->willReturn($this->manager->reveal());
         $this->context = $this->prophesize(DocumentManagerContext::class);
-        $this->flushEvent->getManager()->willReturn($this->manager->reveal());
-        $this->refreshEvent->getManager()->willReturn($this->manager->reveal());
         $this->refreshEvent->getContext()->willReturn($this->context->reveal());
         $this->refreshEvent->getEventDispatcher()->willReturn($this->eventDispatcher->reveal());
 

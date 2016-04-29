@@ -13,7 +13,6 @@ namespace Sulu\Component\DocumentManager\Collection;
 
 use PHPCR\NodeInterface;
 use Sulu\Component\DocumentManager\DocumentManagerContext;
-use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Events;
 
@@ -45,7 +44,7 @@ class ChildrenCollection extends AbstractLazyCollection
     private $initialized = false;
 
     /**
-     * @var DocumentManagerInterface
+     * @var DocumentManagerContext
      */
     private $context;
 

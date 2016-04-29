@@ -15,7 +15,6 @@ use PHPCR\NodeInterface;
 use Prophecy\Argument;
 use Sulu\Component\DocumentManager\Behavior\Path\AliasFilingBehavior;
 use Sulu\Component\DocumentManager\DocumentManager;
-use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Metadata;
 use Sulu\Component\DocumentManager\MetadataFactoryInterface;
@@ -85,11 +84,9 @@ class AliasFilingSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->metadataFactory = $this->prophesize(MetadataFactoryInterface::class);
         $this->metadata = $this->prophesize(Metadata::class);
         $this->parentNode = $this->prophesize(NodeInterface::class);
-        $this->manager = $this->prophesize(DocumentManagerInterface::class);
 
         $this->persistEvent->getNodeManager()->willReturn($this->nodeManager->reveal());
         $this->persistEvent->getMetadataFactory()->willReturn($this->metadataFactory->reveal());
-        $this->persistEvent->getManager()->willReturn($this->manager->reveal());
         $this->persistEvent->getOptions()->willReturn([]);
 
         $this->subscriber = new AliasFilingSubscriber();

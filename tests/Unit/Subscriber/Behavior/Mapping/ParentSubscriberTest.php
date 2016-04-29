@@ -81,6 +81,11 @@ class ParentSubscriberTest extends \PHPUnit_Framework_TestCase
      */
     private $subscriber;
 
+    /**
+     * @var PersistEvent
+     */
+    private $persistEvent;
+
     public function setUp()
     {
         $this->hydrateEvent = $this->prophesize(HydrateEvent::class);
@@ -197,7 +202,7 @@ class ParentSubscriberTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * It should handle changing the parent
+     * It should handle changing the parent.
      */
     public function testHandleChangeParent()
     {

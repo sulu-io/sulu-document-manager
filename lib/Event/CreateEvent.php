@@ -27,12 +27,12 @@ class CreateEvent extends AbstractDocumentManagerContextEvent
     private $alias;
 
     /**
-     * @param DocumentManagerContext $manager
+     * @param DocumentManagerContext $context
      * @param string $alias
      */
-    public function __construct(DocumentManagerContext $manager, $alias)
+    public function __construct(DocumentManagerContext $context, $alias)
     {
-        parent::__construct($manager);
+        parent::__construct($context);
         $this->alias = $alias;
     }
 

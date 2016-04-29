@@ -12,7 +12,6 @@
 namespace Sulu\Component\DocumentManager\tests\Unit\Subscriber\Core;
 
 use PHPCR\NodeInterface;
-use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
@@ -60,7 +59,6 @@ class RegistratorSubscriberTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->registry = $this->prophesize(DocumentRegistry::class);
-        $this->manager = $this->prophesize(DocumentManagerInterface::class);
         $this->subscriber = new RegistratorSubscriber();
 
         $this->node = $this->prophesize(NodeInterface::class);
@@ -72,10 +70,6 @@ class RegistratorSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->hydrateEvent->getRegistry()->willReturn($this->registry->reveal());
         $this->persistEvent->getRegistry()->willReturn($this->registry->reveal());
         $this->removeEvent->getRegistry()->willReturn($this->registry->reveal());
-
-        $this->hydrateEvent->getManager()->willReturn($this->manager->reveal());
-        $this->persistEvent->getManager()->willReturn($this->manager->reveal());
-        $this->removeEvent->getManager()->willReturn($this->manager->reveal());
     }
 
     /**
@@ -206,7 +200,6 @@ class RegistratorSubscriberTest extends \PHPUnit_Framework_TestCase
     public function testReorderNodeFomRegistry()
     {
         $reorderEvent = $this->prophesize(ReorderEvent::class);
-        $reorderEvent->getManager()->willReturn($this->manager->reveal());
         $reorderEvent->hasNode()->willReturn(false);
         $reorderEvent->getDocument()->willReturn($this->document);
         $reorderEvent->getRegistry()->willReturn($this->registry->reveal());

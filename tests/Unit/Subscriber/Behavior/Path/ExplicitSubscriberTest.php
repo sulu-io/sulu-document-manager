@@ -12,7 +12,6 @@
 namespace Sulu\Component\DocumentManager\Tests\Unit\Subscriber\Behavior\Audit\Path;
 
 use PHPCR\NodeInterface;
-use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\DocumentStrategyInterface;
 use Sulu\Component\DocumentManager\Event\ConfigureOptionsEvent;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
@@ -22,6 +21,46 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ExplicitSubscriberTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var PersistEvent
+     */
+    private $persistEvent;
+
+    /**
+     * @var stdClass
+     */
+    private $document;
+
+    /**
+     * @var NodeManager
+     */
+    private $nodeManager;
+
+    /**
+     * @var DocumentStrategyInterface
+     */
+    private $strategy;
+
+    /**
+     * @var ConfigureOptionsEvent
+     */
+    private $configureEvent;
+
+    /**
+     * @var NodeInterface
+     */
+    private $parentNode;
+
+    /**
+     * @var NodeInterface
+     */
+    private $node;
+
+    /**
+     * @var ExplicitSubscriber
+     */
+    private $subscriber;
+
     public function setUp()
     {
         $this->persistEvent = $this->prophesize(PersistEvent::class);
@@ -31,9 +70,7 @@ class ExplicitSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->configureEvent = $this->prophesize(ConfigureOptionsEvent::class);
         $this->parentNode = $this->prophesize(NodeInterface::class);
         $this->node = $this->prophesize(NodeInterface::class);
-        $this->manager = $this->prophesize(DocumentManagerInterface::class);
         $this->persistEvent->getNodeManager()->willReturn($this->nodeManager->reveal());
-        $this->persistEvent->getManager()->willReturn($this->manager->reveal());
 
         $this->subscriber = new ExplicitSubscriber(
             $this->strategy->reveal()

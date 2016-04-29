@@ -48,6 +48,8 @@ class NodeManager
      */
     public function find($identifier)
     {
+        $exceptionMessage = sprintf('Could not find document with ID or path "%s"', $identifier);
+
         // try to return the node, if the identifier looks like an ID, get by
         // identifier otherwise by path.
         //
@@ -62,13 +64,9 @@ class NodeManager
 
             return $this->session->getNode($identifier);
         } catch (RepositoryException $e) {
-            throw new DocumentNotFoundException(sprintf(
-                'Could not find document with ID or path "%s"', $identifier
-            ), null, $e);
+            throw new DocumentNotFoundException($exceptionMessage, null, $e);
         } catch (ItemNotFoundException $e) {
-            throw new DocumentNotFoundException(sprintf(
-                'Could not find document with ID or path "%s"', $identifier
-            ), null, $e);
+            throw new DocumentNotFoundException($exceptionMessage, null, $e);
         }
     }
 

@@ -14,7 +14,6 @@ namespace Sulu\Component\DocumentManager\Tests\Unit\Subscriber\Behavior;
 use PHPCR\NodeInterface;
 use Sulu\Component\DocumentManager\Behavior\Mapping\LocaleBehavior;
 use Sulu\Component\DocumentManager\DocumentAccessor;
-use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Subscriber\Behavior\Mapping\LocaleSubscriber;
@@ -28,14 +27,10 @@ class LocaleSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->document = new TestLocaleDocument();
         $this->accessor = new DocumentAccessor($this->document);
         $this->registry = $this->prophesize(DocumentRegistry::class);
-        $this->manager = $this->prophesize(DocumentManagerInterface::class);
         $this->hydrateEvent = $this->prophesize(HydrateEvent::class);
         $this->hydrateEvent->getRegistry()->willReturn($this->registry->reveal());
-        $this->hydrateEvent->getManager()->willReturn($this->manager->reveal());
 
-        $this->subscriber = new LocaleSubscriber(
-            $this->manager->reveal()
-        );
+        $this->subscriber = new LocaleSubscriber();
     }
 
     /**

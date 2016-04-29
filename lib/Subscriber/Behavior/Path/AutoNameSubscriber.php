@@ -192,7 +192,6 @@ class AutoNameSubscriber implements EventSubscriberInterface
         }
 
         $destId = $event->getDestId();
-        $manager = $event->getManager();
         $node = $event->getRegistry()->getNodeForDocument($document);
         $destNode = $event->getNodeManager()->find($destId);
         $nodeName = $this->resolver->resolveName($destNode, $node->getName());

@@ -168,7 +168,7 @@ class DocumentManagerContext
     /**
      * Return the event dispatcher instance.
      *
-     * @return EventDispatcher
+     * @return EventDispatcherInterface
      */
     public function getEventDispatcher()
     {

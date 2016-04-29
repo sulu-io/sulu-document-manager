@@ -14,7 +14,6 @@ namespace Sulu\Component\DocumentManager\tests\Unit\Subscriber\Behavior\Path;
 use PHPCR\NodeInterface;
 use Prophecy\Argument;
 use Sulu\Component\DocumentManager\Behavior\Path\AutoNameBehavior;
-use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\DocumentStrategyInterface;
 use Sulu\Component\DocumentManager\Event\MoveEvent;
@@ -122,12 +121,8 @@ class AutoNameSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->nodeManager = $this->prophesize(NodeManager::class);
         $this->strategy = $this->prophesize(DocumentStrategyInterface::class);
 
-        $this->manager = $this->prophesize(DocumentManagerInterface::class);
-
-        $this->moveEvent->getManager()->willReturn($this->manager->reveal());
         $this->moveEvent->getNodeManager()->willReturn($this->nodeManager->reveal());
         $this->moveEvent->getRegistry()->willReturn($this->documentRegistry->reveal());
-        $this->persistEvent->getManager()->willReturn($this->manager->reveal());
         $this->persistEvent->getRegistry()->willReturn($this->documentRegistry->reveal());
 
         $this->subscriber = new AutoNameSubscriber(

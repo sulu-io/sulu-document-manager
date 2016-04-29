@@ -20,6 +20,7 @@ use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\Exception\BadMethodCallException;
 use Sulu\Component\DocumentManager\Exception\InvalidArgumentException;
 use Sulu\Component\DocumentManager\Exception\InvalidLocaleException;
+use Sulu\Component\DocumentManager\Exception\RuntimeException;
 use Sulu\Component\DocumentManager\MetadataFactoryInterface;
 use Sulu\Component\DocumentManager\PropertyEncoder;
 use Sulu\Component\DocumentManager\ProxyFactory;
@@ -210,7 +211,6 @@ class MappingSubscriber implements EventSubscriberInterface
         $node = $event->getNode();
         $accessor = $event->getAccessor();
         $document = $event->getDocument();
-        $manager = $event->getManager();
         $proxyFactory = $event->getProxyFactory();
 
         foreach ($metadata->getFieldMappings() as $fieldName => $fieldMapping) {
@@ -271,9 +271,9 @@ class MappingSubscriber implements EventSubscriberInterface
             try {
                 if ($referencedNode) {
                     $accessor->set(
-                    $fieldName,
-                    $proxyFactory->createProxyForNode($document, $referencedNode, $options)
-                );
+                        $fieldName,
+                        $proxyFactory->createProxyForNode($document, $referencedNode, $options)
+                    );
                 }
             } catch (\Exception $e) {
                 throw new RuntimeException(sprintf(

@@ -36,9 +36,7 @@ class PathSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->manager->getInspector()->willReturn($this->inspector->reveal());
         $this->hydrateEvent->getManager()->willReturn($this->manager->reveal());
 
-        $this->subscriber = new PathSubscriber(
-            $this->manager->reveal()
-        );
+        $this->subscriber = new PathSubscriber();
     }
 
     /**

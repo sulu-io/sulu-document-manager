@@ -35,7 +35,7 @@ class ProxyFactory
     private $metadataFactory;
 
     /**
-     * @var DocumentManagerInterface
+     * @var DocumentManagerContext
      */
     private $context;
 
