@@ -195,4 +195,26 @@ class ParentSubscriberTest extends \PHPUnit_Framework_TestCase
 
         $this->subscriber->handleSetParentNodeFromDocument($this->persistEvent->reveal());
     }
+
+    /**
+     * It should handle changing the parent
+     */
+    public function testHandleChangeParent()
+    {
+        $eventParent = $this->prophesize(NodeInterface::class);
+        $this->persistEvent->getDocument()->willReturn($this->document->reveal());
+        $this->persistEvent->getManager()->willReturn($this->manager->reveal());
+        $this->persistEvent->getParentNode()->willReturn($eventParent->reveal());
+
+        $this->document->getParent()->willReturn($this->parentDocument);
+        $this->inspector->getNode($this->document->reveal())->willReturn($this->node->reveal());
+        $this->node->getParent()->willReturn($this->parentNode->reveal());
+
+        $eventParent->getPath()->willReturn('/foo');
+        $this->parentNode->getPath()->willReturn('/bar');
+
+        $this->manager->move($this->document->reveal(), '/foo')->shouldBeCalled();
+
+        $this->subscriber->handleChangeParent($this->persistEvent->reveal());
+    }
 }

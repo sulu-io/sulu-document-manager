@@ -109,7 +109,7 @@ class ParentSubscriber implements EventSubscriberInterface
     public function handleChangeParent(PersistEvent $event)
     {
         $document = $event->getDocument();
-        $manager = $event->getContext();
+        $manager = $event->getManager();
         $node = $manager->getInspector()->getNode($document);
         $parentNode = $event->getParentNode();
 
