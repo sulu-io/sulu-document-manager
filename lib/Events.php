@@ -71,6 +71,11 @@ class Events
     const REORDER = 'sulu_document_manager.reorder';
 
     /**
+     * Fired when the document manager publish method is called.
+     */
+    const PUBLISH = 'sulu_document_manager.publish';
+
+    /**
      * Fired when the document manager requests that are flush to persistent storage happen.
      */
     const FLUSH = 'sulu_document_manager.flush';
