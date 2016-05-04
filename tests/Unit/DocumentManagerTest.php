@@ -22,6 +22,7 @@ use Sulu\Component\DocumentManager\Event\FindEvent;
 use Sulu\Component\DocumentManager\Event\FlushEvent;
 use Sulu\Component\DocumentManager\Event\MoveEvent;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
+use Sulu\Component\DocumentManager\Event\PublishEvent;
 use Sulu\Component\DocumentManager\Event\QueryCreateEvent;
 use Sulu\Component\DocumentManager\Event\QueryExecuteEvent;
 use Sulu\Component\DocumentManager\Event\RefreshEvent;
@@ -34,12 +35,47 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class DocumentManagerTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var EventDispatcher
+     */
+    private $eventDispatcher;
+
+    /**
+     * @var NodeManager
+     */
+    private $nodeManager;
+
+    /**
+     * @var DocumentManager
+     */
+    private $documentManager;
+
+    /**
+     * @var NodeInterface
+     */
+    private $node;
+
+    /**
+     * @var \stdClass
+     */
+    private $document;
+
+    /**
+     * @var Query
+     */
+    private $query;
+
+    /**
+     * @var QueryResultCollection
+     */
+    private $queryResultCollection;
+
     public function setUp()
     {
-        $this->dispatcher = new EventDispatcher();
+        $this->eventDispatcher = new EventDispatcher();
         $this->nodeManager = $this->prophesize(NodeManager::class);
-        $this->manager = new DocumentManager(
-            $this->dispatcher,
+        $this->documentManager = new DocumentManager(
+            $this->eventDispatcher,
             $this->nodeManager->reveal()
         );
 
@@ -47,7 +83,7 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
         $this->document = new \stdClass();
 
         $this->query = $this->prophesize(Query::class);
-        $this->resultCollection = $this->prophesize(QueryResultCollection::class);
+        $this->queryResultCollection = $this->prophesize(QueryResultCollection::class);
     }
 
     /**
@@ -56,7 +92,7 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
     public function testPersist()
     {
         $subscriber = $this->addSubscriber();
-        $this->manager->persist(new \stdClass(), 'fr');
+        $this->documentManager->persist(new \stdClass(), 'fr');
         $this->assertTrue($subscriber->persist);
     }
 
@@ -66,7 +102,7 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
     public function testRemove()
     {
         $subscriber = $this->addSubscriber();
-        $this->manager->remove(new \stdClass());
+        $this->documentManager->remove(new \stdClass());
         $this->assertTrue($subscriber->remove);
     }
 
@@ -76,7 +112,7 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
     public function testMove()
     {
         $subscriber = $this->addSubscriber();
-        $this->manager->move(new \stdClass(), '/path/to');
+        $this->documentManager->move(new \stdClass(), '/path/to');
         $this->assertTrue($subscriber->move);
     }
 
@@ -86,7 +122,7 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
     public function testCopy()
     {
         $subscriber = $this->addSubscriber();
-        $this->manager->copy(new \stdClass(), '/path/to');
+        $this->documentManager->copy(new \stdClass(), '/path/to');
         $this->assertTrue($subscriber->copy);
     }
 
@@ -96,8 +132,15 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
     public function testCreate()
     {
         $subscriber = $this->addSubscriber();
-        $this->manager->create('foo');
+        $this->documentManager->create('foo');
         $this->assertTrue($subscriber->create);
+    }
+
+    public function testPublish()
+    {
+        $subscriber = $this->addSubscriber();
+        $this->documentManager->publish(new \stdClass(), 'de');
+        $this->assertTrue($subscriber->publish);
     }
 
     /**
@@ -106,7 +149,7 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
     public function testRefresh()
     {
         $subscriber = $this->addSubscriber();
-        $this->manager->refresh($this->document);
+        $this->documentManager->refresh($this->document);
         $this->assertTrue($subscriber->refresh);
     }
 
@@ -116,7 +159,7 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
     public function testClear()
     {
         $subscriber = $this->addSubscriber();
-        $this->manager->clear();
+        $this->documentManager->clear();
         $this->assertTrue($subscriber->clear);
     }
 
@@ -126,7 +169,7 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
     public function testFlush()
     {
         $subscriber = $this->addSubscriber();
-        $this->manager->flush();
+        $this->documentManager->flush();
         $this->assertTrue($subscriber->flush);
     }
 
@@ -136,7 +179,7 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
     public function testFind()
     {
         $subscriber = $this->addSubscriber();
-        $this->manager->find('foo', 'fr');
+        $this->documentManager->find('foo', 'fr');
         $this->assertTrue($subscriber->find);
     }
 
@@ -148,7 +191,7 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
     public function testFindWithInvalidOptions()
     {
         $subscriber = $this->addSubscriber();
-        $this->manager->find('foo', 'bar', ['foo123' => 'bar']);
+        $this->documentManager->find('foo', 'bar', ['foo123' => 'bar']);
     }
 
     /**
@@ -157,7 +200,7 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
     public function testFindWithOptions()
     {
         $subscriber = $this->addSubscriber();
-        $this->manager->find('foo', 'bar', ['test.foo' => 'bar']);
+        $this->documentManager->find('foo', 'bar', ['test.foo' => 'bar']);
     }
 
     /**
@@ -166,7 +209,7 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
     public function testQueryCreate()
     {
         $subscriber = $this->addSubscriber();
-        $query = $this->manager->createQuery('SELECT foo FROM [foo:bar]', 'fr');
+        $query = $this->documentManager->createQuery('SELECT foo FROM [foo:bar]', 'fr');
         $this->assertTrue($subscriber->queryCreate);
         $this->assertInstanceOf(Query::class, $query);
     }
@@ -183,8 +226,8 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
 
     private function addSubscriber()
     {
-        $subscriber = new TestDocumentManagerSubscriber($this->query->reveal(), $this->resultCollection->reveal());
-        $this->dispatcher->addSubscriber($subscriber);
+        $subscriber = new TestDocumentManagerSubscriber($this->query->reveal(), $this->queryResultCollection->reveal());
+        $this->eventDispatcher->addSubscriber($subscriber);
 
         return $subscriber;
     }
@@ -204,7 +247,9 @@ class TestDocumentManagerSubscriber implements EventSubscriberInterface
     public $queryCreate = false;
     public $queryCreateBuilder = false;
     public $queryExecute = false;
+    public $publish = false;
     public $refresh = false;
+    public $reorder = false;
 
     private $query;
     private $resultCollection;
@@ -232,6 +277,7 @@ class TestDocumentManagerSubscriber implements EventSubscriberInterface
             Events::REFRESH => 'handleRefresh',
             Events::REORDER => 'handleReorder',
             Events::CONFIGURE_OPTIONS => 'handleConfigureOptions',
+            Events::PUBLISH => 'handlePublish',
         ];
     }
 
@@ -295,6 +341,11 @@ class TestDocumentManagerSubscriber implements EventSubscriberInterface
     {
         $this->queryExecute = true;
         $event->setResult($this->resultCollection);
+    }
+
+    public function handlePublish(PublishEvent $event)
+    {
+        $this->publish = true;
     }
 
     public function handleRefresh(RefreshEvent $event)

@@ -110,6 +110,15 @@ class DocumentManager implements DocumentManagerInterface
     /**
      * {@inheritdoc}
      */
+    public function publish($document, $locale)
+    {
+        $event = new Event\PublishEvent($document, $locale);
+        $this->eventDispatcher->dispatch(Events::PUBLISH, $event);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function refresh($document)
     {
         $event = new Event\RefreshEvent($document);
