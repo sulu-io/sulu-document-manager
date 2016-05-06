@@ -45,6 +45,7 @@ class FullDocument implements
     protected $status;
     protected $reference;
     protected $locale;
+    protected $originalLocale;
 
     public function __construct()
     {
@@ -128,6 +129,7 @@ class FullDocument implements
      */
     public function setLocale($locale)
     {
+        $this->locale = $locale;
     }
 
     /**
@@ -184,5 +186,15 @@ class FullDocument implements
     public function setReference($reference)
     {
         $this->reference = $reference;
+    }
+
+    public function getOriginalLocale()
+    {
+        return $this->originalLocale;
+    }
+
+    public function setOriginalLocale($originalLocale)
+    {
+        $this->originalLocale = $originalLocale;
     }
 }

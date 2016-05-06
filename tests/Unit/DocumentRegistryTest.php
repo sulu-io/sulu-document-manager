@@ -16,6 +16,9 @@ use Sulu\Component\DocumentManager\DocumentRegistry;
 
 class DocumentRegistryTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var DocumentRegistry
+     */
     private $registry;
 
     public function setUp()
@@ -33,7 +36,7 @@ class DocumentRegistryTest extends \PHPUnit_Framework_TestCase
     {
         $this->registry->registerDocument($this->document, $this->node->reveal(), 'fr');
         $this->assertTrue($this->registry->hasDocument($this->document));
-        $this->assertTrue($this->registry->hasNode($this->node->reveal()));
+        $this->assertTrue($this->registry->hasNode($this->node->reveal(), 'fr'));
     }
 
     /**
@@ -46,7 +49,7 @@ class DocumentRegistryTest extends \PHPUnit_Framework_TestCase
         $this->registry->registerDocument($this->document, $this->node->reveal(), 'fr');
         $this->registry->deregisterDocument($this->document);
         $this->assertFalse($this->registry->hasDocument($this->document));
-        $this->assertFalse($this->registry->hasNode($this->node->reveal()));
+        $this->assertFalse($this->registry->hasNode($this->node->reveal(), 'fr'));
     }
 
     /**
@@ -104,7 +107,7 @@ class DocumentRegistryTest extends \PHPUnit_Framework_TestCase
     public function testGetDocumentForNode()
     {
         $this->registry->registerDocument($this->document, $this->node->reveal(), 'fr');
-        $document = $this->registry->getDocumentForNode($this->node->reveal());
+        $document = $this->registry->getDocumentForNode($this->node->reveal(), 'fr');
         $this->assertSame($this->document, $document);
     }
 
@@ -126,17 +129,6 @@ class DocumentRegistryTest extends \PHPUnit_Framework_TestCase
     {
         $this->registry->registerDocument($this->document, $this->node->reveal(), 'fr');
         $this->assertEquals('fr', $this->registry->getLocaleForDocument($this->document));
-    }
-
-    /**
-     * It should update a document locale and store the original locale.
-     */
-    public function testUpdateLocale()
-    {
-        $this->registry->registerDocument($this->document, $this->node->reveal(), 'fr');
-        $this->registry->updateLocale($this->document, 'de', 'fr');
-        $this->assertEquals('de', $this->registry->getLocaleForDocument($this->document));
-        $this->assertEquals('fr', $this->registry->getOriginalLocaleForDocument($this->document));
     }
 
     /**

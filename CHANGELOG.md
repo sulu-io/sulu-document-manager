@@ -2,7 +2,8 @@ CHANGELOG for Sulu
 ==================
 
 * dev-master
-    * HOTFIX      #83 Fixed auto-name subscriber to rename at the very end of persist 
+    * HOTFIX      #82 Introduced mandatory locale in document-registry
+    * HOTFIX      #83 Fixed auto-name subscriber to rename at the very end of persist
 
 * 0.6.0 (2016-04-11)
     * ENHANCEMENT #58 Added behavior to save unlocalized timestamps and added json_array mapping type

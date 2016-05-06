@@ -29,4 +29,18 @@ interface LocaleBehavior
      * @param string $locale
      */
     public function setLocale($locale);
+
+    /**
+     * Return the documents original locale.
+     *
+     * @return string
+     */
+    public function getOriginalLocale();
+
+    /**
+     * Sets the document original locale.
+     *
+     * @param string $locale
+     */
+    public function setOriginalLocale($locale);
 }

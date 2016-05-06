@@ -12,6 +12,7 @@
 namespace Sulu\Component\DocumentManager;
 
 use PHPCR\NodeInterface;
+use Sulu\Component\DocumentManager\Behavior\Mapping\LocaleBehavior;
 use Sulu\Component\DocumentManager\Exception\DocumentManagerException;
 
 /**
@@ -45,11 +46,6 @@ class DocumentRegistry
     private $documentLocaleMap = [];
 
     /**
-     * @var array
-     */
-    private $originalLocaleMap = [];
-
-    /**
      * @var string
      */
     private $defaultLocale;
@@ -73,44 +69,22 @@ class DocumentRegistry
      * @param mixed $document
      * @param NodeInterface $node
      * @param NodeInterface $node
-     * @param null|string $locale
+     * @param string $locale
      *
      * @throws DocumentManagerException
      */
-    public function registerDocument($document, NodeInterface $node, $locale = null)
+    public function registerDocument($document, NodeInterface $node, $locale)
     {
-        if (null === $locale) {
-            $locale = $this->defaultLocale;
-        }
-
         $oid = $this->getObjectIdentifier($document);
         $uuid = $node->getIdentifier();
 
         // do not allow nodes without UUIDs or reregistration of documents
-        $this->validateDocumentRegistration($document, $node, $oid, $uuid);
+        $this->validateDocumentRegistration($document, $locale, $node, $oid, $uuid);
 
         $this->documentMap[$oid] = $document;
         $this->documentNodeMap[$oid] = $uuid;
         $this->nodeMap[$node->getIdentifier()] = $node;
-        $this->nodeDocumentMap[$node->getIdentifier()] = $document;
-        $this->documentLocaleMap[$oid] = $locale;
-    }
-
-    /**
-     * Update the locale of the given document and store the originally
-     * requested locale.
-     *
-     * The originally requested locale should be reset when a HYDRATE event
-     * is caused by the user (and not internally when loading dependencies).
-     *
-     * @param object $document
-     * @param string $locale
-     * @param null|string $originalLocale
-     */
-    public function updateLocale($document, $locale, $originalLocale = null)
-    {
-        $oid = $this->getObjectIdentifier($document);
-        $this->originalLocaleMap[$oid] = $originalLocale;
+        $this->nodeDocumentMap[sprintf('%s-%s', $node->getIdentifier(), $locale)] = $document;
         $this->documentLocaleMap[$oid] = $locale;
     }
 
@@ -132,12 +106,13 @@ class DocumentRegistry
      * Return true if the node is managed.
      *
      * @param NodeInterface $node
+     * @param string $locale
      *
      * @return bool
      */
-    public function hasNode(NodeInterface $node)
+    public function hasNode(NodeInterface $node, $locale)
     {
-        return isset($this->nodeDocumentMap[$node->getIdentifier()]);
+        return array_key_exists(sprintf('%s-%s', $node->getIdentifier(), $locale), $this->nodeDocumentMap);
     }
 
     /**
@@ -150,7 +125,6 @@ class DocumentRegistry
         $this->nodeMap = [];
         $this->nodeDocumentMap = [];
         $this->documentLocaleMap = [];
-        $this->originalLocaleMap = [];
         $this->hydrationState = [];
     }
 
@@ -163,17 +137,15 @@ class DocumentRegistry
     public function deregisterDocument($document)
     {
         $oid = $this->getObjectIdentifier($document);
-
         $this->assertDocumentExists($document);
-
         $nodeIdentifier = $this->documentNodeMap[$oid];
+        $locale = $this->documentLocaleMap[$oid];
 
         unset($this->nodeMap[$nodeIdentifier]);
-        unset($this->nodeDocumentMap[$nodeIdentifier]);
+        unset($this->nodeDocumentMap[sprintf('%s-%s', $nodeIdentifier, $locale)]);
         unset($this->documentMap[$oid]);
         unset($this->documentNodeMap[$oid]);
         unset($this->documentLocaleMap[$oid]);
-        unset($this->originalLocaleMap[$oid]);
         unset($this->hydrationState[$oid]);
     }
 
@@ -218,11 +190,10 @@ class DocumentRegistry
      */
     public function getOriginalLocaleForDocument($document)
     {
-        $oid = $this->getObjectIdentifier($document);
         $this->assertDocumentExists($document);
 
-        if (isset($this->originalLocaleMap[$oid])) {
-            return $this->originalLocaleMap[$oid];
+        if ($document instanceof LocaleBehavior) {
+            return $document->getOriginalLocale() ?: $document->getLocale();
         }
 
         return $this->getLocaleForDocument($document);
@@ -232,15 +203,16 @@ class DocumentRegistry
      * Return the document for the given managed node.
      *
      * @param NodeInterface $node
+     * @param string $locale
      *
-     * @throws \RuntimeException If the node is not managed
+     * @return mixed If the node is not managed
      */
-    public function getDocumentForNode(NodeInterface $node)
+    public function getDocumentForNode(NodeInterface $node, $locale)
     {
         $identifier = $node->getIdentifier();
         $this->assertNodeExists($identifier);
 
-        return $this->nodeDocumentMap[$identifier];
+        return $this->nodeDocumentMap[sprintf('%s-%s', $identifier, $locale)];
     }
 
     /**
@@ -273,7 +245,7 @@ class DocumentRegistry
      */
     private function assertNodeExists($identifier)
     {
-        if (!isset($this->nodeDocumentMap[$identifier])) {
+        if (!isset($this->nodeMap[$identifier])) {
             throw new \RuntimeException(sprintf(
                 'Node with identifier "%s" is not managed, there are "%s" managed objects,',
                 $identifier, count($this->documentMap)
@@ -304,7 +276,7 @@ class DocumentRegistry
      *
      * @throws DocumentManagerException
      */
-    private function validateDocumentRegistration($document, NodeInterface $node, $oid, $uuid)
+    private function validateDocumentRegistration($document, $locale, NodeInterface $node, $oid, $uuid)
     {
         if (null === $uuid) {
             throw new DocumentManagerException(sprintf(
@@ -313,8 +285,10 @@ class DocumentRegistry
             ));
         }
 
-        if (isset($this->nodeMap[$uuid])) {
-            $registeredDocument = $this->nodeDocumentMap[$uuid];
+        $documentNodeKey = sprintf('%s-%s', $node->getIdentifier(), $locale);
+        if (array_key_exists($uuid, $this->nodeMap) && array_key_exists($documentNodeKey, $this->nodeDocumentMap)) {
+            $registeredDocument = $this->nodeDocumentMap[$documentNodeKey];
+
             throw new \RuntimeException(sprintf(
                 'Document "%s" (%s) is already registered for node "%s" (%s) when trying to register document "%s" (%s)',
                 spl_object_hash($registeredDocument),
@@ -348,6 +322,7 @@ class DocumentRegistry
     public function unmarkDocumentAsHydrated($document)
     {
         $oid = spl_object_hash($document);
+
         unset($this->hydrationState[$oid]);
     }
 

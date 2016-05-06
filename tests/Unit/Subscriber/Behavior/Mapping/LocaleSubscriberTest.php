@@ -61,6 +61,7 @@ class LocaleSubscriberTest extends \PHPUnit_Framework_TestCase
 class TestLocaleDocument implements LocaleBehavior
 {
     private $locale;
+    private $originalLocale;
 
     public function getLocale()
     {
@@ -70,5 +71,15 @@ class TestLocaleDocument implements LocaleBehavior
     public function setLocale($locale)
     {
         $this->locale = $locale;
+    }
+
+    public function getOriginalLocale()
+    {
+        return $this->originalLocale;
+    }
+
+    public function setOriginalLocale($originalLocale)
+    {
+        $this->originalLocale = $originalLocale;
     }
 }
