@@ -16,6 +16,21 @@ use Sulu\Component\DocumentManager\NameResolver;
 
 class NameResolverTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var NodeInterface
+     */
+    private $parentNode;
+
+    /**
+     * @var NodeInterface
+     */
+    private $node;
+
+    /**
+     * @var NameResolver
+     */
+    private $nameResolver;
+
     public function setUp()
     {
         $this->parentNode = $this->prophesize(NodeInterface::class);
@@ -23,10 +38,7 @@ class NameResolverTest extends \PHPUnit_Framework_TestCase
         $this->nameResolver = new NameResolver();
     }
 
-    /**
-     * It return the requested name if the parent has no child with the requested name.
-     */
-    public function testResolve()
+    public function testResolveWithNotExistingName()
     {
         $this->parentNode->hasNode('foo')->willReturn(false);
         $name = $this->nameResolver->resolveName($this->parentNode->reveal(), 'foo');
@@ -34,10 +46,7 @@ class NameResolverTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('foo', $name);
     }
 
-    /**
-     * It should increment the name if the node has a child with the requested name.
-     */
-    public function testResolveIncerement()
+    public function testResolveIncrementWithExistingName()
     {
         $this->parentNode->hasNode('foo')->willReturn(true);
         $this->parentNode->hasNode('foo-1')->willReturn(true);
@@ -47,15 +56,26 @@ class NameResolverTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('foo-2', $name);
     }
 
-    /**
-     * If child exists with requeted name, child is instance of "for node", then its fine.
-     */
-    public function testResolveSame()
+    public function testResolveForNode()
     {
         $this->parentNode->hasNode('foo')->willReturn(true);
         $this->parentNode->getNode('foo')->willReturn($this->node->reveal());
 
         $name = $this->nameResolver->resolveName($this->parentNode->reveal(), 'foo', $this->node->reveal());
         $this->assertEquals('foo', $name);
+    }
+
+    public function testResolveForNodeWithIncrement()
+    {
+        $this->parentNode->hasNode('foo')->willReturn(true);
+        $this->parentNode->getNode('foo')->willReturn($this->node->reveal());
+
+        $node = $this->prophesize(NodeInterface::class);
+
+        $this->parentNode->hasNode('foo-1')->willReturn(true);
+        $this->parentNode->getNode('foo-1')->willReturn($node->reveal());
+
+        $name = $this->nameResolver->resolveName($this->parentNode->reveal(), 'foo', $node->reveal());
+        $this->assertEquals('foo-1', $name);
     }
 }

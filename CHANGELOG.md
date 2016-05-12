@@ -2,6 +2,7 @@ CHANGELOG for Sulu
 ==================
 
 * dev-develop
+    * BUGFIX      #86 Fixed resolving name for already incremented node names
     * ENHANCEMENT #58 Added behavior to save unlocalized timestamps and added json_array mapping type
     * ENHANCEMENT #59 Removed blame subscriber
     * Added getAllMetadata() method to MetadataFactoryInterface
