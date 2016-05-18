@@ -39,11 +39,14 @@ class MixinStrategy implements DocumentStrategyInterface
      */
     public function createNodeForDocument($document, NodeInterface $parentNode, $name)
     {
+        $uuid = UUIDHelper::generateUUID();
+        $name = $name ?: $uuid;
+
         $metadata = $this->metadataFactory->getMetadataForClass(get_class($document));
 
         $node = $parentNode->addNode($name);
         $node->addMixin($metadata->getPhpcrType());
-        $node->setProperty('jcr:uuid', UUIDHelper::generateUUID());
+        $node->setProperty('jcr:uuid', $uuid);
 
         return $node;
     }
