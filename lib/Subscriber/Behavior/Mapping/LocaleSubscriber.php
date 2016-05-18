@@ -39,8 +39,8 @@ class LocaleSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            Events::HYDRATE => ['handleLocale', 250],
-            Events::PERSIST => ['handleLocale', 250],
+            Events::HYDRATE => ['handleLocale', 410],
+            Events::PERSIST => ['handleLocale', 410],
         ];
     }
 
@@ -57,9 +57,8 @@ class LocaleSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $event->getAccessor()->set(
-            'locale',
-            $this->registry->getLocaleForDocument($document)
-        );
+        $locale = $this->registry->getLocaleForDocument($document);
+        $document->setLocale($locale);
+        $document->setOriginalLocale($locale);
     }
 }

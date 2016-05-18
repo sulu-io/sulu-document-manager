@@ -80,9 +80,10 @@ class RegistratorSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->hydrateEvent->getNode()->willReturn($this->node->reveal());
         $this->hydrateEvent->getLocale()->willReturn('fr');
         $this->hydrateEvent->getOptions()->willReturn([]);
-        $this->registry->hasNode($this->node->reveal())->willReturn(true);
-        $this->registry->getDocumentForNode($this->node->reveal())->willReturn($this->document);
+        $this->registry->hasNode($this->node->reveal(), 'fr')->willReturn(true);
+        $this->registry->getDocumentForNode($this->node->reveal(), 'fr')->willReturn($this->document);
         $this->hydrateEvent->setDocument($this->document)->shouldBeCalled();
+
         $this->subscriber->handleDocumentFromRegistry($this->hydrateEvent->reveal());
     }
 
@@ -100,8 +101,8 @@ class RegistratorSubscriberTest extends \PHPUnit_Framework_TestCase
             ]
         );
         $this->hydrateEvent->stopPropagation()->shouldBeCalled();
-        $this->registry->hasNode($this->node->reveal())->willReturn(true);
-        $this->registry->getDocumentForNode($this->node->reveal())->willReturn($this->document);
+        $this->registry->hasNode($this->node->reveal(), 'fr')->willReturn(true);
+        $this->registry->getDocumentForNode($this->node->reveal(), 'fr')->willReturn($this->document);
         $this->hydrateEvent->setDocument($this->document)->shouldBeCalled();
         $this->subscriber->handleDocumentFromRegistry($this->hydrateEvent->reveal());
     }
@@ -151,30 +152,8 @@ class RegistratorSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->hydrateEvent->getDocument()->willReturn($this->document);
         $this->registry->isHydrated($this->document)->willReturn(true);
         $this->registry->getOriginalLocaleForDocument($this->document)->willReturn($originalLocale);
-        $this->registry->updateLocale($this->document, $locale, $locale)->shouldBeCalled();
         $this->hydrateEvent->stopPropagation()->shouldNotBeCalled();
 
-        $this->subscriber->handleStopPropagationAndResetLocale($this->hydrateEvent->reveal());
-    }
-
-    /**
-     * It should update the locale if the requested locale is different from the loaded locale.
-     */
-    public function testUpdateDocumentLocale()
-    {
-        $locale = 'de';
-        $originalLocale = 'fr';
-
-        $this->hydrateEvent->hasDocument()->willReturn(true);
-        $this->hydrateEvent->getLocale()->willReturn($locale);
-        $this->hydrateEvent->getDocument()->willReturn($this->document);
-        $this->hydrateEvent->getOptions()->willReturn([]);
-        $this->registry->isHydrated($this->document)->willReturn(true);
-
-        $this->registry->getOriginalLocaleForDocument($this->document)->willReturn($originalLocale);
-        $this->hydrateEvent->stopPropagation()->shouldNotBeCalled();
-
-        $this->registry->updateLocale($this->document, $locale, $locale)->shouldBeCalled();
         $this->subscriber->handleStopPropagationAndResetLocale($this->hydrateEvent->reveal());
     }
 
@@ -221,8 +200,9 @@ class RegistratorSubscriberTest extends \PHPUnit_Framework_TestCase
     public function testDocumentFromRegistryNoNode()
     {
         $this->hydrateEvent->hasDocument()->willReturn(true);
+        $this->hydrateEvent->getLocale()->willReturn('fr');
         $this->hydrateEvent->getNode()->willReturn($this->node->reveal());
-        $this->registry->hasNode($this->node->reveal())->willReturn(false);
+        $this->registry->hasNode($this->node->reveal(), 'fr')->willReturn(false);
         $this->subscriber->handleDocumentFromRegistry($this->hydrateEvent->reveal());
     }
 
@@ -234,7 +214,7 @@ class RegistratorSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->hydrateEvent->getDocument()->willReturn($this->document);
         $this->hydrateEvent->getNode()->willReturn($this->node->reveal());
         $this->hydrateEvent->getLocale()->willReturn('fr');
-        $this->registry->hasDocument($this->document)->willReturn(false);
+        $this->registry->hasNode($this->node->reveal(), 'fr')->willReturn(false);
         $this->registry->registerDocument($this->document, $this->node->reveal(), 'fr')->shouldBeCalled();
 
         $this->subscriber->handleHydrate($this->hydrateEvent->reveal());
@@ -249,9 +229,8 @@ class RegistratorSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->hydrateEvent->getNode()->willReturn($this->node->reveal());
         $this->hydrateEvent->getLocale()->willReturn('fr');
 
-        $this->registry->hasDocument($this->document)->willReturn(true);
+        $this->registry->hasNode($this->node->reveal(), 'fr')->willReturn(true);
         $this->registry->registerDocument($this->document, $this->node->reveal(), 'fr')->shouldNotBeCalled();
-        $this->registry->updateLocale($this->document, 'fr')->shouldBeCalled();
 
         $this->subscriber->handleHydrate($this->hydrateEvent->reveal());
     }
@@ -264,7 +243,7 @@ class RegistratorSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->persistEvent->getDocument()->willReturn($this->document);
         $this->persistEvent->getNode()->willReturn($this->node->reveal());
         $this->persistEvent->getLocale()->willReturn('fr');
-        $this->registry->hasDocument($this->document)->willReturn(false);
+        $this->registry->hasNode($this->node->reveal(), 'fr')->willReturn(false);
         $this->registry->registerDocument($this->document, $this->node->reveal(), 'fr')->shouldBeCalled();
 
         $this->subscriber->handlePersist($this->persistEvent->reveal());
@@ -280,8 +259,7 @@ class RegistratorSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->persistEvent->getLocale()->willReturn('fr');
 
         $this->registry->registerDocument($this->document, $this->node->reveal(), 'fr')->shouldNotBeCalled();
-        $this->registry->updateLocale($this->document, 'fr')->shouldBeCalled();
-        $this->registry->hasDocument($this->document)->willReturn(true);
+        $this->registry->hasNode($this->node->reveal(), 'fr')->willReturn(true);
 
         $this->subscriber->handlePersist($this->persistEvent->reveal());
     }

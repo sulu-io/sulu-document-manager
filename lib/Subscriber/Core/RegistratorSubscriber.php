@@ -103,12 +103,11 @@ class RegistratorSubscriber implements EventSubscriberInterface
         }
 
         $node = $event->getNode();
-
-        if (!$this->documentRegistry->hasNode($node)) {
+        if (!$this->documentRegistry->hasNode($node, $event->getLocale())) {
             return;
         }
 
-        $document = $this->documentRegistry->getDocumentForNode($node);
+        $document = $this->documentRegistry->getDocumentForNode($node, $event->getLocale());
 
         $event->setDocument($document);
 
@@ -123,8 +122,7 @@ class RegistratorSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * Stop propagation if the document is already loaded in the requested locale,
-     * otherwise reset the document locale to the new locale.
+     * Stop propagation if the document is already loaded in the requested locale.
      *
      * @param HydrateEvent $event
      */
@@ -144,11 +142,7 @@ class RegistratorSubscriber implements EventSubscriberInterface
             (true === $this->documentRegistry->isHydrated($document) && $originalLocale === $locale)
         ) {
             $event->stopPropagation();
-
-            return;
         }
-
-        $this->documentRegistry->updateLocale($document, $locale, $locale);
     }
 
     /**
@@ -238,24 +232,17 @@ class RegistratorSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * Register the document and apparently update the locale.
-     *
-     * TODO: Is locale handling already done above?
+     * Register the document.
      *
      * @param AbstractMappingEvent $event
      */
     private function handleRegister(AbstractMappingEvent $event)
     {
-        $document = $event->getDocument();
         $node = $event->getNode();
         $locale = $event->getLocale();
 
-        if ($this->documentRegistry->hasDocument($document)) {
-            $this->documentRegistry->updateLocale($document, $locale);
-
-            return;
+        if (!$this->documentRegistry->hasNode($node, $locale)) {
+            $this->documentRegistry->registerDocument($event->getDocument(), $node, $locale);
         }
-
-        $this->documentRegistry->registerDocument($document, $node, $locale);
     }
 }
