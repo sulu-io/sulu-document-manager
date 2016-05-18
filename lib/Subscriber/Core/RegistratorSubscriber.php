@@ -122,8 +122,7 @@ class RegistratorSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * Stop propagation if the document is already loaded in the requested locale,
-     * otherwise reset the document locale to the new locale.
+     * Stop propagation if the document is already loaded in the requested locale.
      *
      * @param HydrateEvent $event
      */

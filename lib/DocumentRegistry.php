@@ -84,7 +84,7 @@ class DocumentRegistry
         $this->documentMap[$oid] = $document;
         $this->documentNodeMap[$oid] = $uuid;
         $this->nodeMap[$node->getIdentifier()] = $node;
-        $this->nodeDocumentMap[sprintf('%s-%s', $node->getIdentifier(), $locale)] = $document;
+        $this->nodeDocumentMap[$this->getNodeLocaleKey($node->getIdentifier(), $locale)] = $document;
         $this->documentLocaleMap[$oid] = $locale;
     }
 
@@ -112,7 +112,7 @@ class DocumentRegistry
      */
     public function hasNode(NodeInterface $node, $locale)
     {
-        return array_key_exists(sprintf('%s-%s', $node->getIdentifier(), $locale), $this->nodeDocumentMap);
+        return array_key_exists($this->getNodeLocaleKey($node->getIdentifier(), $locale), $this->nodeDocumentMap);
     }
 
     /**
@@ -142,7 +142,7 @@ class DocumentRegistry
         $locale = $this->documentLocaleMap[$oid];
 
         unset($this->nodeMap[$nodeIdentifier]);
-        unset($this->nodeDocumentMap[sprintf('%s-%s', $nodeIdentifier, $locale)]);
+        unset($this->nodeDocumentMap[$this->getNodeLocaleKey($nodeIdentifier, $locale)]);
         unset($this->documentMap[$oid]);
         unset($this->documentNodeMap[$oid]);
         unset($this->documentLocaleMap[$oid]);
@@ -212,7 +212,7 @@ class DocumentRegistry
         $identifier = $node->getIdentifier();
         $this->assertNodeExists($identifier);
 
-        return $this->nodeDocumentMap[sprintf('%s-%s', $identifier, $locale)];
+        return $this->nodeDocumentMap[$this->getNodeLocaleKey($node->getIdentifier(), $locale)];
     }
 
     /**
@@ -285,7 +285,7 @@ class DocumentRegistry
             ));
         }
 
-        $documentNodeKey = sprintf('%s-%s', $node->getIdentifier(), $locale);
+        $documentNodeKey = $this->getNodeLocaleKey($node->getIdentifier(), $locale);
         if (array_key_exists($uuid, $this->nodeMap) && array_key_exists($documentNodeKey, $this->nodeDocumentMap)) {
             $registeredDocument = $this->nodeDocumentMap[$documentNodeKey];
 
@@ -342,5 +342,18 @@ class DocumentRegistry
         }
 
         return false;
+    }
+
+    /**
+     * Returns array key for given uuid and locale.
+     *
+     * @param string $uuid
+     * @param string $locale
+     *
+     * @return string
+     */
+    private function getNodeLocaleKey($uuid, $locale)
+    {
+        return sprintf('%s_%s', $uuid, $locale);
     }
 }
