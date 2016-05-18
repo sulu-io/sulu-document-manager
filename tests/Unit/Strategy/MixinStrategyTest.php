@@ -12,6 +12,7 @@
 namespace Sulu\Comonent\DocumentManager\tests\Unit\Strategy;
 
 use PHPCR\NodeInterface;
+use PHPCR\Util\UUIDHelper;
 use Prophecy\Argument;
 use Sulu\Component\DocumentManager\Metadata;
 use Sulu\Component\DocumentManager\MetadataFactoryInterface;
@@ -43,7 +44,45 @@ class MixinStrategyTest extends \PHPUnit_Framework_TestCase
         $this->metadata->getPhpcrType()->willReturn('someType');
         $this->parentNode->addNode($name)->willReturn($this->node->reveal());
         $this->node->addMixin('someType')->shouldBeCalled();
-        $this->node->setProperty('jcr:uuid', Argument::type('string'))->shouldBeCalled();
+        $this->node->setProperty(
+            'jcr:uuid',
+            Argument::that(
+                function ($uuid) {
+                    return UUIDHelper::isUUID($uuid);
+                }
+            )
+        )->shouldBeCalled();
+
+        $this->strategy->createNodeForDocument($this->document, $this->parentNode->reveal(), $name);
+    }
+
+    /**
+     * It should create a PHPCR node for the given document and add the
+     * PHPCR type as a mixin and set the UUID. Additionally the empty title
+     * should be replaced with the UUID.
+     */
+    public function testExecutePhpcrEmptyName()
+    {
+        $name = '';
+
+        $this->factory->getMetadataForClass('stdClass')->willReturn($this->metadata->reveal());
+        $this->metadata->getPhpcrType()->willReturn('someType');
+        $this->parentNode->addNode(
+            Argument::that(
+                function ($uuid) {
+                    return UUIDHelper::isUUID($uuid);
+                }
+            )
+        )->willReturn($this->node->reveal());
+        $this->node->addMixin('someType')->shouldBeCalled();
+        $this->node->setProperty(
+            'jcr:uuid',
+            Argument::that(
+                function ($uuid) {
+                    return UUIDHelper::isUUID($uuid);
+                }
+            )
+        )->shouldBeCalled();
 
         $this->strategy->createNodeForDocument($this->document, $this->parentNode->reveal(), $name);
     }
