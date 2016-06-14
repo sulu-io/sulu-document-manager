@@ -20,6 +20,7 @@ use Sulu\Component\DocumentManager\Collection\QueryResultCollection;
 use Sulu\Component\DocumentManager\Event\QueryCreateEvent;
 use Sulu\Component\DocumentManager\Event\QueryExecuteEvent;
 use Sulu\Component\DocumentManager\Query\Query;
+use Sulu\Component\DocumentManager\Query\QueryBuilderConverter;
 use Sulu\Component\DocumentManager\Subscriber\Phpcr\QuerySubscriber;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -75,6 +76,11 @@ class QuerySubscriberTest extends \PHPUnit_Framework_TestCase
      */
     private $subscriber;
 
+    /**
+     * @var QueryBuilderConverter
+     */
+    private $converter;
+
     public function setUp()
     {
         $this->session = $this->prophesize(SessionInterface::class);
@@ -86,10 +92,12 @@ class QuerySubscriberTest extends \PHPUnit_Framework_TestCase
         $this->queryCreateEvent = $this->prophesize(QueryCreateEvent::class);
         $this->queryExecuteEvent = $this->prophesize(QueryExecuteEvent::class);
         $this->query = $this->prophesize(Query::class);
+        $this->converter = $this->prophesize(QueryBuilderConverter::class);
 
         $this->subscriber = new QuerySubscriber(
             $this->session->reveal(),
-            $this->dispatcher->reveal()
+            $this->dispatcher->reveal(),
+            $this->converter->reveal()
         );
 
         $this->session->getWorkspace()->willReturn($this->workspace->reveal());
@@ -164,7 +172,9 @@ class QuerySubscriberTest extends \PHPUnit_Framework_TestCase
             new QueryResultCollection(
                 $this->phpcrResult->reveal(),
                 $this->dispatcher->reveal(),
-                $locale
+                $locale,
+                [],
+                $primarySelector
             )
         )->shouldBeCalled();
 

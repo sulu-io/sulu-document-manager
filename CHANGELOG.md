@@ -1,5 +1,8 @@
-CHANGELOG for Sulu
-==================
+CHANGELOG for Sulu Document Manager
+===================================
+
+* dev-master
+    * FEATURE #60 Added query builder based on the PHPCR-ODM.
 
 * dev-develop
     * ENHANCEMENT #89 Added auto_rename option to AutoNameSubscriber

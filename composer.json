@@ -2,7 +2,7 @@
     "name": "sulu/document-manager",
     "description": "Sulu Document Manager",
     "require": {
-        "doctrine/phpcr-odm": "~1.2",
+        "doctrine/phpcr-odm": "~1.3",
         "symfony/event-dispatcher": "~2.0",
         "symfony-cmf/core-bundle": "~1.2",
         "ocramius/proxy-manager": "~1.0",

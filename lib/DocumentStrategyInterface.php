@@ -12,9 +12,11 @@
 namespace Sulu\Component\DocumentManager;
 
 use PHPCR\NodeInterface;
+use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
 
 /**
- * Document strategies determine how documents are managed.
+ * Document strategies determine how documents are managed, for example
+ * if the document class should be determined by a mixin, or by the primary node type.
  */
 interface DocumentStrategyInterface
 {
@@ -48,4 +50,48 @@ interface DocumentStrategyInterface
      * @return Metadata|null
      */
     public function resolveMetadataForNode(NodeInterface $node);
+
+    /**
+     * Return the primary node type from the given document class FQN.
+     *
+     * For example:
+     *
+     * ```
+     * return 'nt:unstructured';
+     * ```
+     *
+     * @param string $classFqn
+     *
+     * @return string
+     */
+    public function getPrimaryNodeType($classFqn);
+
+    /**
+     * Create a source constraint for a source document. That is return the
+     * constraint that should be used to return only documents of the given
+     * class FQN.
+     *
+     * For example:
+     *
+     * ```
+     * return $qomf->comparison(
+     *     $qomf->propertyValue(
+     *         $sourceNode->getAlias(),
+     *         'jcr:mixinTypes'
+     *     ),
+     *     QOMConstants::JCR_OPERATOR_EQUAL_TO,
+     *     $qomf->literal('foo')
+     * );
+     * ```
+     *
+     * Can return NULL if no constraints should be added. This may be required
+     * if the primary type already represents the document class.
+     *
+     * @param QueryObjectModelFactoryInterface $qomf
+     * @param string $sourceAlias
+     * @param string $classFqn
+     *
+     * @return \PHPCR\Query\QOM\ConstraintInterface
+     */
+    public function createSourceConstraint(QueryObjectModelFactoryInterface $qomf, $sourceAlias, $classFqn);
 }

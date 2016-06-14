@@ -11,6 +11,7 @@
 
 namespace Sulu\Component\DocumentManager\tests\Functional;
 
+use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\DocumentManager\Tests\Bootstrap;
 
 abstract class BaseTestCase extends \PHPUnit_Framework_TestCase
@@ -46,6 +47,9 @@ abstract class BaseTestCase extends \PHPUnit_Framework_TestCase
         return $this->container;
     }
 
+    /**
+     * @return DocumentManagerInterface
+     */
     protected function getDocumentManager()
     {
         return $this->getContainer()->get('sulu_document_manager.document_manager');

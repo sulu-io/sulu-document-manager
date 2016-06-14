@@ -12,6 +12,11 @@
 namespace Sulu\Comonent\DocumentManager\tests\Unit\Strategy;
 
 use PHPCR\NodeInterface;
+use PHPCR\Query\QOM\ComparisonInterface;
+use PHPCR\Query\QOM\LiteralInterface;
+use PHPCR\Query\QOM\PropertyValueInterface;
+use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
+use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
 use Prophecy\Argument;
 use Sulu\Component\DocumentManager\Metadata;
 use Sulu\Component\DocumentManager\MetadataFactoryInterface;
@@ -20,6 +25,13 @@ use Sulu\Component\DocumentManager\Strategy\Strategy;
 
 class MixinStrategyTest extends \PHPUnit_Framework_TestCase
 {
+    private $factory;
+    private $metadata;
+    private $strategy;
+    private $document;
+    private $parentNode;
+    private $node;
+
     public function setUp()
     {
         $this->factory = $this->prophesize(MetadataFactoryInterface::class);
@@ -74,5 +86,39 @@ class MixinStrategyTest extends \PHPUnit_Framework_TestCase
         $result = $this->strategy->resolveMetadataForNode($this->node->reveal());
 
         $this->assertNull($result);
+    }
+
+    /**
+     * It should return the primary node type for a class fqn
+     * It should always return [nt:unstructured].
+     */
+    public function testGetPrimaryNodeType()
+    {
+        $this->assertEquals('nt:unstructured', $this->strategy->getPrimaryNodeType('foo'));
+        $this->assertEquals('nt:unstructured', $this->strategy->getPrimaryNodeType('bar'));
+    }
+
+    /**
+     * It should create a source constraint for a given document fqn.
+     */
+    public function testCreateSourceConstraint()
+    {
+        $qomf = $this->prophesize(QueryObjectModelFactoryInterface::class);
+        $comparison = $this->prophesize(ComparisonInterface::class);
+        $propertyValue = $this->prophesize(PropertyValueInterface::class);
+        $literal = $this->prophesize(LiteralInterface::class);
+        $this->factory->getMetadataForClass('stdClass')->willReturn($this->metadata->reveal());
+        $this->metadata->getPhpcrType()->willReturn('foo:bar');
+
+        $qomf->propertyValue('a', 'jcr:mixinTypes')->willReturn($propertyValue->reveal());
+        $qomf->literal('foo:bar')->willReturn($literal->reveal());
+        $qomf->comparison(
+            $propertyValue->reveal(),
+            QOMConstants::JCR_OPERATOR_EQUAL_TO,
+            $literal->reveal()
+        )->willReturn($comparison->reveal());
+
+        $constraint = $this->strategy->createSourceConstraint($qomf->reveal(), 'a', 'stdClass');
+        $this->assertSame($comparison->reveal(), $constraint);
     }
 }
