@@ -16,14 +16,11 @@ use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\Event\ClearEvent;
 use Sulu\Component\DocumentManager\Event\CopyEvent;
 use Sulu\Component\DocumentManager\Event\FlushEvent;
-use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Event\MoveEvent;
 use Sulu\Component\DocumentManager\Event\RefreshEvent;
-use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\NodeHelperInterface;
 use Sulu\Component\DocumentManager\NodeManager;
 use Sulu\Component\DocumentManager\Subscriber\Phpcr\GeneralSubscriber;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class GeneralSubscriberTest extends \PHPUnit_Framework_TestCase
 {
@@ -45,11 +42,6 @@ class GeneralSubscriberTest extends \PHPUnit_Framework_TestCase
      * @var NodeHelperInterface
      */
     private $nodeHelper;
-
-    /**
-     * @var EventDispatcher
-     */
-    private $eventDispatcher;
 
     /**
      * @var MoveEvent
@@ -96,7 +88,6 @@ class GeneralSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->nodeManager = $this->prophesize(NodeManager::class);
         $this->documentRegistry = $this->prophesize(DocumentRegistry::class);
         $this->nodeHelper = $this->prophesize(NodeHelperInterface::class);
-        $this->eventDispatcher = $this->prophesize(EventDispatcher::class);
 
         $this->moveEvent = $this->prophesize(MoveEvent::class);
         $this->copyEvent = $this->prophesize(CopyEvent::class);
@@ -110,8 +101,7 @@ class GeneralSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->generalSubscriber = new GeneralSubscriber(
             $this->documentRegistry->reveal(),
             $this->nodeManager->reveal(),
-            $this->nodeHelper->reveal(),
-            $this->eventDispatcher->reveal()
+            $this->nodeHelper->reveal()
         );
     }
 
@@ -167,21 +157,5 @@ class GeneralSubscriberTest extends \PHPUnit_Framework_TestCase
     {
         $this->nodeManager->save()->shouldBeCalled();
         $this->generalSubscriber->handleFlush($this->flushEvent->reveal());
-    }
-
-    /**
-     * It should refresh a document.
-     */
-    public function testHandleRefresh()
-    {
-        $this->refreshEvent->getDocument()->willReturn($this->document);
-        $this->documentRegistry->getNodeForDocument($this->document)->willReturn($this->node->reveal());
-        $this->node->revert()->shouldBeCalled();
-        $this->documentRegistry->getLocaleForDocument($this->document)->willReturn('fr');
-
-        $event = new HydrateEvent($this->node->reveal(), 'fr');
-        $this->eventDispatcher->dispatch(Events::REFRESH, $event);
-
-        $this->generalSubscriber->handleRefresh($this->refreshEvent->reveal());
     }
 }

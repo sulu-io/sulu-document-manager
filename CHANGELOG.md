@@ -1,6 +1,9 @@
 CHANGELOG for Sulu
 ==================
 
+* dev-develop
+    * FEATURE     #94 Added removeDraft method to DocumentManager
+
 * 0.7.0 (2016-07-21)
     * ENHANCEMENT #93 Use correct default phpcr session
     * FEATURE     #92 Added unpublish method to DocumentManager
@@ -12,7 +15,7 @@ CHANGELOG for Sulu
     * BUGFIX      #85 Fixed get locale for proxy
 
 * 0.6.1 (2016-06-01)
-    * HOTFIX      #83 Fixed auto-name subscriber to rename at the very end of persist 
+    * HOTFIX      #83 Fixed auto-name subscriber to rename at the very end of persist
 
 * 0.6.0 (2016-04-11)
     * ENHANCEMENT #58 Added behavior to save unlocalized timestamps and added json_array mapping type

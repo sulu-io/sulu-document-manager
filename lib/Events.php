@@ -81,6 +81,11 @@ class Events
     const UNPUBLISH = 'sulu_document_manager.unpublish';
 
     /**
+     * Fired when the document discardDraft method is called.
+     */
+    const REMOVE_DRAFT = 'sulu_document_manager.remove_draft';
+
+    /**
      * Fired when the document manager requests that are flush to persistent storage happen.
      */
     const FLUSH = 'sulu_document_manager.flush';

@@ -26,6 +26,7 @@ use Sulu\Component\DocumentManager\Event\PublishEvent;
 use Sulu\Component\DocumentManager\Event\QueryCreateEvent;
 use Sulu\Component\DocumentManager\Event\QueryExecuteEvent;
 use Sulu\Component\DocumentManager\Event\RefreshEvent;
+use Sulu\Component\DocumentManager\Event\RemoveDraftEvent;
 use Sulu\Component\DocumentManager\Event\RemoveEvent;
 use Sulu\Component\DocumentManager\Event\ReorderEvent;
 use Sulu\Component\DocumentManager\Event\UnpublishEvent;
@@ -152,6 +153,13 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($subscriber->unpublish);
     }
 
+    public function testRemoveDraft()
+    {
+        $subscriber = $this->addSubscriber();
+        $this->documentManager->removeDraft(new \stdClass(), 'de');
+        $this->assertTrue($subscriber->removeDraft);
+    }
+
     /**
      * It should issue a refresh event.
      */
@@ -258,6 +266,7 @@ class TestDocumentManagerSubscriber implements EventSubscriberInterface
     public $queryExecute = false;
     public $publish = false;
     public $unpublish = false;
+    public $removeDraft = false;
     public $refresh = false;
     public $reorder = false;
 
@@ -289,6 +298,7 @@ class TestDocumentManagerSubscriber implements EventSubscriberInterface
             Events::CONFIGURE_OPTIONS => 'handleConfigureOptions',
             Events::PUBLISH => 'handlePublish',
             Events::UNPUBLISH => 'handleUnpublish',
+            Events::REMOVE_DRAFT => 'handleRemoveDraft',
         ];
     }
 
@@ -362,6 +372,11 @@ class TestDocumentManagerSubscriber implements EventSubscriberInterface
     public function handleUnpublish(UnpublishEvent $event)
     {
         $this->unpublish = true;
+    }
+
+    public function handleRemoveDraft(RemoveDraftEvent $event)
+    {
+        $this->removeDraft = true;
     }
 
     public function handleRefresh(RefreshEvent $event)

@@ -128,6 +128,15 @@ class DocumentManager implements DocumentManagerInterface
     /**
      * {@inheritdoc}
      */
+    public function removeDraft($document, $locale)
+    {
+        $event = new Event\RemoveDraftEvent($document, $locale);
+        $this->eventDispatcher->dispatch(Events::REMOVE_DRAFT, $event);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function refresh($document)
     {
         $event = new Event\RefreshEvent($document);

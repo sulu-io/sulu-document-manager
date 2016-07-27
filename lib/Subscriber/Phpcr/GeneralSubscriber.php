@@ -15,13 +15,10 @@ use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\Event\ClearEvent;
 use Sulu\Component\DocumentManager\Event\CopyEvent;
 use Sulu\Component\DocumentManager\Event\FlushEvent;
-use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Event\MoveEvent;
-use Sulu\Component\DocumentManager\Event\RefreshEvent;
 use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\NodeHelperInterface;
 use Sulu\Component\DocumentManager\NodeManager;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -30,9 +27,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * NOTE: If any of these methods need to become more complicated, and
  *       the changes cannot be done by implementing ANOTHER subscriber, then
  *       the individual operations should be broken out into individual subscribers.
- *
- * NOTE: The event dispatcher is added here for the "refresh" method. This is a clear
- *       sign that this should be refactored. The hydration, at least, should be outsourced.
  */
 class GeneralSubscriber implements EventSubscriberInterface
 {
@@ -51,21 +45,14 @@ class GeneralSubscriber implements EventSubscriberInterface
      */
     private $nodeHelper;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
     public function __construct(
         DocumentRegistry $documentRegistry,
         NodeManager $nodeManager,
-        NodeHelperInterface $nodeHelper,
-        EventDispatcherInterface $eventDispatcher
+        NodeHelperInterface $nodeHelper
     ) {
         $this->documentRegistry = $documentRegistry;
         $this->nodeManager = $nodeManager;
         $this->nodeHelper = $nodeHelper;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -78,7 +65,6 @@ class GeneralSubscriber implements EventSubscriberInterface
             Events::COPY => ['handleCopy', 400],
             Events::CLEAR => ['handleClear', 500],
             Events::FLUSH => ['handleFlush', 500],
-            Events::REFRESH => ['handleRefresh', 500],
         ];
     }
 
@@ -101,24 +87,6 @@ class GeneralSubscriber implements EventSubscriberInterface
         $node = $this->documentRegistry->getNodeForDocument($document);
         $newPath = $this->nodeHelper->copy($node, $event->getDestId(), $event->getDestName());
         $event->setCopiedNode($this->nodeManager->find($newPath));
-    }
-
-    /**
-     * @param RefreshEvent $event
-     */
-    public function handleRefresh(RefreshEvent $event)
-    {
-        $document = $event->getDocument();
-        $node = $this->documentRegistry->getNodeForDocument($document);
-        $locale = $this->documentRegistry->getLocaleForDocument($document);
-
-        // revert/reload the node to the persisted state
-        $node->revert();
-
-        // rehydrate the document
-        $hydrateEvent = new HydrateEvent($node, $locale);
-        $hydrateEvent->setDocument($document);
-        $this->eventDispatcher->dispatch(Events::HYDRATE, $hydrateEvent);
     }
 
     /**
