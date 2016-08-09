@@ -91,6 +91,10 @@ class AutoNameSubscriber implements EventSubscriberInterface
 
     public function configureOptions(ConfigureOptionsEvent $event)
     {
+        if (!in_array($event->getEventName(), [Events::FIND, Events::PERSIST])) {
+            return;
+        }
+
         $event->getOptions()->setDefaults(
             [
                 'auto_name' => true,

@@ -72,9 +72,11 @@ class DocumentManager implements DocumentManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function remove($document)
+    public function remove($document, array $options = [])
     {
-        $event = new Event\RemoveEvent($document);
+        $options = $this->getOptionsResolver(Events::REMOVE)->resolve($options);
+
+        $event = new Event\RemoveEvent($document, $options);
         $this->eventDispatcher->dispatch(Events::REMOVE, $event);
     }
 
@@ -188,14 +190,14 @@ class DocumentManager implements DocumentManagerInterface
      */
     private function getOptionsResolver($eventName)
     {
-        if (isset($this->optionsResolvers[$eventName])) {
+        if (array_key_exists($eventName, $this->optionsResolvers)) {
             return $this->optionsResolvers[$eventName];
         }
 
         $resolver = new OptionsResolver();
         $resolver->setDefault('locale', null);
 
-        $event = new Event\ConfigureOptionsEvent($resolver);
+        $event = new Event\ConfigureOptionsEvent($resolver, $eventName);
         $this->eventDispatcher->dispatch(Events::CONFIGURE_OPTIONS, $event);
 
         $this->optionsResolvers[$eventName] = $resolver;
