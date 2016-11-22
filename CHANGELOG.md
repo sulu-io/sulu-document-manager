@@ -1,6 +1,9 @@
 CHANGELOG for Sulu
 ==================
 
+* dev-develop
+    * BUGFIX      #98 Removed deprecations
+
 * 0.8.1 (2016-08-08)
     * HOTFIX      #91 Added replacer to avoid 10e in node-names
 

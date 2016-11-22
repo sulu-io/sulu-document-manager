@@ -91,7 +91,9 @@ class AutoNameSubscriber implements EventSubscriberInterface
 
     public function configureOptions(ConfigureOptionsEvent $event)
     {
-        $event->getOptions()->setDefaults(
+        $options = $event->getOptions();
+
+        $options->setDefaults(
             [
                 'auto_name' => true,
                 'auto_rename' => true,
@@ -99,11 +101,9 @@ class AutoNameSubscriber implements EventSubscriberInterface
             ]
         );
 
-        $event->getOptions()->setAllowedTypes([
-            'auto_name' => 'bool',
-            'auto_rename' => 'bool',
-            'auto_name_locale' => 'string',
-        ]);
+        $options->setAllowedTypes('auto_name', 'bool');
+        $options->setAllowedTypes('auto_rename', 'bool');
+        $options->setAllowedTypes('auto_name_locale', 'string');
     }
 
     /**
