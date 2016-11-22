@@ -16,6 +16,7 @@ use PHPCR\NodeInterface;
 use PHPCR\SessionInterface;
 use PHPCR\Version\VersionManagerInterface;
 use Prophecy\Argument;
+use Sulu\Component\DocumentManager\Behavior\Mapping\LocaleBehavior;
 use Sulu\Component\DocumentManager\Behavior\VersionBehavior;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Event\PublishEvent;
@@ -156,7 +157,9 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
     {
         $event = $this->prophesize(PublishEvent::class);
         $node = $this->prophesize(NodeInterface::class);
-        $document = $this->prophesize(VersionBehavior::class);
+        $document = $this->prophesize(VersionBehavior::class)
+            ->willImplement(LocaleBehavior::class);
+        $document->getLocale()->willReturn('de');
 
         $event->getNode()->willReturn($node->reveal());
         $event->getDocument()->willReturn($document->reveal());
@@ -165,7 +168,10 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
 
         $this->versionSubscriber->rememberCreateVersion($event->reveal());
 
-        $this->assertEquals(['/path/to/node'], $this->checkpointPathsReflection->getValue($this->versionSubscriber));
+        $this->assertEquals(
+            [['path' => '/path/to/node', 'language' => 'de']],
+            $this->checkpointPathsReflection->getValue($this->versionSubscriber)
+        );
     }
 
     public function testRememberCreateVersionNodesWithoutVersionBehavior()
@@ -181,7 +187,7 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
     public function testApplyVersionOperations()
     {
         $this->checkoutPathsReflection->setValue($this->versionSubscriber, ['/node1', '/node2']);
-        $this->checkpointPathsReflection->setValue($this->versionSubscriber, ['/node3']);
+        $this->checkpointPathsReflection->setValue($this->versionSubscriber, [['path' => '/node3', 'language' => 'de']]);
 
         $this->versionManager->isCheckedOut('/node1')->willReturn(false);
         $this->versionManager->isCheckedOut('/node2')->willReturn(true);
@@ -189,7 +195,12 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->versionManager->checkout('/node1')->shouldBeCalled();
         $this->versionManager->checkout('/node2')->shouldNotBeCalled();
 
+        $node = $this->prophesize(NodeInterface::class);
+        $this->session->getNode('/node3')->willReturn($node->reveal());
         $this->versionManager->checkpoint('/node3')->shouldBeCalled();
+        $node->getPropertyValueWithDefault('sulu:versions', [])->willReturn(['en']);
+        $node->setProperty('sulu:versions', ['en', 'de'])->shouldBeCalled();
+        $this->session->save()->shouldBeCalled();
 
         $this->versionSubscriber->applyVersionOperations();
 

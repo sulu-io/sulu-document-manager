@@ -25,6 +25,13 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class VersionSubscriber implements EventSubscriberInterface
 {
+    const VERSION_PROPERTY = 'sulu:versions';
+
+    /**
+     * @var SessionInterface
+     */
+    private $defaultSession;
+
     /**
      * @var VersionManager
      */
@@ -42,6 +49,7 @@ class VersionSubscriber implements EventSubscriberInterface
 
     public function __construct(SessionInterface $defaultSession)
     {
+        $this->defaultSession = $defaultSession;
         $this->versionManager = $defaultSession->getWorkspace()->getVersionManager();
     }
 
@@ -98,11 +106,12 @@ class VersionSubscriber implements EventSubscriberInterface
      */
     public function rememberCreateVersion(PublishEvent $event)
     {
-        if (!$this->support($event->getDocument())) {
+        $document = $event->getDocument();
+        if (!$this->support($document)) {
             return;
         }
 
-        $this->checkpointPaths[] = $event->getNode()->getPath();
+        $this->checkpointPaths[] = ['path' => $event->getNode()->getPath(), 'language' => $document->getLocale()];
     }
 
     /**
@@ -118,10 +127,16 @@ class VersionSubscriber implements EventSubscriberInterface
 
         $this->checkoutPaths = [];
 
-        foreach ($this->checkpointPaths as $path) {
-            $this->versionManager->checkpoint($path);
+        foreach ($this->checkpointPaths as $versionInformation) {
+            $this->versionManager->checkpoint($versionInformation['path']);
+
+            $defaultNode = $this->defaultSession->getNode($versionInformation['path']);
+            $versions = $defaultNode->getPropertyValueWithDefault(static::VERSION_PROPERTY, []);
+            $versions[] = $versionInformation['language'];
+            $defaultNode->setProperty(static::VERSION_PROPERTY, $versions);
         }
 
+        $this->defaultSession->save();
         $this->checkpointPaths = [];
     }
 
