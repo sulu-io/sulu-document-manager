@@ -14,6 +14,7 @@ namespace Sulu\Component\DocumentManager\Tests\Unit\Subscriber\Behavior;
 use Jackalope\Workspace;
 use PHPCR\NodeInterface;
 use PHPCR\SessionInterface;
+use PHPCR\Version\VersionInterface;
 use PHPCR\Version\VersionManagerInterface;
 use Prophecy\Argument;
 use Sulu\Component\DocumentManager\Behavior\Mapping\LocaleBehavior;
@@ -169,7 +170,7 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->versionSubscriber->rememberCreateVersion($event->reveal());
 
         $this->assertEquals(
-            [['path' => '/path/to/node', 'language' => 'de']],
+            [['path' => '/path/to/node', 'locale' => 'de']],
             $this->checkpointPathsReflection->getValue($this->versionSubscriber)
         );
     }
@@ -187,7 +188,7 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
     public function testApplyVersionOperations()
     {
         $this->checkoutPathsReflection->setValue($this->versionSubscriber, ['/node1', '/node2']);
-        $this->checkpointPathsReflection->setValue($this->versionSubscriber, [['path' => '/node3', 'language' => 'de']]);
+        $this->checkpointPathsReflection->setValue($this->versionSubscriber, [['path' => '/node3', 'locale' => 'de']]);
 
         $this->versionManager->isCheckedOut('/node1')->willReturn(false);
         $this->versionManager->isCheckedOut('/node2')->willReturn(true);
@@ -197,9 +198,18 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
 
         $node = $this->prophesize(NodeInterface::class);
         $this->session->getNode('/node3')->willReturn($node->reveal());
-        $this->versionManager->checkpoint('/node3')->shouldBeCalled();
-        $node->getPropertyValueWithDefault('sulu:versions', [])->willReturn(['en']);
-        $node->setProperty('sulu:versions', ['en', 'de'])->shouldBeCalled();
+
+        $version = $this->prophesize(VersionInterface::class);
+        $version->getIdentifier()->willReturn('a');
+        $this->versionManager->checkpoint('/node3')->willReturn($version->reveal());
+        $node->getPropertyValueWithDefault('sulu:versions', [])->willReturn(['{"locale":"en","version":"0"}']);
+        $node->setProperty(
+            'sulu:versions',
+            [
+                '{"locale":"en","version":"0"}',
+                '{"locale":"de","version":"a"}',
+            ]
+        )->shouldBeCalled();
         $this->session->save()->shouldBeCalled();
 
         $this->versionSubscriber->applyVersionOperations();
@@ -213,26 +223,47 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->checkpointPathsReflection->setValue(
             $this->versionSubscriber,
             [
-                ['path' => '/node1', 'language' => 'de'],
-                ['path' => '/node1', 'language' => 'en'],
-                ['path' => '/node2', 'language' => 'en'],
+                ['path' => '/node1', 'locale' => 'de'],
+                ['path' => '/node1', 'locale' => 'en'],
+                ['path' => '/node2', 'locale' => 'en'],
             ]
         );
 
         $node1 = $this->prophesize(NodeInterface::class);
-        $node1->getPropertyValueWithDefault('sulu:versions', [])->willReturn(['fr']);
+        $node1->getPropertyValueWithDefault('sulu:versions', [])->willReturn(['{"locale":"fr","version":"0"}']);
         $this->session->getNode('/node1')->willReturn($node1->reveal());
 
         $node2 = $this->prophesize(NodeInterface::class);
-        $node2->getPropertyValueWithDefault('sulu:versions', [])->willReturn(['en']);
+        $node2->getPropertyValueWithDefault('sulu:versions', [])->willReturn(['{"locale":"en","version":"0"}']);
         $this->session->getNode('/node2')->willReturn($node2->reveal());
 
-        $this->versionManager->checkpoint('/node1')->shouldBeCalledTimes(2);
-        $this->versionManager->checkpoint('/node2')->shouldBeCalled();
+        $version1 = $this->prophesize(VersionInterface::class);
+        $version2 = $this->prophesize(VersionInterface::class);
+        $version3 = $this->prophesize(VersionInterface::class);
+        $this->versionManager->checkpoint('/node1')->willReturn($version1->reveal());
+        $this->versionManager->checkpoint('/node1')->willReturn($version2->reveal());
+        $this->versionManager->checkpoint('/node2')->willReturn($version3->reveal());
+
+        $version1->getIdentifier()->willReturn('a');
+        $version2->getIdentifier()->willReturn('b');
+        $version3->getIdentifier()->willReturn('c');
 
         $this->session->save()->shouldBeCalledTimes(1);
-        $node1->setProperty('sulu:versions', ['fr', 'de', 'en'])->shouldBeCalled();
-        $node2->setProperty('sulu:versions', ['en', 'en'])->shouldBeCalled();
+        $node1->setProperty(
+            'sulu:versions',
+            [
+                '{"locale":"fr","version":"0"}',
+                '{"locale":"de","version":"b"}',
+                '{"locale":"en","version":"b"}',
+            ]
+        )->shouldBeCalled();
+        $node2->setProperty(
+            'sulu:versions',
+            [
+                '{"locale":"en","version":"0"}',
+                '{"locale":"en","version":"c"}',
+            ]
+        )->shouldBeCalled();
 
         $this->versionSubscriber->applyVersionOperations();
     }

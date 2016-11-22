@@ -112,7 +112,7 @@ class VersionSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $this->checkpointPaths[] = ['path' => $event->getNode()->getPath(), 'language' => $document->getLocale()];
+        $this->checkpointPaths[] = ['path' => $event->getNode()->getPath(), 'locale' => $document->getLocale()];
     }
 
     /**
@@ -132,7 +132,7 @@ class VersionSubscriber implements EventSubscriberInterface
         $nodes = [];
         $nodeVersions = [];
         foreach ($this->checkpointPaths as $versionInformation) {
-            $this->versionManager->checkpoint($versionInformation['path']);
+            $version = $this->versionManager->checkpoint($versionInformation['path']);
 
             if (!array_key_exists($versionInformation['path'], $nodes)) {
                 $nodes[$versionInformation['path']] = $this->defaultSession->getNode($versionInformation['path']);
@@ -142,7 +142,10 @@ class VersionSubscriber implements EventSubscriberInterface
             if (!array_key_exists($versionInformation['path'], $nodeVersions)) {
                 $nodeVersions[$versionInformation['path']] = $versions;
             }
-            $nodeVersions[$versionInformation['path']][] = $versionInformation['language'];
+            $nodeVersions[$versionInformation['path']][] = json_encode([
+                'locale' => $versionInformation['locale'],
+                'version' => $version->getIdentifier(),
+            ]);
         }
 
         foreach ($nodes as $path => $node) {
