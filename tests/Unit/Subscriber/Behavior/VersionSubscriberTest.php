@@ -207,4 +207,33 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals([], $this->checkpointPathsReflection->getValue($this->versionSubscriber));
         $this->assertEquals([], $this->checkoutPathsReflection->getValue($this->versionSubscriber));
     }
+
+    public function testApplyVersionOperationsWithMultipleCheckpoints()
+    {
+        $this->checkpointPathsReflection->setValue(
+            $this->versionSubscriber,
+            [
+                ['path' => '/node1', 'language' => 'de'],
+                ['path' => '/node1', 'language' => 'en'],
+                ['path' => '/node2', 'language' => 'en'],
+            ]
+        );
+
+        $node1 = $this->prophesize(NodeInterface::class);
+        $node1->getPropertyValueWithDefault('sulu:versions', [])->willReturn(['fr']);
+        $this->session->getNode('/node1')->willReturn($node1->reveal());
+
+        $node2 = $this->prophesize(NodeInterface::class);
+        $node2->getPropertyValueWithDefault('sulu:versions', [])->willReturn(['en']);
+        $this->session->getNode('/node2')->willReturn($node2->reveal());
+
+        $this->versionManager->checkpoint('/node1')->shouldBeCalledTimes(2);
+        $this->versionManager->checkpoint('/node2')->shouldBeCalled();
+
+        $this->session->save()->shouldBeCalledTimes(1);
+        $node1->setProperty('sulu:versions', ['fr', 'de', 'en'])->shouldBeCalled();
+        $node2->setProperty('sulu:versions', ['en', 'en'])->shouldBeCalled();
+
+        $this->versionSubscriber->applyVersionOperations();
+    }
 }

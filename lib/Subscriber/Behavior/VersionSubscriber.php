@@ -12,6 +12,7 @@
 namespace Sulu\Component\DocumentManager\Subscriber\Behavior;
 
 use Jackalope\Version\VersionManager;
+use PHPCR\NodeInterface;
 use PHPCR\SessionInterface;
 use Sulu\Component\DocumentManager\Behavior\VersionBehavior;
 use Sulu\Component\DocumentManager\Event\AbstractMappingEvent;
@@ -127,13 +128,25 @@ class VersionSubscriber implements EventSubscriberInterface
 
         $this->checkoutPaths = [];
 
+        /** @var NodeInterface[] $nodes */
+        $nodes = [];
+        $nodeVersions = [];
         foreach ($this->checkpointPaths as $versionInformation) {
             $this->versionManager->checkpoint($versionInformation['path']);
 
-            $defaultNode = $this->defaultSession->getNode($versionInformation['path']);
-            $versions = $defaultNode->getPropertyValueWithDefault(static::VERSION_PROPERTY, []);
-            $versions[] = $versionInformation['language'];
-            $defaultNode->setProperty(static::VERSION_PROPERTY, $versions);
+            if (!array_key_exists($versionInformation['path'], $nodes)) {
+                $nodes[$versionInformation['path']] = $this->defaultSession->getNode($versionInformation['path']);
+            }
+            $versions = $nodes[$versionInformation['path']]->getPropertyValueWithDefault(static::VERSION_PROPERTY, []);
+
+            if (!array_key_exists($versionInformation['path'], $nodeVersions)) {
+                $nodeVersions[$versionInformation['path']] = $versions;
+            }
+            $nodeVersions[$versionInformation['path']][] = $versionInformation['language'];
+        }
+
+        foreach ($nodes as $path => $node) {
+            $node->setProperty(static::VERSION_PROPERTY, $nodeVersions[$path]);
         }
 
         $this->defaultSession->save();
