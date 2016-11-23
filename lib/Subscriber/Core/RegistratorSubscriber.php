@@ -65,6 +65,7 @@ class RegistratorSubscriber implements EventSubscriberInterface
             Events::REORDER => ['handleNodeFromRegistry', 510],
             Events::CONFIGURE_OPTIONS => 'configureOptions',
             Events::REMOVE_DRAFT => ['handleNodeFromRegistry', 512],
+            Events::RESTORE => ['handleNodeFromRegistry', 512],
         ];
     }
 

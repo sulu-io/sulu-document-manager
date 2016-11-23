@@ -137,6 +137,15 @@ class DocumentManager implements DocumentManagerInterface
     /**
      * {@inheritdoc}
      */
+    public function restore($document, $locale, $version)
+    {
+        $event = new Event\RestoreEvent($document, $locale, $version);
+        $this->eventDispatcher->dispatch(Events::RESTORE, $event);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function refresh($document)
     {
         $event = new Event\RefreshEvent($document);

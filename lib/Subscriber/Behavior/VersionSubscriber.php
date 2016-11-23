@@ -18,7 +18,9 @@ use Sulu\Component\DocumentManager\Behavior\VersionBehavior;
 use Sulu\Component\DocumentManager\Event\AbstractMappingEvent;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Event\PublishEvent;
+use Sulu\Component\DocumentManager\Event\RestoreEvent;
 use Sulu\Component\DocumentManager\Events;
+use Sulu\Component\DocumentManager\PropertyEncoder;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -32,6 +34,11 @@ class VersionSubscriber implements EventSubscriberInterface
      * @var SessionInterface
      */
     private $defaultSession;
+
+    /**
+     * @var PropertyEncoder
+     */
+    private $propertyEncoder;
 
     /**
      * @var VersionManager
@@ -48,9 +55,10 @@ class VersionSubscriber implements EventSubscriberInterface
      */
     private $checkpointPaths = [];
 
-    public function __construct(SessionInterface $defaultSession)
+    public function __construct(SessionInterface $defaultSession, PropertyEncoder $propertyEncoder)
     {
         $this->defaultSession = $defaultSession;
+        $this->propertyEncoder = $propertyEncoder;
         $this->versionManager = $defaultSession->getWorkspace()->getVersionManager();
     }
 
@@ -69,6 +77,7 @@ class VersionSubscriber implements EventSubscriberInterface
                 ['rememberCreateVersion'],
             ],
             Events::FLUSH => 'applyVersionOperations',
+            Events::RESTORE => 'restoreLocalizedProperties',
         ];
     }
 
@@ -144,7 +153,7 @@ class VersionSubscriber implements EventSubscriberInterface
             }
             $nodeVersions[$versionInformation['path']][] = json_encode([
                 'locale' => $versionInformation['locale'],
-                'version' => $version->getIdentifier(),
+                'version' => $version->getName(),
             ]);
         }
 
@@ -154,6 +163,44 @@ class VersionSubscriber implements EventSubscriberInterface
 
         $this->defaultSession->save();
         $this->checkpointPaths = [];
+    }
+
+    /**
+     * Restore the localized properties of the old version.
+     *
+     * @param RestoreEvent $event
+     */
+    public function restoreLocalizedProperties(RestoreEvent $event)
+    {
+        if (!$this->support($event->getDocument())) {
+            $event->stopPropagation();
+
+            return;
+        }
+
+        $contentPropertyFilter = $this->propertyEncoder->localizedContentName('*', $event->getLocale());
+        $systemPropertyFilter = $this->propertyEncoder->localizedSystemName('*', $event->getLocale());
+
+        $node = $event->getNode();
+
+        foreach ($node->getProperties($contentPropertyFilter) as $contentProperty) {
+            $contentProperty->remove();
+        }
+
+        foreach ($node->getProperties($systemPropertyFilter) as $systemProperty) {
+            $systemProperty->remove();
+        }
+
+        $version = $this->versionManager->getVersionHistory($node->getPath())->getVersion($event->getVersion());
+        $frozenNode = $version->getFrozenNode();
+
+        foreach ($frozenNode->getPropertiesValues($contentPropertyFilter) as $name => $value) {
+            $node->setProperty($name, $value);
+        }
+
+        foreach ($frozenNode->getPropertiesValues($systemPropertyFilter) as $name => $value) {
+            $node->setProperty($name, $value);
+        }
     }
 
     /**

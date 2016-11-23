@@ -11,9 +11,12 @@
 
 namespace Sulu\Component\DocumentManager\Tests\Unit\Subscriber\Behavior;
 
+use Jackalope\Version\Version;
 use Jackalope\Workspace;
 use PHPCR\NodeInterface;
+use PHPCR\PropertyInterface;
 use PHPCR\SessionInterface;
+use PHPCR\Version\VersionHistoryInterface;
 use PHPCR\Version\VersionInterface;
 use PHPCR\Version\VersionManagerInterface;
 use Prophecy\Argument;
@@ -21,6 +24,8 @@ use Sulu\Component\DocumentManager\Behavior\Mapping\LocaleBehavior;
 use Sulu\Component\DocumentManager\Behavior\VersionBehavior;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Event\PublishEvent;
+use Sulu\Component\DocumentManager\Event\RestoreEvent;
+use Sulu\Component\DocumentManager\PropertyEncoder;
 use Sulu\Component\DocumentManager\Subscriber\Behavior\VersionSubscriber;
 
 class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
@@ -41,6 +46,11 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
     private $versionManager;
 
     /**
+     * @var PropertyEncoder
+     */
+    private $propertyEncoder;
+
+    /**
      * @var \ReflectionProperty
      */
     private $checkoutPathsReflection;
@@ -58,12 +68,13 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->versionManager = $this->prophesize(VersionManagerInterface::class);
+        $this->propertyEncoder = $this->prophesize(PropertyEncoder::class);
         $this->workspace = $this->prophesize(Workspace::class);
         $this->workspace->getVersionManager()->willReturn($this->versionManager->reveal());
         $this->session = $this->prophesize(SessionInterface::class);
         $this->session->getWorkspace()->willReturn($this->workspace->reveal());
 
-        $this->versionSubscriber = new VersionSubscriber($this->session->reveal());
+        $this->versionSubscriber = new VersionSubscriber($this->session->reveal(), $this->propertyEncoder->reveal());
 
         $this->checkoutPathsReflection = new \ReflectionProperty(VersionSubscriber::class, 'checkoutPaths');
         $this->checkoutPathsReflection->setAccessible(true);
@@ -200,7 +211,7 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->session->getNode('/node3')->willReturn($node->reveal());
 
         $version = $this->prophesize(VersionInterface::class);
-        $version->getIdentifier()->willReturn('a');
+        $version->getName()->willReturn('a');
         $this->versionManager->checkpoint('/node3')->willReturn($version->reveal());
         $node->getPropertyValueWithDefault('sulu:versions', [])->willReturn(['{"locale":"en","version":"0"}']);
         $node->setProperty(
@@ -244,9 +255,9 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->versionManager->checkpoint('/node1')->willReturn($version2->reveal());
         $this->versionManager->checkpoint('/node2')->willReturn($version3->reveal());
 
-        $version1->getIdentifier()->willReturn('a');
-        $version2->getIdentifier()->willReturn('b');
-        $version3->getIdentifier()->willReturn('c');
+        $version1->getName()->willReturn('a');
+        $version2->getName()->willReturn('b');
+        $version3->getName()->willReturn('c');
 
         $this->session->save()->shouldBeCalledTimes(1);
         $node1->setProperty(
@@ -266,5 +277,45 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
         )->shouldBeCalled();
 
         $this->versionSubscriber->applyVersionOperations();
+    }
+
+    public function testRestoreLocalizedProperties()
+    {
+        $event = $this->prophesize(RestoreEvent::class);
+        $document = $this->prophesize(VersionBehavior::class);
+        $node = $this->prophesize(NodeInterface::class);
+        $versionHistory = $this->prophesize(VersionHistoryInterface::class);
+        $version = $this->prophesize(Version::class);
+        $frozenNode = $this->prophesize(NodeInterface::class);
+
+        $node->getPath()->willReturn('/node');
+        $property1 = $this->prophesize(PropertyInterface::class);
+        $property2 = $this->prophesize(PropertyInterface::class);
+        $node->getProperties('i18n:de-*')->willReturn([$property1->reveal(), $property2->reveal()]);
+
+        $property1->remove()->shouldBeCalled();
+        $property2->remove()->shouldBeCalled();
+
+        $this->propertyEncoder->localizedContentName('*', 'de')->willReturn('i18n:de-*');
+        $this->propertyEncoder->localizedSystemName('*', 'de')->willReturn('i18n:de-*');
+
+        $frozenNode->getPropertiesValues('i18n:de-*')->willReturn([
+            'i18n:de-title' => 'Title',
+            'i18n:de-article' => 'Article',
+        ]);
+
+        $event->getDocument()->willReturn($document->reveal());
+        $event->getNode()->willReturn($node->reveal());
+        $event->getVersion()->willReturn('1.0');
+        $event->getLocale()->willReturn('de');
+
+        $this->versionManager->getVersionHistory('/node')->willReturn($versionHistory->reveal());
+        $versionHistory->getVersion('1.0')->willReturn($version->reveal());
+        $version->getFrozenNode()->willReturn($frozenNode->reveal());
+
+        $node->setProperty('i18n:de-title', 'Title')->shouldBeCalled();
+        $node->setProperty('i18n:de-article', 'Article')->shouldBeCalled();
+
+        $this->versionSubscriber->restoreLocalizedProperties($event->reveal());
     }
 }

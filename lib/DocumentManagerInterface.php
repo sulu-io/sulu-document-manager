@@ -107,6 +107,17 @@ interface DocumentManagerInterface
     public function removeDraft($document, $locale);
 
     /**
+     * Restores the given version of the document and makes it a new version keeping the linear approach.
+     *
+     * @param object $document
+     * @param string $locale
+     * @param string $version The UUID of the version to restore
+     *
+     * @return mixed
+     */
+    public function restore($document, $locale, $version);
+
+    /**
      * Refresh the given document with the persisted state of the node.
      *
      * @param object $document

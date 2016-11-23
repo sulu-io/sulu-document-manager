@@ -29,6 +29,7 @@ use Sulu\Component\DocumentManager\Event\RefreshEvent;
 use Sulu\Component\DocumentManager\Event\RemoveDraftEvent;
 use Sulu\Component\DocumentManager\Event\RemoveEvent;
 use Sulu\Component\DocumentManager\Event\ReorderEvent;
+use Sulu\Component\DocumentManager\Event\RestoreEvent;
 use Sulu\Component\DocumentManager\Event\UnpublishEvent;
 use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\NodeManager;
@@ -160,6 +161,13 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($subscriber->removeDraft);
     }
 
+    public function testRestore()
+    {
+        $subscriber = $this->addSubscriber();
+        $this->documentManager->restore(new \stdClass(), 'de', '123-456-789');
+        $this->assertTrue($subscriber->restore);
+    }
+
     /**
      * It should issue a refresh event.
      */
@@ -267,6 +275,7 @@ class TestDocumentManagerSubscriber implements EventSubscriberInterface
     public $publish = false;
     public $unpublish = false;
     public $removeDraft = false;
+    public $restore = false;
     public $refresh = false;
     public $reorder = false;
 
@@ -299,6 +308,7 @@ class TestDocumentManagerSubscriber implements EventSubscriberInterface
             Events::PUBLISH => 'handlePublish',
             Events::UNPUBLISH => 'handleUnpublish',
             Events::REMOVE_DRAFT => 'handleRemoveDraft',
+            Events::RESTORE => 'handleRestore',
         ];
     }
 
@@ -387,5 +397,10 @@ class TestDocumentManagerSubscriber implements EventSubscriberInterface
     public function handleReorder(ReorderEvent $event)
     {
         $this->reorder = true;
+    }
+
+    public function handleRestore(RestoreEvent $event)
+    {
+        $this->restore = true;
     }
 }

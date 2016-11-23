@@ -114,4 +114,9 @@ class Events
      * Enables fields to be added to the mapping.
      */
     const METADATA_LOAD = 'sulu_document_manager.metadata_load';
+
+    /**
+     * Fired when an old version of the document should be restored.
+     */
+    const RESTORE = 'sulu_document_manager.restore';
 }
