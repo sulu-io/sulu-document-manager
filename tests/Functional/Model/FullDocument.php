@@ -11,7 +11,7 @@
 
 namespace Sulu\Component\DocumentManager\Tests\Functional\Model;
 
-use Sulu\Component\DocumentManager\Behavior\Audit\LocalizedTimestampBehavior;
+use Sulu\Component\DocumentManager\Behavior\Audit\TimestampBehavior;
 use Sulu\Component\DocumentManager\Behavior\Mapping\ChildrenBehavior;
 use Sulu\Component\DocumentManager\Behavior\Mapping\LocaleBehavior;
 use Sulu\Component\DocumentManager\Behavior\Mapping\NodeNameBehavior;
@@ -24,7 +24,7 @@ use Sulu\Component\DocumentManager\Behavior\Mapping\UuidBehavior;
  */
 class FullDocument implements
     NodeNameBehavior,
-    LocalizedTimestampBehavior,
+    TimestampBehavior,
     ParentBehavior,
     UuidBehavior,
     ChildrenBehavior,

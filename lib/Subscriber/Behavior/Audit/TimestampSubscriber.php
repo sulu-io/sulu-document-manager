@@ -11,11 +11,15 @@
 
 namespace Sulu\Component\DocumentManager\Subscriber\Behavior\Audit;
 
+use PHPCR\NodeInterface;
 use Sulu\Component\DocumentManager\Behavior\Audit\LocalizedTimestampBehavior;
 use Sulu\Component\DocumentManager\Behavior\Audit\TimestampBehavior;
-use Sulu\Component\DocumentManager\Event\MetadataLoadEvent;
+use Sulu\Component\DocumentManager\DocumentAccessor;
+use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
+use Sulu\Component\DocumentManager\Event\RestoreEvent;
 use Sulu\Component\DocumentManager\Events;
+use Sulu\Component\DocumentManager\PropertyEncoder;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -27,68 +31,157 @@ class TimestampSubscriber implements EventSubscriberInterface
     const CHANGED = 'changed';
 
     /**
+     * @var PropertyEncoder
+     */
+    private $propertyEncoder;
+
+    public function __construct(PropertyEncoder $propertyEncoder)
+    {
+        $this->propertyEncoder = $propertyEncoder;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public static function getSubscribedEvents()
     {
         return [
-            Events::PERSIST => 'handlePersist',
-            Events::METADATA_LOAD => 'handleMetadataLoad',
+            Events::PERSIST => 'setTimestampsOnNodeForPersist',
+            Events::RESTORE => ['setChangedForRestore', -32],
+            Events::HYDRATE => 'setTimestampsOnDocument',
         ];
     }
 
     /**
-     * @param MetadataLoadEvent $event
+     * Sets the timestamps from the node to the document.
+     *
+     * @param HydrateEvent $event
      */
-    public function handleMetadataLoad(MetadataLoadEvent $event)
+    public function setTimestampsOnDocument(HydrateEvent $event)
     {
-        if (!$event->getMetadata()->getReflectionClass()->isSubclassOf(LocalizedTimestampBehavior::class)) {
+        $document = $event->getDocument();
+        if (!$this->supports($document)) {
             return;
         }
 
-        $encoding = 'system_localized';
-        if ($event->getMetadata()->getReflectionClass()->isSubclassOf(TimestampBehavior::class)) {
-            $encoding = 'system';
-        }
+        $accessor = $event->getAccessor();
+        $node = $event->getNode();
+        $locale = $event->getLocale();
 
-        $metadata = $event->getMetadata();
-        $metadata->addFieldMapping(
-            self::CREATED,
-            [
-                'encoding' => $encoding,
-                'property' => self::CREATED,
-            ]
+        $encoding = $this->getPropertyEncoding($document);
+
+        $accessor->set(
+            static::CHANGED,
+            $node->getPropertyValueWithDefault(
+                $this->propertyEncoder->encode($encoding, static::CHANGED, $locale),
+                null
+            )
         );
-        $metadata->addFieldMapping(
-            self::CHANGED,
-            [
-                'encoding' => $encoding,
-                'property' => self::CHANGED,
-            ]
+        $accessor->set(
+            static::CREATED,
+            $node->getPropertyValueWithDefault(
+                $this->propertyEncoder->encode($encoding, static::CREATED, $locale),
+                null
+            )
         );
     }
 
     /**
+     * Sets the timestamps on the nodes for the persist operation.
+     *
      * @param PersistEvent $event
      */
-    public function handlePersist(PersistEvent $event)
+    public function setTimestampsOnNodeForPersist(PersistEvent $event)
     {
         $document = $event->getDocument();
 
-        if (!$document instanceof LocalizedTimestampBehavior) {
+        if (!$this->supports($document)) {
             return;
         }
 
-        $locale = $event->getLocale();
+        $this->setTimestampsOnNode(
+            $document,
+            $event->getNode(),
+            $event->getAccessor(),
+            $event->getLocale(),
+            new \DateTime()
+        );
+    }
 
-        if (!$locale) {
+    /**
+     * Set the timestamps on the node.
+     *
+     * @param LocalizedTimestampBehavior $document
+     * @param NodeInterface $node
+     * @param DocumentAccessor $accessor
+     * @param $locale
+     * @param $timestamp
+     */
+    public function setTimestampsOnNode(
+        LocalizedTimestampBehavior $document,
+        NodeInterface $node,
+        DocumentAccessor $accessor,
+        $locale,
+        $timestamp
+    ) {
+        $encoding = $this->getPropertyEncoding($document);
+
+        $createdPropertyName = $this->propertyEncoder->encode($encoding, static::CREATED, $locale);
+        if (!$node->hasProperty($createdPropertyName)) {
+            $accessor->set(static::CREATED, $timestamp);
+            $node->setProperty($createdPropertyName, $timestamp);
+        }
+
+        $accessor->set(static::CHANGED, $timestamp);
+        $node->setProperty($this->propertyEncoder->encode($encoding, static::CHANGED, $locale), $timestamp);
+    }
+
+    /**
+     * Sets the changed timestamp when restoring a document.
+     *
+     * @param RestoreEvent $event
+     */
+    public function setChangedForRestore(RestoreEvent $event)
+    {
+        $document = $event->getDocument();
+        if (!$this->supports($document)) {
             return;
         }
 
-        if (!$document->getCreated()) {
-            $event->getAccessor()->set(self::CREATED, new \DateTime());
+        $encoding = $this->getPropertyEncoding($document);
+
+        $event->getNode()->setProperty(
+            $this->propertyEncoder->encode($encoding, static::CHANGED, $event->getLocale()),
+            new \DateTime()
+        );
+    }
+
+    /**
+     * Returns the encoding for the given document.
+     *
+     * @param $document
+     *
+     * @return string
+     */
+    private function getPropertyEncoding($document)
+    {
+        $encoding = 'system_localized';
+        if ($document instanceof TimestampBehavior) {
+            $encoding = 'system';
         }
 
-        $event->getAccessor()->set(self::CHANGED, new \DateTime());
+        return $encoding;
+    }
+
+    /**
+     * Return true if document is supported by this subscriber.
+     *
+     * @param $document
+     *
+     * @return bool
+     */
+    private function supports($document)
+    {
+        return $document instanceof LocalizedTimestampBehavior;
     }
 }
