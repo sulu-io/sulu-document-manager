@@ -4,7 +4,9 @@
     "require": {
         "doctrine/phpcr-odm": "~1.2",
         "symfony/event-dispatcher": "~2.0",
-        "symfony-cmf/core-bundle": "~1.2",
+        "symfony/dependency-injection": "^2.6",
+        "symfony/config": "^2.6",
+        "symfony-cmf/slugifier-api": "~1.0@rc",
         "ocramius/proxy-manager": "~1.0",
         "aferrandini/urlizer": "1.0.*",
         "symfony/options-resolver": "~2.4"
