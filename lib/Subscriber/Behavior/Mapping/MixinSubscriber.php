@@ -46,12 +46,6 @@ class MixinSubscriber implements EventSubscriberInterface
 
         $metadata = $this->metadataFactory->getMetadataForClass(get_class($document));
 
-        // remove all mixins and add the one defined in the metadata
-        // required because setMixin does not work correctly with jackrabbit
-        $nodeTypes = $node->getMixinNodeTypes();
-        foreach ($nodeTypes as $nodeType) {
-            $node->removeMixin($nodeType->getName());
-        }
         $node->addMixin($metadata->getPhpcrType());
 
         if (!$node->hasProperty('jcr:uuid')) {
