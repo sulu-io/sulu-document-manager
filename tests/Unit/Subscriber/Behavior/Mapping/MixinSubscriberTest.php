@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Sulu.
  *
@@ -11,7 +12,6 @@
 namespace Sulu\Component\DocumentManager\Tests\Unit\Subscriber\Behavior\Mapping;
 
 use PHPCR\NodeInterface;
-use PHPCR\NodeType\NodeTypeInterface;
 use Prophecy\Argument;
 use Sulu\Component\DocumentManager\Event\AbstractMappingEvent;
 use Sulu\Component\DocumentManager\Metadata;
@@ -39,13 +39,8 @@ class MixinSubscriberTest extends \PHPUnit_Framework_TestCase
     public function testSetDocumentMixinsOnNode()
     {
         $event = $this->prophesize(AbstractMappingEvent::class);
-        $mixinNode1 = $this->prophesize(NodeTypeInterface::class);
-        $mixinNode1->getName()->willReturn('phpcr:type-old-1');
-        $mixinNode2 = $this->prophesize(NodeTypeInterface::class);
-        $mixinNode2->getName()->willReturn('phpcr:type-old-2');
         $node = $this->prophesize(NodeInterface::class);
         $node->hasProperty('jcr:uuid')->willReturn(false);
-        $node->getMixinNodeTypes()->willReturn([$mixinNode1->reveal(), $mixinNode2->reveal()]);
         $metadata = $this->prophesize(Metadata::class);
         $metadata->getPhpcrType()->willReturn('phpcr:type');
         $document = new \stdClass();
@@ -55,8 +50,6 @@ class MixinSubscriberTest extends \PHPUnit_Framework_TestCase
         $event->getNode()->willReturn($node->reveal());
         $event->getDocument()->willReturn($document);
 
-        $node->removeMixin('phpcr:type-old-1')->shouldBeCalled();
-        $node->removeMixin('phpcr:type-old-2')->shouldBeCalled();
         $node->addMixin('phpcr:type')->shouldBeCalled();
         $node->setProperty('jcr:uuid', Argument::type('string'))->shouldBeCalled();
 

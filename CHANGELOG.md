@@ -1,6 +1,9 @@
 CHANGELOG for Sulu
 ==================
 
+* dev-master
+    * HOTFIX      #100 Leave mix:referencable after publish because of jackrabbit misbehavior
+
 * 0.8.2 (2016-11-24)
     * HOTFIX      #96 Added overwrite option to ExplicitSubscriber
 
