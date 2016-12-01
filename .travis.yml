@@ -2,12 +2,18 @@ sudo: false
 
 language: php
 
-php:
-  - 5.5
+matrix:
+  include:
+    - php: 5.5
+      env:
+        - COMPOSER_FLAGS="--prefer-lowest --prefer-dist --no-interaction"
+    - php: 7.0
+      env:
+        - COMPOSER_FLAGS="--prefer-dist --no-interaction"
 
 before_script:
   - composer self-update
-  - composer install
+  - composer update $COMPOSER_FLAGS
   - mkdir data
   - php bin/testconsole.php jackalope:init:dbal --force
 
