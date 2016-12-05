@@ -11,9 +11,24 @@
 
 namespace Sulu\Component\DocumentManager\Behavior;
 
+use Sulu\Component\DocumentManager\Version;
+
 /**
  * This behavior has to be attached to documents which should be versionable.
  */
 interface VersionBehavior
 {
+    /**
+     * Returns all the versions of this document.
+     *
+     * @return Version[]
+     */
+    public function getVersions();
+
+    /**
+     * Sets the versions for this document.
+     *
+     * @param Version[] $versions
+     */
+    public function setVersions($versions);
 }

@@ -16,11 +16,13 @@ use PHPCR\NodeInterface;
 use PHPCR\SessionInterface;
 use Sulu\Component\DocumentManager\Behavior\VersionBehavior;
 use Sulu\Component\DocumentManager\Event\AbstractMappingEvent;
+use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Event\PublishEvent;
 use Sulu\Component\DocumentManager\Event\RestoreEvent;
 use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\PropertyEncoder;
+use Sulu\Component\DocumentManager\Version;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -76,6 +78,7 @@ class VersionSubscriber implements EventSubscriberInterface
                 ['setVersionMixin', 468],
                 ['rememberCreateVersion'],
             ],
+            Events::HYDRATE => 'setVersionsOnDocument',
             Events::FLUSH => 'applyVersionOperations',
             Events::RESTORE => 'restoreLocalizedProperties',
         ];
@@ -93,6 +96,31 @@ class VersionSubscriber implements EventSubscriberInterface
         }
 
         $event->getNode()->addMixin('mix:versionable');
+    }
+
+    /**
+     * Sets the version information set on the node to the document.
+     *
+     * @param HydrateEvent $event
+     */
+    public function setVersionsOnDocument(HydrateEvent $event)
+    {
+        $document = $event->getDocument();
+
+        if (!$this->support($document)) {
+            return;
+        }
+
+        $node = $event->getNode();
+
+        $versions = [];
+        $versionProperty = $node->getPropertyValueWithDefault(static::VERSION_PROPERTY, []);
+        foreach ($versionProperty as $version) {
+            $versionInformation = json_decode($version);
+            $versions[] = new Version($versionInformation->version, $versionInformation->locale);
+        }
+
+        $document->setVersions($versions);
     }
 
     /**

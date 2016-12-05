@@ -22,6 +22,7 @@ use PHPCR\Version\VersionManagerInterface;
 use Prophecy\Argument;
 use Sulu\Component\DocumentManager\Behavior\Mapping\LocaleBehavior;
 use Sulu\Component\DocumentManager\Behavior\VersionBehavior;
+use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Event\PublishEvent;
 use Sulu\Component\DocumentManager\Event\RestoreEvent;
@@ -135,6 +136,30 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
         $event->getNode()->willReturn($node->reveal());
 
         $this->versionSubscriber->setVersionMixin($event->reveal());
+    }
+
+    public function testSetVersionsOnDocument()
+    {
+        $event = $this->prophesize(HydrateEvent::class);
+
+        $document = $this->prophesize(VersionBehavior::class);
+        $event->getDocument()->willReturn($document->reveal());
+
+        $node = $this->prophesize(NodeInterface::class);
+        $node->getPropertyValueWithDefault('sulu:versions', [])
+            ->willReturn(['{"version":"1.0","locale":"de"}', '{"version":"1.1","locale":"en"}']);
+        $event->getNode()->willReturn($node->reveal());
+
+        $this->versionSubscriber->setVersionsOnDocument($event->reveal());
+    }
+
+    public function testSetVersionsOnDocumentWithoutVersionBehavior()
+    {
+        $event = $this->prophesize(HydrateEvent::class);
+        $event->getDocument()->willReturn(new \stdClass());
+        $event->getNode()->shouldNotBeCalled();
+
+        $this->versionSubscriber->setVersionsOnDocument($event->reveal());
     }
 
     public function testRememberCheckoutNodes()
