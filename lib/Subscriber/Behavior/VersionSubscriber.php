@@ -117,7 +117,11 @@ class VersionSubscriber implements EventSubscriberInterface
         $versionProperty = $node->getPropertyValueWithDefault(static::VERSION_PROPERTY, []);
         foreach ($versionProperty as $version) {
             $versionInformation = json_decode($version);
-            $versions[] = new Version($versionInformation->version, $versionInformation->locale);
+            $versions[] = new Version(
+                $versionInformation->version,
+                $versionInformation->locale,
+                $versionInformation->author
+            );
         }
 
         $document->setVersions($versions);
@@ -149,7 +153,11 @@ class VersionSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $this->checkpointPaths[] = ['path' => $event->getNode()->getPath(), 'locale' => $document->getLocale()];
+        $this->checkpointPaths[] = [
+            'path' => $event->getNode()->getPath(),
+            'locale' => $document->getLocale(),
+            'author' => $event->getOption('user'),
+        ];
     }
 
     /**
@@ -182,6 +190,7 @@ class VersionSubscriber implements EventSubscriberInterface
             $nodeVersions[$versionInformation['path']][] = json_encode([
                 'locale' => $versionInformation['locale'],
                 'version' => $version->getName(),
+                'author' => $versionInformation['author'],
             ]);
         }
 

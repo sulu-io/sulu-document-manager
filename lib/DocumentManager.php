@@ -110,9 +110,11 @@ class DocumentManager implements DocumentManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function publish($document, $locale)
+    public function publish($document, $locale, array $options = [])
     {
-        $event = new Event\PublishEvent($document, $locale);
+        $options = $this->getOptionsResolver(Events::PUBLISH)->resolve($options);
+
+        $event = new Event\PublishEvent($document, $locale, $options);
         $this->eventDispatcher->dispatch(Events::PUBLISH, $event);
     }
 

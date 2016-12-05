@@ -27,12 +27,19 @@ class Version
     private $locale;
 
     /**
+     * @var int
+     */
+    private $author;
+
+    /**
      * @param string $id
      * @param string $locale
+     * @param int $author
      */
-    public function __construct($id, $locale)
+    public function __construct($id, $locale, $author)
     {
         $this->id = $id;
         $this->locale = $locale;
+        $this->author = $author;
     }
 }

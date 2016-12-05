@@ -11,7 +11,7 @@
 
 namespace Sulu\Component\DocumentManager\Tests\Unit\Subscriber\Behavior;
 
-use Jackalope\Version\Version;
+use Jackalope\Version\Version as JackalopeVersion;
 use Jackalope\Workspace;
 use PHPCR\NodeInterface;
 use PHPCR\PropertyInterface;
@@ -28,6 +28,7 @@ use Sulu\Component\DocumentManager\Event\PublishEvent;
 use Sulu\Component\DocumentManager\Event\RestoreEvent;
 use Sulu\Component\DocumentManager\PropertyEncoder;
 use Sulu\Component\DocumentManager\Subscriber\Behavior\VersionSubscriber;
+use Sulu\Component\DocumentManager\Version;
 
 class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
 {
@@ -147,8 +148,18 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
 
         $node = $this->prophesize(NodeInterface::class);
         $node->getPropertyValueWithDefault('sulu:versions', [])
-            ->willReturn(['{"version":"1.0","locale":"de"}', '{"version":"1.1","locale":"en"}']);
+            ->willReturn([
+                '{"version":"1.0","locale":"de","author":null}',
+                '{"version":"1.1","locale":"en","author":1}'
+            ]);
         $event->getNode()->willReturn($node->reveal());
+
+        $document->setVersions(
+            [
+                new Version('1.0', 'de', null),
+                new Version('1.1', 'en', 1),
+            ]
+        );
 
         $this->versionSubscriber->setVersionsOnDocument($event->reveal());
     }
@@ -200,13 +211,14 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
 
         $event->getNode()->willReturn($node->reveal());
         $event->getDocument()->willReturn($document->reveal());
+        $event->getOption('user')->willReturn(2);
 
         $node->getPath()->willReturn('/path/to/node');
 
         $this->versionSubscriber->rememberCreateVersion($event->reveal());
 
         $this->assertEquals(
-            [['path' => '/path/to/node', 'locale' => 'de']],
+            [['path' => '/path/to/node', 'locale' => 'de', 'author' => 2]],
             $this->checkpointPathsReflection->getValue($this->versionSubscriber)
         );
     }
@@ -224,7 +236,9 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
     public function testApplyVersionOperations()
     {
         $this->checkoutPathsReflection->setValue($this->versionSubscriber, ['/node1', '/node2']);
-        $this->checkpointPathsReflection->setValue($this->versionSubscriber, [['path' => '/node3', 'locale' => 'de']]);
+        $this->checkpointPathsReflection->setValue($this->versionSubscriber, [
+            ['path' => '/node3', 'locale' => 'de', 'author' => 1]
+        ]);
 
         $this->versionManager->isCheckedOut('/node1')->willReturn(false);
         $this->versionManager->isCheckedOut('/node2')->willReturn(true);
@@ -238,12 +252,14 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
         $version = $this->prophesize(VersionInterface::class);
         $version->getName()->willReturn('a');
         $this->versionManager->checkpoint('/node3')->willReturn($version->reveal());
-        $node->getPropertyValueWithDefault('sulu:versions', [])->willReturn(['{"locale":"en","version":"0"}']);
+        $node->getPropertyValueWithDefault('sulu:versions', [])->willReturn([
+            '{"locale":"en","version":"0","author":null}'
+        ]);
         $node->setProperty(
             'sulu:versions',
             [
-                '{"locale":"en","version":"0"}',
-                '{"locale":"de","version":"a"}',
+                '{"locale":"en","version":"0","author":null}',
+                '{"locale":"de","version":"a","author":1}',
             ]
         )->shouldBeCalled();
         $this->session->save()->shouldBeCalled();
@@ -259,18 +275,18 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->checkpointPathsReflection->setValue(
             $this->versionSubscriber,
             [
-                ['path' => '/node1', 'locale' => 'de'],
-                ['path' => '/node1', 'locale' => 'en'],
-                ['path' => '/node2', 'locale' => 'en'],
+                ['path' => '/node1', 'locale' => 'de', 'author' => 2],
+                ['path' => '/node1', 'locale' => 'en', 'author' => 3],
+                ['path' => '/node2', 'locale' => 'en', 'author' => 1],
             ]
         );
 
         $node1 = $this->prophesize(NodeInterface::class);
-        $node1->getPropertyValueWithDefault('sulu:versions', [])->willReturn(['{"locale":"fr","version":"0"}']);
+        $node1->getPropertyValueWithDefault('sulu:versions', [])->willReturn(['{"locale":"fr","version":"0","author":1}']);
         $this->session->getNode('/node1')->willReturn($node1->reveal());
 
         $node2 = $this->prophesize(NodeInterface::class);
-        $node2->getPropertyValueWithDefault('sulu:versions', [])->willReturn(['{"locale":"en","version":"0"}']);
+        $node2->getPropertyValueWithDefault('sulu:versions', [])->willReturn(['{"locale":"en","version":"0","author":2}']);
         $this->session->getNode('/node2')->willReturn($node2->reveal());
 
         $version1 = $this->prophesize(VersionInterface::class);
@@ -288,16 +304,16 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
         $node1->setProperty(
             'sulu:versions',
             [
-                '{"locale":"fr","version":"0"}',
-                '{"locale":"de","version":"b"}',
-                '{"locale":"en","version":"b"}',
+                '{"locale":"fr","version":"0","author":1}',
+                '{"locale":"de","version":"b","author":2}',
+                '{"locale":"en","version":"b","author":3}',
             ]
         )->shouldBeCalled();
         $node2->setProperty(
             'sulu:versions',
             [
-                '{"locale":"en","version":"0"}',
-                '{"locale":"en","version":"c"}',
+                '{"locale":"en","version":"0","author":2}',
+                '{"locale":"en","version":"c","author":1}',
             ]
         )->shouldBeCalled();
 
@@ -310,7 +326,7 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
         $document = $this->prophesize(VersionBehavior::class);
         $node = $this->prophesize(NodeInterface::class);
         $versionHistory = $this->prophesize(VersionHistoryInterface::class);
-        $version = $this->prophesize(Version::class);
+        $version = $this->prophesize(JackalopeVersion::class);
         $frozenNode = $this->prophesize(NodeInterface::class);
 
         $node->getPath()->willReturn('/node');

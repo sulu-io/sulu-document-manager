@@ -18,11 +18,13 @@ class PublishEvent extends AbstractMappingEvent
     /**
      * @param object $document
      * @param string $locale
+     * @param array $options
      */
-    public function __construct($document, $locale)
+    public function __construct($document, $locale, array $options = [])
     {
         $this->document = $document;
         $this->locale = $locale;
+        $this->options = $options;
     }
 
     /**
