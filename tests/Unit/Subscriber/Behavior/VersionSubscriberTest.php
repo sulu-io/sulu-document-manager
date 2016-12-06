@@ -29,6 +29,7 @@ use Sulu\Component\DocumentManager\Event\RestoreEvent;
 use Sulu\Component\DocumentManager\PropertyEncoder;
 use Sulu\Component\DocumentManager\Subscriber\Behavior\VersionSubscriber;
 use Sulu\Component\DocumentManager\Version;
+use Symfony\Bridge\PhpUnit\ClockMock;
 
 class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
 {
@@ -149,15 +150,15 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
         $node = $this->prophesize(NodeInterface::class);
         $node->getPropertyValueWithDefault('sulu:versions', [])
             ->willReturn([
-                '{"version":"1.0","locale":"de","author":null}',
-                '{"version":"1.1","locale":"en","author":1}'
+                '{"version":"1.0","locale":"de","author":null,"authored":"2016-12-06T09:37:21+01:00"}',
+                '{"version":"1.1","locale":"en","author":1,"authored":"2016-12-05T19:47:22+01:00"}',
             ]);
         $event->getNode()->willReturn($node->reveal());
 
         $document->setVersions(
             [
-                new Version('1.0', 'de', null),
-                new Version('1.1', 'en', 1),
+                new Version('1.0', 'de', null, new \DateTime('2016-12-06T09:37:21+01:00')),
+                new Version('1.1', 'en', 1, new \DateTime('2016-12-05T19:47:22+01:00')),
             ]
         );
 
@@ -235,9 +236,12 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
 
     public function testApplyVersionOperations()
     {
+        ClockMock::register(VersionSubscriber::class);
+        ClockMock::withClockMock(true);
+
         $this->checkoutPathsReflection->setValue($this->versionSubscriber, ['/node1', '/node2']);
         $this->checkpointPathsReflection->setValue($this->versionSubscriber, [
-            ['path' => '/node3', 'locale' => 'de', 'author' => 1]
+            ['path' => '/node3', 'locale' => 'de', 'author' => 1],
         ]);
 
         $this->versionManager->isCheckedOut('/node1')->willReturn(false);
@@ -253,13 +257,13 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
         $version->getName()->willReturn('a');
         $this->versionManager->checkpoint('/node3')->willReturn($version->reveal());
         $node->getPropertyValueWithDefault('sulu:versions', [])->willReturn([
-            '{"locale":"en","version":"0","author":null}'
+            '{"locale":"en","version":"0","author":null,"authored":"2016-12-05T19:47:22+01:00"}',
         ]);
         $node->setProperty(
             'sulu:versions',
             [
-                '{"locale":"en","version":"0","author":null}',
-                '{"locale":"de","version":"a","author":1}',
+                '{"locale":"en","version":"0","author":null,"authored":"2016-12-05T19:47:22+01:00"}',
+                '{"locale":"de","version":"a","author":1,"authored":"' . date('c', ClockMock::time()) . '"}',
             ]
         )->shouldBeCalled();
         $this->session->save()->shouldBeCalled();
@@ -268,6 +272,8 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals([], $this->checkpointPathsReflection->getValue($this->versionSubscriber));
         $this->assertEquals([], $this->checkoutPathsReflection->getValue($this->versionSubscriber));
+
+        ClockMock::withClockMock(false);
     }
 
     public function testApplyVersionOperationsWithMultipleCheckpoints()
@@ -282,11 +288,11 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
         );
 
         $node1 = $this->prophesize(NodeInterface::class);
-        $node1->getPropertyValueWithDefault('sulu:versions', [])->willReturn(['{"locale":"fr","version":"0","author":1}']);
+        $node1->getPropertyValueWithDefault('sulu:versions', [])->willReturn(['{"locale":"fr","version":"0","author":1,"authored":"2016-12-05T19:47:22+01:00"}']);
         $this->session->getNode('/node1')->willReturn($node1->reveal());
 
         $node2 = $this->prophesize(NodeInterface::class);
-        $node2->getPropertyValueWithDefault('sulu:versions', [])->willReturn(['{"locale":"en","version":"0","author":2}']);
+        $node2->getPropertyValueWithDefault('sulu:versions', [])->willReturn(['{"locale":"en","version":"0","author":2,"authored":"2016-12-05T19:47:22+01:00"}']);
         $this->session->getNode('/node2')->willReturn($node2->reveal());
 
         $version1 = $this->prophesize(VersionInterface::class);
@@ -304,16 +310,16 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
         $node1->setProperty(
             'sulu:versions',
             [
-                '{"locale":"fr","version":"0","author":1}',
-                '{"locale":"de","version":"b","author":2}',
-                '{"locale":"en","version":"b","author":3}',
+                '{"locale":"fr","version":"0","author":1,"authored":"2016-12-05T19:47:22+01:00"}',
+                '{"locale":"de","version":"b","author":2,"authored":"' . date('c', ClockMock::time()) . '"}',
+                '{"locale":"en","version":"b","author":3,"authored":"' . date('c', ClockMock::time()) . '"}',
             ]
         )->shouldBeCalled();
         $node2->setProperty(
             'sulu:versions',
             [
-                '{"locale":"en","version":"0","author":2}',
-                '{"locale":"en","version":"c","author":1}',
+                '{"locale":"en","version":"0","author":2,"authored":"2016-12-05T19:47:22+01:00"}',
+                '{"locale":"en","version":"c","author":1,"authored":"' . date('c', ClockMock::time()) . '"}',
             ]
         )->shouldBeCalled();
 

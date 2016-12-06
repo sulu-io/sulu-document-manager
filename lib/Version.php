@@ -32,14 +32,21 @@ class Version
     private $author;
 
     /**
+     * @var \DateTime
+     */
+    private $authored;
+
+    /**
      * @param string $id
      * @param string $locale
      * @param int $author
+     * @param \DateTime $authored
      */
-    public function __construct($id, $locale, $author)
+    public function __construct($id, $locale, $author, $authored)
     {
         $this->id = $id;
         $this->locale = $locale;
         $this->author = $author;
+        $this->authored = $authored;
     }
 }

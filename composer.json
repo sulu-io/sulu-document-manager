@@ -14,7 +14,8 @@
         "jackalope/jackalope-doctrine-dbal": "~1.2.3",
         "phpunit/phpunit": "^4.5",
         "monolog/monolog": "^1.1",
-        "phpbench/phpbench": "0.10.*"
+        "phpbench/phpbench": "0.10.*",
+        "symfony/phpunit-bridge": "~2.8 || ~3.0"
     },
     "license": "MIT",
     "authors": [

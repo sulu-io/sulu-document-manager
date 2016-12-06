@@ -120,7 +120,8 @@ class VersionSubscriber implements EventSubscriberInterface
             $versions[] = new Version(
                 $versionInformation->version,
                 $versionInformation->locale,
-                $versionInformation->author
+                $versionInformation->author,
+                new \DateTime($versionInformation->authored)
             );
         }
 
@@ -191,6 +192,7 @@ class VersionSubscriber implements EventSubscriberInterface
                 'locale' => $versionInformation['locale'],
                 'version' => $version->getName(),
                 'author' => $versionInformation['author'],
+                'authored' => date('c', time()),
             ]);
         }
 
