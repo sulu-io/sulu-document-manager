@@ -49,4 +49,36 @@ class Version
         $this->author = $author;
         $this->authored = $authored;
     }
+
+    /**
+     * @return string
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLocale()
+    {
+        return $this->locale;
+    }
+
+    /**
+     * @return int
+     */
+    public function getAuthor()
+    {
+        return $this->author;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getAuthored()
+    {
+        return $this->authored;
+    }
 }
