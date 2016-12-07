@@ -60,42 +60,24 @@ class PropertyEncoderTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * It should throw exception.
+     * It should throw an exception if the locale is null.
+     *
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage Locale is mandatory
+     * @dataProvider provideEncodeLocalizedException
      */
-    public function testEncodeLocalizedSystemEmptyLocale()
+    public function testEncodeLocalizedException($name)
     {
         $this->setExpectedException(\InvalidArgumentException::class);
 
-        $this->encoder->encode('system_localized', 'test', null);
+        $this->encoder->encode($name, 'test', null);
     }
 
-    /**
-     * It should throw exception.
-     */
-    public function testEncodeLocalizedContentEmptyLocale()
+    public function provideEncodeLocalizedException()
     {
-        $this->setExpectedException(\InvalidArgumentException::class);
-
-        $this->encoder->encode('content_localized', 'test', null);
-    }
-
-    /**
-     * It should throw exception.
-     */
-    public function testLocalizedContentEmptyLocale()
-    {
-        $this->setExpectedException(\InvalidArgumentException::class);
-
-        $this->encoder->encode('content_localized', 'test', null);
-    }
-
-    /**
-     * It should throw exception.
-     */
-    public function testLocalizedSystemEmptyLocale()
-    {
-        $this->setExpectedException(\InvalidArgumentException::class);
-
-        $this->encoder->encode('system_localized', 'test', null);
+        return [
+            ['system_localized'],
+            ['content_localized'],
+        ];
     }
 }

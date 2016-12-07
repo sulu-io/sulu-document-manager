@@ -76,6 +76,14 @@ abstract class AbstractMappingEvent extends AbstractEvent
     }
 
     /**
+     * @param string $locale
+     */
+    public function setLocale($locale)
+    {
+        $this->locale = $locale;
+    }
+
+    /**
      * TODO: Refactor this away.
      *
      * @return DocumentAccessor

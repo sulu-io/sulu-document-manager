@@ -52,12 +52,4 @@ class HydrateEvent extends AbstractMappingEvent
         $this->document = $document;
         $this->accessor = null;
     }
-
-    /**
-     * @param string $locale
-     */
-    public function setLocale($locale)
-    {
-        $this->locale = $locale;
-    }
 }

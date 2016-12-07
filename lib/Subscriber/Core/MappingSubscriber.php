@@ -16,7 +16,6 @@ use Sulu\Component\DocumentManager\DocumentAccessor;
 use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\Event\AbstractMappingEvent;
 use Sulu\Component\DocumentManager\Events;
-use Sulu\Component\DocumentManager\Exception\InvalidLocaleException;
 use Sulu\Component\DocumentManager\MetadataFactoryInterface;
 use Sulu\Component\DocumentManager\PropertyEncoder;
 use Sulu\Component\DocumentManager\ProxyFactory;
@@ -137,14 +136,9 @@ class MappingSubscriber implements EventSubscriberInterface
             );
         }
 
-        try {
-            $referenceNode = $this->documentRegistry->getNodeForDocument($referenceDocument);
-            $phpcrName = $this->encoder->encode($fieldMapping['encoding'], $fieldMapping['property'], $locale);
-            $node->setProperty($phpcrName, $referenceNode);
-        } catch (InvalidLocaleException $ex) {
-            // arguments invalid, no valid propertyname could be generated (e.g. no locale given for localized encoding)
-            return;
-        }
+        $referenceNode = $this->documentRegistry->getNodeForDocument($referenceDocument);
+        $phpcrName = $this->encoder->encode($fieldMapping['encoding'], $fieldMapping['property'], $locale);
+        $node->setProperty($phpcrName, $referenceNode);
     }
 
     /**
@@ -163,15 +157,10 @@ class MappingSubscriber implements EventSubscriberInterface
         $locale,
         array $fieldMapping
     ) {
-        try {
-            $phpcrName = $this->encoder->encode($fieldMapping['encoding'], $fieldMapping['property'], $locale);
-            $value = $accessor->get($fieldName);
-            $this->validateFieldValue($value, $fieldName, $fieldMapping);
-            $node->setProperty($phpcrName, $value);
-        } catch (InvalidLocaleException $ex) {
-            // arguments invalid, no valid propertyname could be generated (e.g. no locale given for localized encoding)
-            return;
-        }
+        $phpcrName = $this->encoder->encode($fieldMapping['encoding'], $fieldMapping['property'], $locale);
+        $value = $accessor->get($fieldName);
+        $this->validateFieldValue($value, $fieldName, $fieldMapping);
+        $node->setProperty($phpcrName, $value);
     }
 
     /**
@@ -190,15 +179,10 @@ class MappingSubscriber implements EventSubscriberInterface
         $locale,
         array $fieldMapping
     ) {
-        try {
-            $phpcrName = $this->encoder->encode($fieldMapping['encoding'], $fieldMapping['property'], $locale);
-            $value = $accessor->get($fieldName);
-            $this->validateFieldValue($value, $fieldName, $fieldMapping);
-            $node->setProperty($phpcrName, json_encode($value));
-        } catch (InvalidLocaleException $ex) {
-            // arguments invalid, no valid propertyname could be generated (e.g. no locale given for localized encoding)
-            return;
-        }
+        $phpcrName = $this->encoder->encode($fieldMapping['encoding'], $fieldMapping['property'], $locale);
+        $value = $accessor->get($fieldName);
+        $this->validateFieldValue($value, $fieldName, $fieldMapping);
+        $node->setProperty($phpcrName, json_encode($value));
     }
 
     /**
@@ -267,22 +251,17 @@ class MappingSubscriber implements EventSubscriberInterface
         array $fieldMapping,
         array $options
     ) {
-        try {
-            $phpcrName = $this->encoder->encode($fieldMapping['encoding'], $fieldMapping['property'], $locale);
-            $referencedNode = $node->getPropertyValueWithDefault(
-                $phpcrName,
-                $this->getDefaultValue($fieldMapping)
-            );
+        $phpcrName = $this->encoder->encode($fieldMapping['encoding'], $fieldMapping['property'], $locale);
+        $referencedNode = $node->getPropertyValueWithDefault(
+            $phpcrName,
+            $this->getDefaultValue($fieldMapping)
+        );
 
-            if ($referencedNode) {
-                $accessor->set(
-                    $fieldName,
-                    $this->proxyFactory->createProxyForNode($document, $referencedNode, $options)
-                );
-            }
-        } catch (InvalidLocaleException $ex) {
-            // arguments invalid, no valid propertyname could be generated (e.g. no locale given for localized encoding)
-            return;
+        if ($referencedNode) {
+            $accessor->set(
+                $fieldName,
+                $this->proxyFactory->createProxyForNode($document, $referencedNode, $options)
+            );
         }
     }
 
@@ -302,17 +281,12 @@ class MappingSubscriber implements EventSubscriberInterface
         $locale,
         array $fieldMapping
     ) {
-        try {
-            $phpcrName = $this->encoder->encode($fieldMapping['encoding'], $fieldMapping['property'], $locale);
-            $value = $node->getPropertyValueWithDefault(
-                $phpcrName,
-                $this->getDefaultValue($fieldMapping)
-            );
-            $accessor->set($fieldName, $value);
-        } catch (InvalidLocaleException $ex) {
-            // arguments invalid, no valid propertyname could be generated (e.g. no locale given for localized encoding)
-            return;
-        }
+        $phpcrName = $this->encoder->encode($fieldMapping['encoding'], $fieldMapping['property'], $locale);
+        $value = $node->getPropertyValueWithDefault(
+            $phpcrName,
+            $this->getDefaultValue($fieldMapping)
+        );
+        $accessor->set($fieldName, $value);
     }
 
     /**
@@ -331,17 +305,12 @@ class MappingSubscriber implements EventSubscriberInterface
         $locale,
         array $fieldMapping
     ) {
-        try {
-            $phpcrName = $this->encoder->encode($fieldMapping['encoding'], $fieldMapping['property'], $locale);
-            $value = $node->getPropertyValueWithDefault(
-                $phpcrName,
-                $this->getDefaultValue($fieldMapping)
-            );
-            $accessor->set($fieldName, json_decode($value, true));
-        } catch (InvalidLocaleException $ex) {
-            // arguments invalid, no valid propertyname could be generated (e.g. no locale given for localized encoding)
-            return;
-        }
+        $phpcrName = $this->encoder->encode($fieldMapping['encoding'], $fieldMapping['property'], $locale);
+        $value = $node->getPropertyValueWithDefault(
+            $phpcrName,
+            $this->getDefaultValue($fieldMapping)
+        );
+        $accessor->set($fieldName, json_decode($value, true));
     }
 
     private function getDefaultValue(array $fieldMapping)

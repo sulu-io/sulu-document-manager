@@ -56,6 +56,7 @@ class RegistratorSubscriber implements EventSubscriberInterface
                 ['handleEndHydrate', -500],
             ],
             Events::PERSIST => [
+                ['handleDefaultLocale', 520],
                 ['handlePersist', 450],
                 ['handleNodeFromRegistry', 510],
                 ['handleEndPersist', -500],
@@ -84,7 +85,7 @@ class RegistratorSubscriber implements EventSubscriberInterface
      *
      * @param HydrateEvent $event
      */
-    public function handleDefaultLocale(HydrateEvent $event)
+    public function handleDefaultLocale(AbstractMappingEvent $event)
     {
         // set the default locale
         if (null === $event->getLocale()) {
