@@ -23,8 +23,8 @@ use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\Exception\DocumentManagerException;
 use Sulu\Component\DocumentManager\NameResolver;
 use Sulu\Component\DocumentManager\NodeManager;
-use Symfony\Cmf\Bundle\CoreBundle\Slugifier\SlugifierInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Cmf\Api\Slugifier\SlugifierInterface;
 
 /**
  * Automatically assign a name to the document based on its title.
