@@ -31,14 +31,14 @@ class MappingHydrateBench extends BaseBench
     public function benchHydrateMapping10()
     {
         for ($index = 0; $index < 10; ++$index) {
-            $this->getDocumentManager()->find('/test/jcr:root/test/to/node-' .  $index);
+            $this->getDocumentManager()->find('/test/jcr:root/test/to/node-' . $index);
         }
     }
 
     public function benchHydrateMapping5()
     {
         for ($index = 0; $index < 5; ++$index) {
-            $this->getDocumentManager()->find('/test/jcr:root/test/to/node-' .  $index);
+            $this->getDocumentManager()->find('/test/jcr:root/test/to/node-' . $index);
         }
     }
 }

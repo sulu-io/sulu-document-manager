@@ -55,7 +55,7 @@ class BaseMetadataFactoryTest extends \PHPUnit_Framework_TestCase
     /**
      * It should throw an exception if there is no mapping for the class name.
      *
-     * @expectedException Sulu\Component\DocumentManager\Exception\MetadataNotFoundException
+     * @expectedException \Sulu\Component\DocumentManager\Exception\MetadataNotFoundException
      */
     public function testGetForClassNotFound()
     {
@@ -77,7 +77,7 @@ class BaseMetadataFactoryTest extends \PHPUnit_Framework_TestCase
     /**
      * It should throw an exception if there is no mapping for given alias.
      *
-     * @expectedException Sulu\Component\DocumentManager\Exception\MetadataNotFoundException
+     * @expectedException \Sulu\Component\DocumentManager\Exception\MetadataNotFoundException
      */
     public function testGetForAliasNotFound()
     {
@@ -124,7 +124,7 @@ class BaseMetadataFactoryTest extends \PHPUnit_Framework_TestCase
     /**
      * It should throw an exception if there is no mapping for given phpcrType.
      *
-     * @expectedException Sulu\Component\DocumentManager\Exception\MetadataNotFoundException
+     * @expectedException \Sulu\Component\DocumentManager\Exception\MetadataNotFoundException
      */
     public function testGetForPhpcrTypeNotFound()
     {

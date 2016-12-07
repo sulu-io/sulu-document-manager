@@ -79,7 +79,7 @@ class DocumentRegistryTest extends \PHPUnit_Framework_TestCase
     /**
      * Throw an exception if an attempt is made to re-register a document.
      *
-     * @expectedException RuntimeException
+     * @expectedException \RuntimeException
      * @expectedExceptionMessage is already registered
      */
     public function testDifferentInstanceSameNode()

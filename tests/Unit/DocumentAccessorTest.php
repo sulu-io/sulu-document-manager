@@ -33,7 +33,7 @@ class DocumentAccessorTest extends \PHPUnit_Framework_TestCase
     /**
      * It should throw an exception if the property does not exist.
      *
-     * @expectedException Sulu\Component\DocumentManager\Exception\DocumentManagerException
+     * @expectedException \Sulu\Component\DocumentManager\Exception\DocumentManagerException
      */
     public function testAccessObjectNotExist()
     {

@@ -203,7 +203,7 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
     /**
      * It should throw an exception with invalid options.
      *
-     * @expectedException Symfony\Component\OptionsResolver\Exception\UndefinedOptionsException
+     * @expectedException \Symfony\Component\OptionsResolver\Exception\UndefinedOptionsException
      */
     public function testFindWithInvalidOptions()
     {

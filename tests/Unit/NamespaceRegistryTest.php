@@ -35,7 +35,7 @@ class NamespaceRegistryTest extends \PHPUnit_Framework_TestCase
     /**
      * It should thow an exception if the alias is not known.
      *
-     * @expectedException Sulu\Component\DocumentManager\Exception\DocumentManagerException
+     * @expectedException \Sulu\Component\DocumentManager\Exception\DocumentManagerException
      */
     public function testGetUnknownPrefix()
     {
