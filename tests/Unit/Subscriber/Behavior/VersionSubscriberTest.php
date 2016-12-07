@@ -337,18 +337,24 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
 
         $node->getPath()->willReturn('/node');
         $property1 = $this->prophesize(PropertyInterface::class);
+        $property1->getName()->willReturn('i18n:de-test');
         $property2 = $this->prophesize(PropertyInterface::class);
-        $node->getProperties('i18n:de-*')->willReturn([$property1->reveal(), $property2->reveal()]);
+        $property2->getName()->willReturn('non-translatable-test');
+        $property3 = $this->prophesize(PropertyInterface::class);
+        $property3->getName()->willReturn('jcr:uuid');
+        $node->getProperties()->willReturn([$property1->reveal(), $property2->reveal(), $property3->reveal()]);
 
         $property1->remove()->shouldBeCalled();
         $property2->remove()->shouldBeCalled();
+        $property3->remove()->shouldNotBeCalled();
 
-        $this->propertyEncoder->localizedContentName('*', 'de')->willReturn('i18n:de-*');
-        $this->propertyEncoder->localizedSystemName('*', 'de')->willReturn('i18n:de-*');
+        $this->propertyEncoder->localizedContentName('', 'de')->willReturn('i18n:de-');
+        $this->propertyEncoder->localizedSystemName('', 'de')->willReturn('i18n:de-');
 
-        $frozenNode->getPropertiesValues('i18n:de-*')->willReturn([
-            'i18n:de-title' => 'Title',
-            'i18n:de-article' => 'Article',
+        $frozenNode->getPropertiesValues()->willReturn([
+            'i18n:de-test' => 'Title',
+            'non-translatable-test' => 'Article',
+            'jcr:uuid' => 'asdf',
         ]);
 
         $event->getDocument()->willReturn($document->reveal());
@@ -360,9 +366,10 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
         $versionHistory->getVersion('1.0')->willReturn($version->reveal());
         $version->getFrozenNode()->willReturn($frozenNode->reveal());
 
-        $node->setProperty('i18n:de-title', 'Title')->shouldBeCalled();
-        $node->setProperty('i18n:de-article', 'Article')->shouldBeCalled();
+        $node->setProperty('i18n:de-test', 'Title')->shouldBeCalled();
+        $node->setProperty('non-translatable-test', 'Article')->shouldBeCalled();
+        $node->setProperty('jcr:uuid', 'asdf')->shouldNotBeCalled();
 
-        $this->versionSubscriber->restoreLocalizedProperties($event->reveal());
+        $this->versionSubscriber->restoreProperties($event->reveal());
     }
 }

@@ -80,7 +80,7 @@ class VersionSubscriber implements EventSubscriberInterface
             ],
             Events::HYDRATE => 'setVersionsOnDocument',
             Events::FLUSH => 'applyVersionOperations',
-            Events::RESTORE => 'restoreLocalizedProperties',
+            Events::RESTORE => 'restoreProperties',
         ];
     }
 
@@ -205,11 +205,11 @@ class VersionSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * Restore the localized properties of the old version.
+     * Restore the properties of the old version.
      *
      * @param RestoreEvent $event
      */
-    public function restoreLocalizedProperties(RestoreEvent $event)
+    public function restoreProperties(RestoreEvent $event)
     {
         if (!$this->support($event->getDocument())) {
             $event->stopPropagation();
@@ -217,29 +217,38 @@ class VersionSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $contentPropertyFilter = $this->propertyEncoder->localizedContentName('*', $event->getLocale());
-        $systemPropertyFilter = $this->propertyEncoder->localizedSystemName('*', $event->getLocale());
+        $contentPropertyPrefix = $this->propertyEncoder->localizedContentName('', $event->getLocale());
+        $systemPropertyPrefix = $this->propertyEncoder->localizedSystemName('', $event->getLocale());
 
         $node = $event->getNode();
-
-        foreach ($node->getProperties($contentPropertyFilter) as $contentProperty) {
-            $contentProperty->remove();
-        }
-
-        foreach ($node->getProperties($systemPropertyFilter) as $systemProperty) {
-            $systemProperty->remove();
+        foreach ($node->getProperties() as $property) {
+            if ($this->isRestoreProperty($property->getName(), $contentPropertyPrefix, $systemPropertyPrefix)) {
+                $property->remove();
+            }
         }
 
         $version = $this->versionManager->getVersionHistory($node->getPath())->getVersion($event->getVersion());
         $frozenNode = $version->getFrozenNode();
 
-        foreach ($frozenNode->getPropertiesValues($contentPropertyFilter) as $name => $value) {
-            $node->setProperty($name, $value);
+        foreach ($frozenNode->getPropertiesValues() as $name => $value) {
+            if ($this->isRestoreProperty($name, $contentPropertyPrefix, $systemPropertyPrefix)) {
+                $node->setProperty($name, $value);
+            }
+        }
+    }
+
+    private function isRestoreProperty($propertyName, $contentPrefix, $systemPrefix)
+    {
+        // return all localized and non-translatable properties
+        // non-translatable properties can be recognized by their missing namespace, therfore the check for the colon
+        if (strpos($propertyName, $contentPrefix) === 0
+            || strpos($propertyName, $systemPrefix) === 0
+            || strpos($propertyName, ':') === false
+        ) {
+            return true;
         }
 
-        foreach ($frozenNode->getPropertiesValues($systemPropertyFilter) as $name => $value) {
-            $node->setProperty($name, $value);
-        }
+        return false;
     }
 
     /**
