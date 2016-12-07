@@ -139,9 +139,11 @@ class DocumentManager implements DocumentManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function restore($document, $locale, $version)
+    public function restore($document, $locale, $version, array $options = [])
     {
-        $event = new Event\RestoreEvent($document, $locale, $version);
+        $options = $this->getOptionsResolver(Events::FIND)->resolve($options);
+
+        $event = new Event\RestoreEvent($document, $locale, $version, $options);
         $this->eventDispatcher->dispatch(Events::RESTORE, $event);
     }
 

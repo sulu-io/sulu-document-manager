@@ -23,12 +23,15 @@ class RestoreEvent extends AbstractMappingEvent
     /**
      * @param object $document
      * @param string $locale
+     * @param string $version
+     * @param array $options
      */
-    public function __construct($document, $locale, $version)
+    public function __construct($document, $locale, $version, array $options = [])
     {
         $this->document = $document;
         $this->locale = $locale;
         $this->version = $version;
+        $this->options = $options;
     }
 
     /**

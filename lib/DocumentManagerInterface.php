@@ -113,10 +113,11 @@ interface DocumentManagerInterface
      * @param object $document
      * @param string $locale
      * @param string $version The UUID of the version to restore
+     * @param array $options
      *
      * @return mixed
      */
-    public function restore($document, $locale, $version);
+    public function restore($document, $locale, $version, array $options = []);
 
     /**
      * Refresh the given document with the persisted state of the node.
