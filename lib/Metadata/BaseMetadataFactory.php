@@ -195,6 +195,7 @@ class BaseMetadataFactory implements MetadataFactoryInterface
         $mapping = array_merge([
             'alias' => null,
             'phpcr_type' => null,
+            'form_type' => null,
             'class' => null,
             'mapping' => [],
         ], $mapping);
@@ -206,6 +207,7 @@ class BaseMetadataFactory implements MetadataFactoryInterface
         $metadata = new Metadata();
         $metadata->setAlias($mapping['alias']);
         $metadata->setPhpcrType($mapping['phpcr_type']);
+        $metadata->setFormType($mapping['form_type']);
         $metadata->setClass($mapping['class']);
 
         foreach ($mapping['mapping'] as $fieldName => $fieldMapping) {

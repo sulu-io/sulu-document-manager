@@ -29,6 +29,11 @@ class Metadata
     private $phpcrType;
 
     /**
+     * @var string
+     */
+    private $formType;
+
+    /**
      * @var \ReflectionClass
      */
     private $reflection;
@@ -39,7 +44,7 @@ class Metadata
     private $fieldMappings;
 
     /**
-     * Add a field mapping for field with given name, for example:.
+     * Add a field mapping for field with given name, for example.
      *
      * ````
      * $metadata->addFieldMapping(array(
@@ -48,7 +53,7 @@ class Metadata
      * ));
      * ````
      *
-     * @param string $name Name of field/property in the mapped class.
+     * @param string $name Name of field/property in the mapped class
      * @param array $mapping {
      *
      *   @var string Encoding type to use, @see \Sulu\Component\DocumentManager\PropertyEncoder::encode()
@@ -148,5 +153,21 @@ class Metadata
     public function setPhpcrType($phpcrType)
     {
         $this->phpcrType = $phpcrType;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormType()
+    {
+        return $this->formType;
+    }
+
+    /**
+     * @param string $formType
+     */
+    public function setFormType($formType)
+    {
+        $this->formType = $formType;
     }
 }
