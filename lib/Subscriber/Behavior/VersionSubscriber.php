@@ -72,7 +72,7 @@ class VersionSubscriber implements EventSubscriberInterface
         return [
             Events::PERSIST => [
                 ['setVersionMixin', 468],
-                ['rememberCheckoutPaths'],
+                ['rememberCheckoutPaths', -512],
             ],
             Events::PUBLISH => [
                 ['setVersionMixin', 468],
