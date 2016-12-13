@@ -15,6 +15,9 @@ use Sulu\Component\DocumentManager\Metadata;
 
 class MetadataTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var Metadata
+     */
     private $metadata;
 
     public function setUp()
@@ -48,5 +51,10 @@ class MetadataTest extends \PHPUnit_Framework_TestCase
 
         $this->metadata->setClass('\stdClass');
         $this->assertNotSame($reflection, $this->metadata->getReflectionClass());
+    }
+
+    public function testGetFieldMappingsEmpty()
+    {
+        $this->assertInternalType('array', $this->metadata->getFieldMappings());
     }
 }
