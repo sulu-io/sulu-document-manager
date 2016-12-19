@@ -2,7 +2,6 @@
     "name": "sulu/document-manager",
     "description": "Sulu Document Manager",
     "require": {
-        "doctrine/phpcr-odm": "~1.2",
         "symfony/event-dispatcher": "~2.8 || ~3.0",
         "symfony/dependency-injection": "~2.8 || ~3.0",
         "symfony/config": "~2.8 || ~3.0",
