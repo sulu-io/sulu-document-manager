@@ -2,6 +2,7 @@ CHANGELOG for Sulu
 ==================
 
 * dev-develop
+    * FEATURE     #97  Added versioning functionalities
     * ENHANCEMENT #104 Removed phpcr-odm dependency
     * FEATURE     #101 Added metadata form-type
     * BUGFIX      #98  Removed deprecations
