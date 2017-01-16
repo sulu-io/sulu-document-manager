@@ -63,7 +63,7 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function persist($document, $locale = null, array $options = [])
     {
-        $options = $this->getOptionsResolver(Events::FIND)->resolve($options);
+        $options = $this->getOptionsResolver(Events::PERSIST)->resolve($options);
 
         $event = new Event\PersistEvent($document, $locale, $options);
         $this->eventDispatcher->dispatch(Events::PERSIST, $event);
@@ -141,7 +141,7 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function restore($document, $locale, $version, array $options = [])
     {
-        $options = $this->getOptionsResolver(Events::FIND)->resolve($options);
+        $options = $this->getOptionsResolver(Events::RESTORE)->resolve($options);
 
         $event = new Event\RestoreEvent($document, $locale, $version, $options);
         $this->eventDispatcher->dispatch(Events::RESTORE, $event);
