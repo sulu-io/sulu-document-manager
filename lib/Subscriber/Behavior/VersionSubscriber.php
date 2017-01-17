@@ -192,7 +192,7 @@ class VersionSubscriber implements EventSubscriberInterface
                 'locale' => $versionInformation['locale'],
                 'version' => $version->getName(),
                 'author' => $versionInformation['author'],
-                'authored' => date('c', time()),
+                'authored' => date('c'),
             ]);
         }
 
@@ -221,6 +221,8 @@ class VersionSubscriber implements EventSubscriberInterface
         $systemPropertyPrefix = $this->propertyEncoder->localizedSystemName('', $event->getLocale());
 
         $node = $event->getNode();
+
+        // remove the properties for the given language, so that values being added since the last version are removed
         foreach ($node->getProperties() as $property) {
             if ($this->isRestoreProperty($property->getName(), $contentPropertyPrefix, $systemPropertyPrefix)) {
                 $property->remove();
@@ -230,6 +232,7 @@ class VersionSubscriber implements EventSubscriberInterface
         $version = $this->versionManager->getVersionHistory($node->getPath())->getVersion($event->getVersion());
         $frozenNode = $version->getFrozenNode();
 
+        // set all the properties from the saved version to the node
         foreach ($frozenNode->getPropertiesValues() as $name => $value) {
             if ($this->isRestoreProperty($name, $contentPropertyPrefix, $systemPropertyPrefix)) {
                 $node->setProperty($name, $value);
