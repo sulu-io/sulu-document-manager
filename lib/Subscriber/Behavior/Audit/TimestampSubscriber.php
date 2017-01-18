@@ -17,6 +17,7 @@ use Sulu\Component\DocumentManager\Behavior\Audit\TimestampBehavior;
 use Sulu\Component\DocumentManager\DocumentAccessor;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
+use Sulu\Component\DocumentManager\Event\PublishEvent;
 use Sulu\Component\DocumentManager\Event\RestoreEvent;
 use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\PropertyEncoder;
@@ -47,6 +48,7 @@ class TimestampSubscriber implements EventSubscriberInterface
     {
         return [
             Events::PERSIST => 'setTimestampsOnNodeForPersist',
+            Events::PUBLISH => 'setTimestampsOnNodeForPublish',
             Events::RESTORE => ['setChangedForRestore', -32],
             Events::HYDRATE => 'setTimestampsOnDocument',
         ];
@@ -92,6 +94,23 @@ class TimestampSubscriber implements EventSubscriberInterface
      * @param PersistEvent $event
      */
     public function setTimestampsOnNodeForPersist(PersistEvent $event)
+    {
+        $document = $event->getDocument();
+
+        if (!$this->supports($document)) {
+            return;
+        }
+
+        $this->setTimestampsOnNode(
+            $document,
+            $event->getNode(),
+            $event->getAccessor(),
+            $event->getLocale(),
+            new \DateTime()
+        );
+    }
+
+    public function setTimestampsOnNodeForPublish(PublishEvent $event)
     {
         $document = $event->getDocument();
 

@@ -18,6 +18,7 @@ use Sulu\Component\DocumentManager\Behavior\Audit\TimestampBehavior;
 use Sulu\Component\DocumentManager\DocumentAccessor;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
+use Sulu\Component\DocumentManager\Event\PublishEvent;
 use Sulu\Component\DocumentManager\Event\RestoreEvent;
 use Sulu\Component\DocumentManager\PropertyEncoder;
 use Sulu\Component\DocumentManager\Subscriber\Behavior\Audit\TimestampSubscriber;
@@ -119,6 +120,87 @@ class TimestampSubscriberTest extends \PHPUnit_Framework_TestCase
         $node->setProperty('changed', Argument::type(\DateTime::class))->shouldBeCalled();
 
         $this->subscriber->setTimestampsOnNodeForPersist($event->reveal());
+    }
+
+    public function testSetTimestampsOnNodeForPublishNotImplementing()
+    {
+        $event = $this->prophesize(PublishEvent::class);
+        $event->getDocument()->willReturn(new \stdClass());
+        $this->subscriber->setTimestampsOnNodeForPublish($event->reveal());
+    }
+
+    public function testSetTimestampsOnNodeForPublishCreatedWhenNull()
+    {
+        $event = $this->prophesize(PublishEvent::class);
+        $accessor = $this->prophesize(DocumentAccessor::class);
+        $document = $this->prophesize(LocalizedTimestampBehavior::class);
+        $node = $this->prophesize(NodeInterface::class);
+
+        $event->getDocument()->willReturn($document->reveal());
+        $event->getAccessor()->willReturn($accessor->reveal());
+        $event->getNode()->willReturn($node->reveal());
+        $event->getLocale()->willReturn('de');
+
+        $this->propertyEncoder->encode('system_localized', 'created', 'de')->willReturn('i18n:de-created');
+        $this->propertyEncoder->encode('system_localized', 'changed', 'de')->willReturn('i18n:de-changed');
+
+        $node->hasProperty('i18n:de-created')->willReturn(false);
+        $accessor->set('created', Argument::type(\DateTime::class))->shouldBeCalled();
+        $node->setProperty('i18n:de-created', Argument::type(\DateTime::class))->shouldBeCalled();
+
+        $accessor->set('changed', Argument::type(\DateTime::class))->shouldBeCalled();
+        $node->setProperty('i18n:de-changed', Argument::type(\DateTime::class))->shouldBeCalled();
+
+        $this->subscriber->setTimestampsOnNodeForPublish($event->reveal());
+    }
+
+    public function testSetTimestampsOnNodeForPublishChanged()
+    {
+        $event = $this->prophesize(PublishEvent::class);
+        $accessor = $this->prophesize(DocumentAccessor::class);
+        $document = $this->prophesize(LocalizedTimestampBehavior::class);
+        $node = $this->prophesize(NodeInterface::class);
+
+        $event->getDocument()->willReturn($document->reveal());
+        $event->getAccessor()->willReturn($accessor->reveal());
+        $event->getNode()->willReturn($node->reveal());
+        $event->getLocale()->willReturn('de');
+
+        $this->propertyEncoder->encode('system_localized', 'created', 'de')->willReturn('i18n:de-created');
+        $node->hasProperty('i18n:de-created')->willReturn(true);
+        $accessor->set('created', Argument::type(\DateTime::class))->shouldNotBeCalled();
+        $node->setProperty('i18n:de-created', Argument::type(\DateTime::class))->shouldNotBeCalled();
+
+        $this->propertyEncoder->encode('system_localized', 'changed', 'de')->willReturn('i18n:de-changed');
+        $accessor->set('changed', Argument::type('DateTime'))->shouldBeCalled();
+        $node->setProperty('i18n:de-changed', Argument::type(\DateTime::class))->shouldBeCalled();
+
+        $this->subscriber->setTimestampsOnNodeForPublish($event->reveal());
+    }
+
+    public function testSetTimestampsOnNodeForPublishNonLocalized()
+    {
+        $event = $this->prophesize(PublishEvent::class);
+        $accessor = $this->prophesize(DocumentAccessor::class);
+        $document = $this->prophesize(TimestampBehavior::class);
+        $node = $this->prophesize(NodeInterface::class);
+
+        $event->getDocument()->willReturn($document->reveal());
+        $event->getAccessor()->willReturn($accessor->reveal());
+        $event->getNode()->willReturn($node->reveal());
+        $event->getLocale()->willReturn('de');
+
+        $this->propertyEncoder->encode('system', 'created', 'de')->willReturn('created');
+        $this->propertyEncoder->encode('system', 'changed', 'de')->willReturn('changed');
+
+        $node->hasProperty('created')->willReturn(false);
+        $accessor->set('created', Argument::type(\DateTime::class))->shouldBeCalled();
+        $node->setProperty('created', Argument::type(\DateTime::class))->shouldBeCalled();
+
+        $accessor->set('changed', Argument::type(\DateTime::class))->shouldBeCalled();
+        $node->setProperty('changed', Argument::type(\DateTime::class))->shouldBeCalled();
+
+        $this->subscriber->setTimestampsOnNodeForPublish($event->reveal());
     }
 
     public function testHydrate()
