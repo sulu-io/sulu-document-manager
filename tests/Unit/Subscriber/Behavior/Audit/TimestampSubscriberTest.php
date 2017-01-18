@@ -122,6 +122,24 @@ class TimestampSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->subscriber->setTimestampsOnNodeForPersist($event->reveal());
     }
 
+    public function testSetTimestampOnNodeForPersistLocalizedWithoutLocale()
+    {
+        $event = $this->prophesize(PersistEvent::class);
+        $node = $this->prophesize(NodeInterface::class);
+        $document = $this->prophesize(LocalizedTimestampBehavior::class);
+        $accessor = $this->prophesize(DocumentAccessor::class);
+
+        $event->getNode()->willReturn($node->reveal());
+        $event->getDocument()->willReturn($document->reveal());
+        $event->getAccessor()->willReturn($accessor->reveal());
+        $event->getLocale()->willReturn(null);
+
+        $this->propertyEncoder->encode(Argument::cetera())->shouldNotBeCalled();
+        $node->setProperty(Argument::cetera())->shouldNotBeCalled();
+
+        $this->subscriber->setTimestampsOnNodeForPersist($event->reveal());
+    }
+
     public function testSetTimestampsOnNodeForPublishNotImplementing()
     {
         $event = $this->prophesize(PublishEvent::class);

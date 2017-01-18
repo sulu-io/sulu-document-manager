@@ -143,6 +143,10 @@ class TimestampSubscriber implements EventSubscriberInterface
         $locale,
         $timestamp
     ) {
+        if (!$document instanceof TimestampBehavior && !$locale) {
+            return;
+        }
+
         $encoding = $this->getPropertyEncoding($document);
 
         $createdPropertyName = $this->propertyEncoder->encode($encoding, static::CREATED, $locale);
