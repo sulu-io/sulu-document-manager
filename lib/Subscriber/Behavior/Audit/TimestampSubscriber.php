@@ -122,8 +122,7 @@ class TimestampSubscriber implements EventSubscriberInterface
             $document,
             $event->getNode(),
             $event->getAccessor(),
-            $event->getLocale(),
-            new \DateTime()
+            $event->getLocale()
         );
     }
 
@@ -133,15 +132,15 @@ class TimestampSubscriber implements EventSubscriberInterface
      * @param LocalizedTimestampBehavior $document
      * @param NodeInterface $node
      * @param DocumentAccessor $accessor
-     * @param $locale
-     * @param $timestamp
+     * @param string $locale
+     * @param \DateTime|null $timestamp The timestamp to set, will use the documents timestamps if null is provided
      */
     public function setTimestampsOnNode(
         LocalizedTimestampBehavior $document,
         NodeInterface $node,
         DocumentAccessor $accessor,
         $locale,
-        $timestamp
+        $timestamp = null
     ) {
         if (!$document instanceof TimestampBehavior && !$locale) {
             return;
@@ -151,12 +150,14 @@ class TimestampSubscriber implements EventSubscriberInterface
 
         $createdPropertyName = $this->propertyEncoder->encode($encoding, static::CREATED, $locale);
         if (!$node->hasProperty($createdPropertyName)) {
-            $accessor->set(static::CREATED, $timestamp);
-            $node->setProperty($createdPropertyName, $timestamp);
+            $createdTimestamp = $timestamp ?: $document->getCreated();
+            $accessor->set(static::CREATED, $createdTimestamp);
+            $node->setProperty($createdPropertyName, $createdTimestamp);
         }
 
-        $accessor->set(static::CHANGED, $timestamp);
-        $node->setProperty($this->propertyEncoder->encode($encoding, static::CHANGED, $locale), $timestamp);
+        $changedTimestamp = $timestamp ?: $document->getChanged();
+        $accessor->set(static::CHANGED, $changedTimestamp);
+        $node->setProperty($this->propertyEncoder->encode($encoding, static::CHANGED, $locale), $changedTimestamp);
     }
 
     /**

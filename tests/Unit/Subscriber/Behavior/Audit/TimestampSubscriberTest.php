@@ -159,15 +159,21 @@ class TimestampSubscriberTest extends \PHPUnit_Framework_TestCase
         $event->getNode()->willReturn($node->reveal());
         $event->getLocale()->willReturn('de');
 
+        $createdDate = new \DateTime('2017-01-25');
+        $changedDate = new \DateTime('2017-01-18');
+
+        $document->getCreated()->willReturn($createdDate);
+        $document->getChanged()->willReturn($changedDate);
+
         $this->propertyEncoder->encode('system_localized', 'created', 'de')->willReturn('i18n:de-created');
         $this->propertyEncoder->encode('system_localized', 'changed', 'de')->willReturn('i18n:de-changed');
 
         $node->hasProperty('i18n:de-created')->willReturn(false);
-        $accessor->set('created', Argument::type(\DateTime::class))->shouldBeCalled();
-        $node->setProperty('i18n:de-created', Argument::type(\DateTime::class))->shouldBeCalled();
+        $accessor->set('created', $createdDate)->shouldBeCalled();
+        $node->setProperty('i18n:de-created', $createdDate)->shouldBeCalled();
 
-        $accessor->set('changed', Argument::type(\DateTime::class))->shouldBeCalled();
-        $node->setProperty('i18n:de-changed', Argument::type(\DateTime::class))->shouldBeCalled();
+        $accessor->set('changed', $changedDate)->shouldBeCalled();
+        $node->setProperty('i18n:de-changed', $changedDate)->shouldBeCalled();
 
         $this->subscriber->setTimestampsOnNodeForPublish($event->reveal());
     }
@@ -184,14 +190,20 @@ class TimestampSubscriberTest extends \PHPUnit_Framework_TestCase
         $event->getNode()->willReturn($node->reveal());
         $event->getLocale()->willReturn('de');
 
+        $createdDate = new \DateTime('2017-01-25');
+        $changedDate = new \DateTime('2017-01-18');
+
+        $document->getCreated()->willReturn($createdDate);
+        $document->getChanged()->willReturn($changedDate);
+
         $this->propertyEncoder->encode('system_localized', 'created', 'de')->willReturn('i18n:de-created');
         $node->hasProperty('i18n:de-created')->willReturn(true);
-        $accessor->set('created', Argument::type(\DateTime::class))->shouldNotBeCalled();
-        $node->setProperty('i18n:de-created', Argument::type(\DateTime::class))->shouldNotBeCalled();
+        $accessor->set('created', $createdDate)->shouldNotBeCalled();
+        $node->setProperty('i18n:de-created', $createdDate)->shouldNotBeCalled();
 
         $this->propertyEncoder->encode('system_localized', 'changed', 'de')->willReturn('i18n:de-changed');
-        $accessor->set('changed', Argument::type('DateTime'))->shouldBeCalled();
-        $node->setProperty('i18n:de-changed', Argument::type(\DateTime::class))->shouldBeCalled();
+        $accessor->set('changed', $changedDate)->shouldBeCalled();
+        $node->setProperty('i18n:de-changed', $changedDate)->shouldBeCalled();
 
         $this->subscriber->setTimestampsOnNodeForPublish($event->reveal());
     }
@@ -208,15 +220,21 @@ class TimestampSubscriberTest extends \PHPUnit_Framework_TestCase
         $event->getNode()->willReturn($node->reveal());
         $event->getLocale()->willReturn('de');
 
+        $createdDate = new \DateTime('2017-01-25');
+        $changedDate = new \DateTime('2017-01-18');
+
+        $document->getCreated()->willReturn($createdDate);
+        $document->getChanged()->willReturn($changedDate);
+
         $this->propertyEncoder->encode('system', 'created', 'de')->willReturn('created');
         $this->propertyEncoder->encode('system', 'changed', 'de')->willReturn('changed');
 
         $node->hasProperty('created')->willReturn(false);
-        $accessor->set('created', Argument::type(\DateTime::class))->shouldBeCalled();
-        $node->setProperty('created', Argument::type(\DateTime::class))->shouldBeCalled();
+        $accessor->set('created', $createdDate)->shouldBeCalled();
+        $node->setProperty('created', $createdDate)->shouldBeCalled();
 
-        $accessor->set('changed', Argument::type(\DateTime::class))->shouldBeCalled();
-        $node->setProperty('changed', Argument::type(\DateTime::class))->shouldBeCalled();
+        $accessor->set('changed', $changedDate)->shouldBeCalled();
+        $node->setProperty('changed', $changedDate)->shouldBeCalled();
 
         $this->subscriber->setTimestampsOnNodeForPublish($event->reveal());
     }
