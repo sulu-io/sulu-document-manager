@@ -1,6 +1,9 @@
 CHANGELOG for Sulu
 ==================
 
+* dev-develop
+    * ENHANCEMENT #107 Added VersionNotFoundException
+
 * 0.9.0-RC1
     * FEATURE     #105 Fixed changed times for both workspaces
     * FEATURE     #97  Added versioning functionalities
