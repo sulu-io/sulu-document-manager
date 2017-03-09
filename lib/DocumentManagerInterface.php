@@ -115,6 +115,8 @@ interface DocumentManagerInterface
      * @param string $version The UUID of the version to restore
      * @param array $options
      *
+     * @throws Exception\VersionNotFoundException
+     *
      * @return mixed
      */
     public function restore($document, $locale, $version, array $options = []);
