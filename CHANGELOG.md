@@ -1,5 +1,5 @@
-CHANGELOG for Sulu
-==================
+CHANGELOG for Sulu Document Manager
+===================================
 
 * dev-master
     * ENHANCEMENT #107 Added VersionNotFoundException
