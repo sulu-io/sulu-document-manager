@@ -245,7 +245,7 @@ class VersionSubscriber implements EventSubscriberInterface
                 }
             }
         } catch (VersionException $exception) {
-            throw new VersionNotFoundException($node, $event->getVersion());
+            throw new VersionNotFoundException($event->getDocument(), $event->getVersion());
         }
     }
 
