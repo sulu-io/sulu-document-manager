@@ -1,7 +1,7 @@
 CHANGELOG for Sulu
 ==================
 
-* dev-develop
+* dev-master
     * ENHANCEMENT #107 Added VersionNotFoundException
 
 * 0.9.0-RC1
