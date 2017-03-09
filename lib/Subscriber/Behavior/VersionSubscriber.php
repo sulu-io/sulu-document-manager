@@ -14,6 +14,7 @@ namespace Sulu\Component\DocumentManager\Subscriber\Behavior;
 use Jackalope\Version\VersionManager;
 use PHPCR\NodeInterface;
 use PHPCR\SessionInterface;
+use PHPCR\Version\VersionException;
 use Sulu\Component\DocumentManager\Behavior\VersionBehavior;
 use Sulu\Component\DocumentManager\Event\AbstractMappingEvent;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
@@ -21,6 +22,7 @@ use Sulu\Component\DocumentManager\Event\PersistEvent;
 use Sulu\Component\DocumentManager\Event\PublishEvent;
 use Sulu\Component\DocumentManager\Event\RestoreEvent;
 use Sulu\Component\DocumentManager\Events;
+use Sulu\Component\DocumentManager\Exception\VersionNotFoundException;
 use Sulu\Component\DocumentManager\PropertyEncoder;
 use Sulu\Component\DocumentManager\Version;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -208,6 +210,8 @@ class VersionSubscriber implements EventSubscriberInterface
      * Restore the properties of the old version.
      *
      * @param RestoreEvent $event
+     *
+     * @throws VersionNotFoundException
      */
     public function restoreProperties(RestoreEvent $event)
     {
@@ -229,14 +233,19 @@ class VersionSubscriber implements EventSubscriberInterface
             }
         }
 
-        $version = $this->versionManager->getVersionHistory($node->getPath())->getVersion($event->getVersion());
-        $frozenNode = $version->getFrozenNode();
+        try {
+            $version = $this->versionManager->getVersionHistory($node->getPath())->getVersion($event->getVersion());
 
-        // set all the properties from the saved version to the node
-        foreach ($frozenNode->getPropertiesValues() as $name => $value) {
-            if ($this->isRestoreProperty($name, $contentPropertyPrefix, $systemPropertyPrefix)) {
-                $node->setProperty($name, $value);
+            $frozenNode = $version->getFrozenNode();
+
+            // set all the properties from the saved version to the node
+            foreach ($frozenNode->getPropertiesValues() as $name => $value) {
+                if ($this->isRestoreProperty($name, $contentPropertyPrefix, $systemPropertyPrefix)) {
+                    $node->setProperty($name, $value);
+                }
             }
+        } catch (VersionException $exception) {
+            throw new VersionNotFoundException($exception->getMessage(), $exception->getCode());
         }
     }
 
