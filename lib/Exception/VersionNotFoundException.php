@@ -13,4 +13,46 @@ namespace Sulu\Component\DocumentManager\Exception;
 
 class VersionNotFoundException extends DocumentManagerException
 {
+    /**
+     * @var object
+     */
+    private $document;
+
+    /**
+     * @var int
+     */
+    private $version;
+
+    /**
+     * @param object $document
+     * @param string $version
+     */
+    public function __construct($document, $version)
+    {
+        parent::__construct(
+            sprintf('Version "%s" for document "%" not found', $version, $document->getUuid())
+        );
+        $this->document = $document;
+        $this->version = $version;
+    }
+
+    /**
+     * The document, which was tried to restore.
+     *
+     * @return object
+     */
+    public function getDocument()
+    {
+        return $this->document;
+    }
+
+    /**
+     * The version, which was tried to restore.
+     *
+     * @return string
+     */
+    public function getVersion()
+    {
+        return $this->version;
+    }
 }

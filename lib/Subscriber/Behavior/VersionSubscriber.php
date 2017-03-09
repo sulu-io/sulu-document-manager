@@ -245,10 +245,17 @@ class VersionSubscriber implements EventSubscriberInterface
                 }
             }
         } catch (VersionException $exception) {
-            throw new VersionNotFoundException($exception->getMessage(), $exception->getCode());
+            throw new VersionNotFoundException($node, $event->getVersion());
         }
     }
 
+    /**
+     * @param string $propertyName
+     * @param string $contentPrefix
+     * @param string $systemPrefix
+     *
+     * @return bool
+     */
     private function isRestoreProperty($propertyName, $contentPrefix, $systemPrefix)
     {
         // return all localized and non-translatable properties

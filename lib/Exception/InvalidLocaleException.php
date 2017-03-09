@@ -21,6 +21,9 @@ class InvalidLocaleException extends \InvalidArgumentException
      */
     private $locale;
 
+    /**
+     * @param string $locale
+     */
     public function __construct($locale)
     {
         parent::__construct(sprintf('Invalid locale "%s"', $locale));

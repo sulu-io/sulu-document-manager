@@ -21,6 +21,9 @@ class NodeNameAlreadyExistsException extends DocumentManagerException
      */
     private $nodeName;
 
+    /**
+     * @param string $nodeName
+     */
     public function __construct($nodeName)
     {
         parent::__construct(
