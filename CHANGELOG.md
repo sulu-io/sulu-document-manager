@@ -3,6 +3,7 @@ CHANGELOG for Sulu Document Manager
 
 * dev-develop
     * ENHANCEMENT #110 Added node-name-slugifier to centralice additional node name replacer
+    * ENHANCEMENT #109 Added metadata to configure remove-live
 
 * 0.9.1 (2017-03-16)
     * ENHANCEMENT #107 Added VersionNotFoundException
