@@ -74,4 +74,26 @@ class FindTest extends BaseTestCase
         $document = $persistedDocument;
         $this->assertEquals('en', $document->getLocale());
     }
+
+    /**
+     * It can load different locales from the same document in the same request.
+     */
+    public function testFindMultipleDifferentLocales()
+    {
+        $this->generateDataSet([
+            'locales' => ['en', 'de'],
+        ]);
+
+        $manager = $this->getDocumentManager();
+        $manager->flush();
+
+        $result1 = $manager->find(self::BASE_PATH, 'en');
+        $this->assertEquals('en', $result1->getLocale());
+
+        $result2 = $manager->find(self::BASE_PATH, 'de');
+        $this->assertEquals('de', $result2->getLocale());
+
+        $this->assertNotEquals(false, $result1 === $result2);
+        $this->assertEquals('en', $result1->getLocale());
+    }
 }
