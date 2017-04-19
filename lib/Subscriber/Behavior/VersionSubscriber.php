@@ -285,7 +285,7 @@ class VersionSubscriber implements EventSubscriberInterface
             );
         }
 
-        // remove child-nodes which does not exists in frozen-node
+        // remove child-nodes which do not exists in frozen-node
         foreach ($node->getNodes() as $childNode) {
             if ($childNode->getDefinition()->getOnParentVersion() !== OnParentVersionAction::COPY
                 || $frozenNode->hasNode($childNode->getName())

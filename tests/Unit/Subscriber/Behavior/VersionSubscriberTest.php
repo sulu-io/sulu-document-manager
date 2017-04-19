@@ -457,4 +457,52 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
 
         $this->versionSubscriber->restoreProperties($event->reveal());
     }
+
+    public function testRestoreIgnoreChildren()
+    {
+        $event = $this->prophesize(RestoreEvent::class);
+        $document = $this->prophesize(VersionBehavior::class);
+        $node = $this->prophesize(NodeInterface::class);
+        $versionHistory = $this->prophesize(VersionHistoryInterface::class);
+        $version = $this->prophesize(JackalopeVersion::class);
+        $frozenNode = $this->prophesize(NodeInterface::class);
+
+        $node->getPath()->willReturn('/node');
+        $node->getProperties()->willReturn([]);
+        $node->hasNode('child')->willReturn(true);
+
+        $definition = $this->prophesize(NodeDefinitionInterface::class);
+        $definition->getOnParentVersion()->willReturn(OnParentVersionAction::IGNORE);
+
+        $childNode = $this->prophesize(NodeInterface::class);
+        $childNode->getName()->willReturn('child');
+        $childNode->getProperties()->willReturn([]);
+        $childNode->getNodes()->willReturn([]);
+        $childNode->getDefinition()->willReturn($definition->reveal());
+
+        $node->getNode('child')->willReturn($childNode->reveal());
+        $node->getNodes()->willReturn([$childNode->reveal()]);
+
+        $this->propertyEncoder->localizedContentName('', 'de')->willReturn('i18n:de-');
+        $this->propertyEncoder->localizedSystemName('', 'de')->willReturn('i18n:de-');
+
+        $frozenNode->getNodes()->willReturn([]);
+        $frozenNode->getPropertiesValues()->willReturn([]);
+        $frozenNode->hasNode(Argument::type('string'))->willReturn(false);
+
+        $event->getDocument()->willReturn($document->reveal());
+        $event->getNode()->willReturn($node->reveal());
+        $event->getVersion()->willReturn('1.0');
+        $event->getLocale()->willReturn('de');
+
+        $this->versionManager->getVersionHistory('/node')->willReturn($versionHistory->reveal());
+        $versionHistory->getVersion('1.0')->willReturn($version->reveal());
+        $version->getFrozenNode()->willReturn($frozenNode->reveal());
+
+        // the child-node should not be touched
+        $childNode->remove()->shouldNotBeCalled();
+        $childNode->setProperty(Argument::cetera())->shouldNotBeCalled();
+
+        $this->versionSubscriber->restoreProperties($event->reveal());
+    }
 }
