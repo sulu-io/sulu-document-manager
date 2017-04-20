@@ -2,6 +2,7 @@ CHANGELOG for Sulu Document Manager
 ===================================
 
 * dev-develop
+    * BUGFIX      #112 Fixed overwrite of exist created date. 
     * ENHANCEMENT #110 Added node-name-slugifier to centralice additional node name replacer
     * ENHANCEMENT #109 Added metadata to configure remove-live
     * FEATURE     #107 Added recursive restore to allow also versions of children
