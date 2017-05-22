@@ -199,9 +199,6 @@ class AutoNameSubscriber implements EventSubscriberInterface
 
         $name = $this->slugifier->slugify($title);
 
-        // jackrabbit can not handle node-names which contains a number followed by "e" e.g. 10e
-        $name = preg_replace('((\d+)([eE]))', '$1-$2', $name);
-
         return $this->resolver->resolveName($parentNode, $name, $node, $autoRename);
     }
 

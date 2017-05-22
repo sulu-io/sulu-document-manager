@@ -73,6 +73,33 @@ class TimestampSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->subscriber->setTimestampsOnNodeForPersist($event->reveal());
     }
 
+    public function testSetTimestampsOnNodeForPersistCreatedWhenSet()
+    {
+        $event = $this->prophesize(PersistEvent::class);
+        $accessor = $this->prophesize(DocumentAccessor::class);
+        $document = $this->prophesize(LocalizedTimestampBehavior::class);
+        $node = $this->prophesize(NodeInterface::class);
+
+        $event->getDocument()->willReturn($document->reveal());
+        $event->getAccessor()->willReturn($accessor->reveal());
+        $event->getNode()->willReturn($node->reveal());
+        $event->getLocale()->willReturn('de');
+
+        $this->propertyEncoder->encode('system_localized', 'created', 'de')->willReturn('i18n:de-created');
+        $this->propertyEncoder->encode('system_localized', 'changed', 'de')->willReturn('i18n:de-changed');
+
+        $createdDate = new \DateTime('2013-01-12');
+        $document->getCreated()->willReturn($createdDate);
+        $node->hasProperty('i18n:de-created')->willReturn();
+        $accessor->set('created', $createdDate)->shouldBeCalled();
+        $node->setProperty('i18n:de-created', $createdDate)->shouldBeCalled();
+
+        $accessor->set('changed', Argument::type(\DateTime::class))->shouldBeCalled();
+        $node->setProperty('i18n:de-changed', Argument::type(\DateTime::class))->shouldBeCalled();
+
+        $this->subscriber->setTimestampsOnNodeForPersist($event->reveal());
+    }
+
     public function testSetTimestampsOnNodeForPersistChanged()
     {
         $event = $this->prophesize(PersistEvent::class);

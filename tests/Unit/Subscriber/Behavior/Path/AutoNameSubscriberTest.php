@@ -160,36 +160,6 @@ class AutoNameSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->subscriber->handlePersist($this->persistEvent->reveal());
     }
 
-    public function provide10eData()
-    {
-        return [
-            ['10e', '10-e'],
-            ['.10e', '.10-e'],
-            ['-10e', '-10-e'],
-            ['%10e', '%10-e'],
-            ['test-10e-name', 'test-10-e-name'],
-            ['test.10e-name', 'test.10-e-name'],
-            ['test%10e-name', 'test%10-e-name'],
-            ['test-10E-name', 'test-10-E-name'],
-            ['test.10E-name', 'test.10-E-name'],
-            ['test%10E-name', 'test%10-E-name'],
-            ['test10E-name', 'test10-E-name'],
-            ['test-9e-name', 'test-9-e-name'],
-            ['test-500e-name', 'test-500-e-name'],
-        ];
-    }
-
-    /**
-     * It should assign a name based on the documents title.
-     *
-     * @dataProvider provide10eData
-     */
-    public function testAutoName10e($title, $expectedName)
-    {
-        $this->doTestAutoName($title, $expectedName, true, false, $expectedName);
-        $this->subscriber->handlePersist($this->persistEvent->reveal());
-    }
-
     /**
      * It should not assign a new name, if the option says it is disabled.
      */

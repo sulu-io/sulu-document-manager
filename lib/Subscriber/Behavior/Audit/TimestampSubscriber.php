@@ -150,7 +150,7 @@ class TimestampSubscriber implements EventSubscriberInterface
 
         $createdPropertyName = $this->propertyEncoder->encode($encoding, static::CREATED, $locale);
         if (!$node->hasProperty($createdPropertyName)) {
-            $createdTimestamp = $timestamp ?: $document->getCreated();
+            $createdTimestamp = $document->getCreated() ?: $timestamp;
             $accessor->set(static::CREATED, $createdTimestamp);
             $node->setProperty($createdPropertyName, $createdTimestamp);
         }
