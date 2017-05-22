@@ -28,6 +28,46 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class ProxyFactoryTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * @var NodeInterface
+     */
+    private $node;
+
+    /**
+     * @var NodeInterface
+     */
+    private $parentNode;
+
+    /**
+     * @var MetadataFactoryInterface
+     */
+    private $metadataFactory;
+
+    /**
+     * @var Metadata\
+     */
+    private $metadata;
+
+    /**
+     * @var DocumentRegistry
+     */
+    private $documentRegistry;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $dispatcher;
+
+    /**
+     * @var LazyLoadingGhostFactory
+     */
+    private $proxyFactory;
+
+    /**
+     * @var TestProxyDocument
+     */
+    private $document;
+
+    /**
      * @var ProxyFactory
      */
     private $factory;
@@ -152,8 +192,10 @@ class TestProxyDocument implements ParentBehavior
 
 class TestProxyDocumentProxy
 {
+    private $title = 'Hello';
+
     public function getTitle()
     {
-        return 'Hello';
+        return $this->title;
     }
 }

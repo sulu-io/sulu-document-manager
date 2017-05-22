@@ -7,7 +7,7 @@
         "symfony/config": "~2.8 || ~3.0",
         "symfony/options-resolver": "~2.8 || ~3.0",
         "symfony-cmf/slugifier-api": "~1.0",
-        "ocramius/proxy-manager": "~1.0",
+        "ocramius/proxy-manager": "~1.0 | ~2.0",
         "aferrandini/urlizer": "~1.0.0"
     },
     "require-dev": {
