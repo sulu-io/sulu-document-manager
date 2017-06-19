@@ -49,6 +49,11 @@ class Metadata
     private $syncRemoveLive = true;
 
     /**
+     * @var bool
+     */
+    private $setDefaultAuthor = true;
+
+    /**
      * Add a field mapping for field with given name, for example.
      *
      * ````
@@ -212,5 +217,25 @@ class Metadata
     public function setSyncRemoveLive($syncRemoveLive)
     {
         $this->syncRemoveLive = $syncRemoveLive;
+    }
+
+    /**
+     * Returns set-default-author.
+     *
+     * @return bool
+     */
+    public function getSetDefaultAuthor()
+    {
+        return $this->setDefaultAuthor;
+    }
+
+    /**
+     * Set setDefaultAuthor.
+     *
+     * @param bool $setDefaultAuthor
+     */
+    public function setDefaultAuthor($setDefaultAuthor)
+    {
+        $this->setDefaultAuthor = $setDefaultAuthor;
     }
 }

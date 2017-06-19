@@ -198,6 +198,8 @@ class BaseMetadataFactory implements MetadataFactoryInterface
             'form_type' => null,
             'class' => null,
             'mapping' => [],
+            'sync_remove_live' => true,
+            'set_default_author' => true,
         ], $mapping);
 
         if (isset($this->metadata[$mapping['alias']])) {
@@ -209,6 +211,8 @@ class BaseMetadataFactory implements MetadataFactoryInterface
         $metadata->setPhpcrType($mapping['phpcr_type']);
         $metadata->setFormType($mapping['form_type']);
         $metadata->setClass($mapping['class']);
+        $metadata->setSyncRemoveLive($mapping['sync_remove_live']);
+        $metadata->setDefaultAuthor($mapping['set_default_author']);
 
         foreach ($mapping['mapping'] as $fieldName => $fieldMapping) {
             $fieldMapping = array_merge([

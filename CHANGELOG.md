@@ -1,6 +1,9 @@
 CHANGELOG for Sulu Document Manager
 ===================================
 
+* dev-develop
+    * FEATURE     #116 Added set-default-author to metadata
+
 * 0.10.0-RC1 (2017-06-01)
     * BUGFIX      #113 Updated ProxyManager to be compatible with PHP 7
     * BUGFIX      #112 Fixed overwrite of exist created date. 
