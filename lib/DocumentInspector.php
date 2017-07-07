@@ -191,4 +191,17 @@ class DocumentInspector
             ->getNodeForDocument($document)
             ->getIdentifier();
     }
+
+    /**
+     * Return true if the given "document" is managed otherwise
+     * return false.
+     *
+     * @param object $document
+     *
+     * @return bool
+     */
+    public function isManaged($document)
+    {
+        return $this->documentRegistry->hasDocument($document);
+    }
 }

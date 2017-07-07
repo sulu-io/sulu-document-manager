@@ -113,4 +113,17 @@ class DocumentInspectorTest extends \PHPUnit_Framework_TestCase
             $this->documentInspector->hasChildren($this->document)
         );
     }
+
+    /**
+     * It should return true if a given document is managed, false otherwise.
+     */
+    public function testDocumentIsManaged()
+    {
+        $object1 = new \stdClass();
+        $this->documentRegistry->hasDocument($object1)->willReturn(true);
+        $this->assertTrue($this->documentInspector->isManaged($object1));
+
+        $this->documentRegistry->hasDocument($object1)->willReturn(false);
+        $this->assertFalse($this->documentInspector->isManaged($object1));
+    }
 }
