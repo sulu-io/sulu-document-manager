@@ -12,6 +12,7 @@
 namespace Sulu\Component\DocumentManager\Subscriber\Behavior\Path;
 
 use PHPCR\NodeInterface;
+use PHPCR\SessionInterface;
 use Sulu\Component\DocumentManager\Behavior\Path\AutoNameBehavior;
 use Sulu\Component\DocumentManager\DocumentHelper;
 use Sulu\Component\DocumentManager\DocumentRegistry;
@@ -54,21 +55,34 @@ class AutoNameSubscriber implements EventSubscriberInterface
     private $nodeManager;
 
     /**
-     * @param DocumentRegistry $registry
-     * @param SlugifierInterface $slugifier
-     * @param NameResolver $resolver
-     * @param NodeManager $nodeManager
+     * @var SessionInterface
      */
+    private $session;
+
+    /**
+     * @var SessionInterface
+     */
+    private $liveSession;
+
+    /**
+     * @var array
+     */
+    private $scheduledRename = [];
+
     public function __construct(
         DocumentRegistry $registry,
         SlugifierInterface $slugifier,
         NameResolver $resolver,
-        NodeManager $nodeManager
+        NodeManager $nodeManager,
+        SessionInterface $session,
+        SessionInterface $liveSession
     ) {
         $this->registry = $registry;
         $this->slugifier = $slugifier;
         $this->resolver = $resolver;
         $this->nodeManager = $nodeManager;
+        $this->session = $session;
+        $this->liveSession = $liveSession;
     }
 
     /**
@@ -79,13 +93,12 @@ class AutoNameSubscriber implements EventSubscriberInterface
         return [
             Events::CONFIGURE_OPTIONS => 'configureOptions',
             Events::PERSIST => [
+                ['handleScheduleRename'],
                 ['handlePersist', 480],
-                // the rename has to done at the very end to avoid ItemNotFoundException
-                // see https://github.com/jackalope/jackalope/blob/3cf6e0582acb26b5b83b3445be238ea8aadf46ec/src/Jackalope/ObjectManager.php#L429
-                ['handleRename', -480],
             ],
             Events::MOVE => ['handleMove', 480],
             Events::COPY => ['handleCopy', 480],
+            Events::FLUSH => ['handleRename'],
         ];
     }
 
@@ -145,7 +158,7 @@ class AutoNameSubscriber implements EventSubscriberInterface
      *
      * @param PersistEvent $event
      */
-    public function handleRename(PersistEvent $event)
+    public function handleScheduleRename(PersistEvent $event)
     {
         $document = $event->getDocument();
 
@@ -165,7 +178,20 @@ class AutoNameSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $this->rename($event->getNode(), $name);
+        $uuid = $event->getNode()->getIdentifier();
+        $this->scheduledRename[$uuid] = ['uuid' => $uuid, 'name' => $name];
+    }
+
+    public function handleRename()
+    {
+        foreach($this->scheduledRename as $item) {
+            $defaultNode = $this->session->getNodeByIdentifier($item['uuid']);
+            $liveNode = $this->liveSession->getNodeByIdentifier($item['uuid']);
+            $this->rename($defaultNode, $item['name']);
+            $this->rename($liveNode, $item['name']);
+        }
+
+        $this->scheduledRename = [];
     }
 
     /**

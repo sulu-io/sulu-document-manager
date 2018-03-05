@@ -12,6 +12,7 @@
 namespace Sulu\Component\DocumentManager\tests\Unit\Subscriber\Behavior\Path;
 
 use PHPCR\NodeInterface;
+use PHPCR\SessionInterface;
 use Prophecy\Argument;
 use Sulu\Component\DocumentManager\Behavior\Path\AutoNameBehavior;
 use Sulu\Component\DocumentManager\DocumentRegistry;
@@ -98,6 +99,16 @@ class AutoNameSubscriberTest extends \PHPUnit_Framework_TestCase
      */
     private $subscriber;
 
+    /**
+     * @var SessionInterface
+     */
+    private $session;
+
+    /**
+     * @var SessionInterface
+     */
+    private $liveSession;
+
     public function setUp()
     {
         $this->documentRegistry = $this->prophesize(DocumentRegistry::class);
@@ -114,12 +125,16 @@ class AutoNameSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->documentRegistry->getDefaultLocale()->willReturn(self::DEFAULT_LOCALE);
         $this->resolver = $this->prophesize(NameResolver::class);
         $this->nodeManager = $this->prophesize(NodeManager::class);
+        $this->session = $this->prophesize(SessionInterface::class);
+        $this->liveSession = $this->prophesize(SessionInterface::class);
 
         $this->subscriber = new AutoNameSubscriber(
             $this->documentRegistry->reveal(),
             $this->slugifier->reveal(),
             $this->resolver->reveal(),
-            $this->nodeManager->reveal()
+            $this->nodeManager->reveal(),
+            $this->session->reveal(),
+            $this->liveSession->reveal()
         );
     }
 
@@ -248,15 +263,27 @@ class AutoNameSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->persistEvent->getDocument()->willReturn($this->document->reveal());
 
         $this->node->isNew()->willReturn(false);
+        $this->node->getIdentifier()->willReturn('123-123-123');
         $this->node->getName()->willReturn('foobar');
         $this->node->getParent()->willReturn($this->parentNode->reveal());
-        $this->node->rename('test')->shouldBeCalled();
 
         $this->document->getTitle()->willReturn('Test');
         $this->slugifier->slugify('Test')->willReturn('test');
         $this->resolver->resolveName($this->parentNode->reveal(), 'test', $this->node->reveal(), true)->willReturn('test');
 
-        $this->subscriber->handleRename($this->persistEvent->reveal());
+        $liveNode = $this->prophesize(NodeInterface::class);
+        $liveNode->getName()->willReturn('foobar');
+        $liveNode->getParent()->willReturn($this->parentNode->reveal());
+        $this->session->getNodeByIdentifier('123-123-123')->willReturn($this->node->reveal());
+        $this->liveSession->getNodeByIdentifier('123-123-123')->willReturn($liveNode->reveal());
+
+        $liveNode->rename('test')->shouldNotBeCalled();
+        $this->node->rename('test')->shouldNotBeCalled();
+        $this->subscriber->handleScheduleRename($this->persistEvent->reveal());
+
+        $liveNode->rename('test')->shouldBeCalled();
+        $this->node->rename('test')->shouldBeCalled();
+        $this->subscriber->handleRename();
     }
 
     /**
