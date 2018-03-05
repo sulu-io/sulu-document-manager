@@ -1,6 +1,9 @@
 CHANGELOG for Sulu Document Manager
 ===================================
 
+* dev-master
+    * HOTFIX      #117 Execute rename in flush-event to avoid ItemNotFoundException
+
 * 0.10.0 (2017-06-28)
     * FEATURE     #116 Added set-default-author to metadata
 
