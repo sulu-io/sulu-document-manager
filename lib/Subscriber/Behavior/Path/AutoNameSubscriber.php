@@ -13,7 +13,10 @@ namespace Sulu\Component\DocumentManager\Subscriber\Behavior\Path;
 
 use PHPCR\NodeInterface;
 use PHPCR\SessionInterface;
+use Sulu\Component\DocumentManager\Behavior\Mapping\NodeNameBehavior;
+use Sulu\Component\DocumentManager\Behavior\Mapping\PathBehavior;
 use Sulu\Component\DocumentManager\Behavior\Path\AutoNameBehavior;
+use Sulu\Component\DocumentManager\DocumentAccessor;
 use Sulu\Component\DocumentManager\DocumentHelper;
 use Sulu\Component\DocumentManager\DocumentRegistry;
 use Sulu\Component\DocumentManager\Event\ConfigureOptionsEvent;
@@ -179,7 +182,7 @@ class AutoNameSubscriber implements EventSubscriberInterface
         }
 
         $uuid = $event->getNode()->getIdentifier();
-        $this->scheduledRename[$uuid] = ['uuid' => $uuid, 'name' => $name];
+        $this->scheduledRename[] = ['uuid' => $uuid, 'name' => $name, 'locale' => $event->getLocale()];
     }
 
     public function handleRename()
@@ -189,6 +192,17 @@ class AutoNameSubscriber implements EventSubscriberInterface
             $liveNode = $this->liveSession->getNodeByIdentifier($item['uuid']);
             $this->rename($defaultNode, $item['name']);
             $this->rename($liveNode, $item['name']);
+
+            $document = $this->registry->getDocumentForNode($defaultNode, $item['locale']);
+
+            $accessor = new DocumentAccessor($document);
+            if ($document instanceof NodeNameBehavior) {
+                $accessor->set('nodeName', $defaultNode->getName());
+            }
+
+            if ($document instanceof PathBehavior) {
+                $accessor->set('path', $defaultNode->getPath());
+            }
         }
 
         $this->scheduledRename = [];

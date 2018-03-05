@@ -281,6 +281,8 @@ class AutoNameSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->node->rename('test')->shouldNotBeCalled();
         $this->subscriber->handleScheduleRename($this->persistEvent->reveal());
 
+        $this->documentRegistry->getDocumentForNode($this->node->reveal(), 'en')->willReturn($this->document->reveal());
+
         $liveNode->rename('test')->shouldBeCalled();
         $this->node->rename('test')->shouldBeCalled();
         $this->subscriber->handleRename();
