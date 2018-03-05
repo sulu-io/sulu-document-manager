@@ -28,6 +28,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class Query
 {
     const HYDRATE_DOCUMENT = 'document';
+
     const HYDRATE_PHPCR = 'phpcr_node';
 
     /**
@@ -108,11 +109,11 @@ class Query
             $this->phpcrQuery->bindValue($key, $value);
         }
 
-        if ($hydrationMode === self::HYDRATE_PHPCR) {
+        if (self::HYDRATE_PHPCR === $hydrationMode) {
             return $this->phpcrQuery->execute();
         }
 
-        if ($hydrationMode !== self::HYDRATE_DOCUMENT) {
+        if (self::HYDRATE_DOCUMENT !== $hydrationMode) {
             throw new DocumentManagerException(sprintf(
                 'Unknown hydration mode "%s", should be either "document" or "phpcr_node"',
                 $hydrationMode

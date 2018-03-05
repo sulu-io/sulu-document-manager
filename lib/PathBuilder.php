@@ -73,12 +73,12 @@ class PathBuilder
      */
     private function buildSegment($segment)
     {
-        if (empty($segment) || $segment == '/') {
+        if (empty($segment) || '/' == $segment) {
             return;
         }
 
-        if (substr($segment, 0, 1) == '%') {
-            if (substr($segment, -1) == '%') {
+        if ('%' == substr($segment, 0, 1)) {
+            if ('%' == substr($segment, -1)) {
                 return $this->registry->getPathSegment(substr($segment, 1, -1));
             }
         }

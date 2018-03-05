@@ -102,6 +102,6 @@ class PersistEvent extends AbstractMappingEvent
      */
     public function hasParentNode()
     {
-        return $this->parentNode !== null;
+        return null !== $this->parentNode;
     }
 }

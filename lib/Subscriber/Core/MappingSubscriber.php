@@ -96,9 +96,11 @@ class MappingSubscriber implements EventSubscriberInterface
             switch ($fieldMapping['type']) {
                 case 'reference':
                     $this->persistReference($node, $accessor, $fieldName, $locale, $fieldMapping);
+
                     break;
                 case 'json_array':
                     $this->persistJsonArray($node, $accessor, $fieldName, $locale, $fieldMapping);
+
                     break;
                 default:
                     $this->persistGeneric($node, $accessor, $fieldName, $locale, $fieldMapping);
@@ -237,9 +239,11 @@ class MappingSubscriber implements EventSubscriberInterface
                         $fieldMapping,
                         $event->getOptions()
                     );
+
                     break;
                 case 'json_array':
                     $this->hydrateJsonArrayField($node, $accessor, $fieldName, $locale, $fieldMapping);
+
                     break;
                 default:
                     $this->hydrateGenericField($node, $accessor, $fieldName, $locale, $fieldMapping);

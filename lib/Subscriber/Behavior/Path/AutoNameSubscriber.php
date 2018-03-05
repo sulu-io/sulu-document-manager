@@ -184,7 +184,7 @@ class AutoNameSubscriber implements EventSubscriberInterface
 
     public function handleRename()
     {
-        foreach($this->scheduledRename as $item) {
+        foreach ($this->scheduledRename as $item) {
             $defaultNode = $this->session->getNodeByIdentifier($item['uuid']);
             $liveNode = $this->liveSession->getNodeByIdentifier($item['uuid']);
             $this->rename($defaultNode, $item['name']);

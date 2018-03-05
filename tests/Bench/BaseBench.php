@@ -16,6 +16,7 @@ use Sulu\Component\DocumentManager\Tests\Bootstrap;
 abstract class BaseBench
 {
     const BASE_NAME = 'test';
+
     const BASE_PATH = '/test';
 
     private $container;

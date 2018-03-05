@@ -261,25 +261,43 @@ class DocumentManagerTest extends \PHPUnit_Framework_TestCase
 class TestDocumentManagerSubscriber implements EventSubscriberInterface
 {
     public $persist = false;
+
     public $hydrate = false;
+
     public $remove = false;
+
     public $copy = false;
+
     public $move = false;
+
     public $create = false;
+
     public $clear = false;
+
     public $flush = false;
+
     public $find = false;
+
     public $queryCreate = false;
+
     public $queryCreateBuilder = false;
+
     public $queryExecute = false;
+
     public $publish = false;
+
     public $unpublish = false;
+
     public $removeDraft = false;
+
     public $restore = false;
+
     public $refresh = false;
+
     public $reorder = false;
 
     private $query;
+
     private $resultCollection;
 
     public function __construct(Query $query, QueryResultCollection $resultCollection)

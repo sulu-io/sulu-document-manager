@@ -18,11 +18,9 @@ use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Events;
 use Sulu\Component\DocumentManager\Exception\DocumentManagerException;
 use Sulu\Component\DocumentManager\Metadata;
-use Sulu\Component\DocumentManager\MetadataFactory;
 use Sulu\Component\DocumentManager\MetadataFactoryInterface;
 use Sulu\Component\DocumentManager\NodeManager;
 use Sulu\Component\DocumentManager\Subscriber\Phpcr\FindSubscriber;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class FindSubscriberTest extends \PHPUnit_Framework_TestCase
@@ -70,7 +68,7 @@ class FindSubscriberTest extends \PHPUnit_Framework_TestCase
             $this->metadataFactory->getAliases()->willReturn(['test1', 'test2']);
             $this->setExpectedException(DocumentManagerException::class);
         }
-        if ($type === 'alias') {
+        if ('alias' === $type) {
             $this->metadataFactory->hasAlias($typeOrClass)->willReturn(true);
             $this->metadataFactory->getMetadataForAlias($typeOrClass)->willReturn($this->metadata);
             $this->metadata->getClass()->willReturn('stdClass');

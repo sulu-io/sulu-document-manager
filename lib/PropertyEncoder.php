@@ -57,7 +57,7 @@ class PropertyEncoder
      */
     public function localizedSystemName($name, $locale)
     {
-        if ($locale === null) {
+        if (null === $locale) {
             throw new InvalidLocaleException($locale);
         }
 
@@ -82,7 +82,7 @@ class PropertyEncoder
      */
     public function localizedContentName($name, $locale)
     {
-        if ($locale === null) {
+        if (null === $locale) {
             throw new InvalidLocaleException($locale);
         }
 

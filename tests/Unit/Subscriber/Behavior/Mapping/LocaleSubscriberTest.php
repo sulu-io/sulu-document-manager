@@ -61,6 +61,7 @@ class LocaleSubscriberTest extends \PHPUnit_Framework_TestCase
 class TestLocaleDocument implements LocaleBehavior
 {
     private $locale;
+
     private $originalLocale;
 
     public function getLocale()

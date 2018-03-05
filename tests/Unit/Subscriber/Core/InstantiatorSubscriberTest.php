@@ -16,7 +16,6 @@ use Prophecy\Argument;
 use Sulu\Component\DocumentManager\Event\CreateEvent;
 use Sulu\Component\DocumentManager\Event\HydrateEvent;
 use Sulu\Component\DocumentManager\Metadata;
-use Sulu\Component\DocumentManager\MetadataFactory;
 use Sulu\Component\DocumentManager\MetadataFactoryInterface;
 use Sulu\Component\DocumentManager\Subscriber\Core\InstantiatorSubscriber;
 

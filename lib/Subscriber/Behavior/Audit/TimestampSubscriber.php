@@ -29,6 +29,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class TimestampSubscriber implements EventSubscriberInterface
 {
     const CREATED = 'created';
+
     const CHANGED = 'changed';
 
     /**

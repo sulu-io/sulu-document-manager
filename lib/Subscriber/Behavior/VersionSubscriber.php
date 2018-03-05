@@ -287,7 +287,7 @@ class VersionSubscriber implements EventSubscriberInterface
 
         // remove child-nodes which do not exists in frozen-node
         foreach ($node->getNodes() as $childNode) {
-            if ($childNode->getDefinition()->getOnParentVersion() !== OnParentVersionAction::COPY
+            if (OnParentVersionAction::COPY !== $childNode->getDefinition()->getOnParentVersion()
                 || $frozenNode->hasNode($childNode->getName())
             ) {
                 continue;
@@ -308,9 +308,9 @@ class VersionSubscriber implements EventSubscriberInterface
     {
         // return all localized and non-translatable properties
         // non-translatable properties can be recognized by their missing namespace, therfore the check for the colon
-        if (strpos($propertyName, $contentPrefix) === 0
-            || strpos($propertyName, $systemPrefix) === 0
-            || strpos($propertyName, ':') === false
+        if (0 === strpos($propertyName, $contentPrefix)
+            || 0 === strpos($propertyName, $systemPrefix)
+            || false === strpos($propertyName, ':')
         ) {
             return true;
         }

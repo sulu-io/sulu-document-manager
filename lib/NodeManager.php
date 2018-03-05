@@ -71,6 +71,7 @@ class NodeManager
     public function has($identifier)
     {
         $this->normalizeToPath($identifier);
+
         try {
             $this->find($identifier);
 

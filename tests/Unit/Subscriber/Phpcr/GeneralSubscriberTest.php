@@ -25,7 +25,9 @@ use Sulu\Component\DocumentManager\Subscriber\Phpcr\GeneralSubscriber;
 class GeneralSubscriberTest extends \PHPUnit_Framework_TestCase
 {
     const SRC_PATH = '/path/to';
+
     const DST_PATH = '/dest/path';
+
     const DST_NAME = 'foo';
 
     /**

@@ -120,7 +120,7 @@ class ParentSubscriber implements EventSubscriberInterface
 
         $node = $event->getNode();
 
-        if ($node->getDepth() == 0) {
+        if (0 == $node->getDepth()) {
             throw new \RuntimeException(sprintf(
                 'Cannot apply parent behavior to root node "%s" with type "%s" for document of class "%s"',
                 $node->getPath(),

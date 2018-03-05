@@ -32,19 +32,33 @@ class FullDocument implements
     LocaleBehavior
 {
     protected $nodeName;
+
     protected $created;
+
     protected $changed;
+
     protected $creator;
+
     protected $changer;
+
     protected $parent;
+
     protected $uuid;
+
     protected $children;
+
     protected $path;
+
     protected $title;
+
     protected $body;
+
     protected $status;
+
     protected $reference;
+
     protected $locale;
+
     protected $originalLocale;
 
     public function __construct()

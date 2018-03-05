@@ -154,7 +154,7 @@ class ProxyFactoryTest extends \PHPUnit_Framework_TestCase
             Events::HYDRATE,
             Argument::that(
                 function (HydrateEvent $arg) {
-                    return $arg->getLocale() === 'de';
+                    return 'de' === $arg->getLocale();
                 }
             )
         )->shouldBeCalled();
