@@ -98,7 +98,7 @@ class AutoNameSubscriber implements EventSubscriberInterface
             ],
             Events::MOVE => ['handleMove', 480],
             Events::COPY => ['handleCopy', 480],
-            Events::FLUSH => ['handleRename'],
+            Events::FLUSH => ['handleRename', 510],
         ];
     }
 
