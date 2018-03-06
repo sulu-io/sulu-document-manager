@@ -81,10 +81,10 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
 
         $this->versionSubscriber = new VersionSubscriber($this->session->reveal(), $this->propertyEncoder->reveal());
 
-        $this->checkoutPathsReflection = new \ReflectionProperty(VersionSubscriber::class, 'checkoutPaths');
+        $this->checkoutPathsReflection = new \ReflectionProperty(VersionSubscriber::class, 'checkoutUuids');
         $this->checkoutPathsReflection->setAccessible(true);
 
-        $this->checkpointPathsReflection = new \ReflectionProperty(VersionSubscriber::class, 'checkpointPaths');
+        $this->checkpointPathsReflection = new \ReflectionProperty(VersionSubscriber::class, 'checkpointUuids');
         $this->checkpointPathsReflection->setAccessible(true);
     }
 
@@ -185,11 +185,11 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
         $event->getNode()->willReturn($node->reveal());
         $event->getDocument()->willReturn($document->reveal());
 
-        $node->getPath()->willReturn('/path/to/node');
+        $node->getIdentifier()->willReturn('123-123-13');
 
-        $this->versionSubscriber->rememberCheckoutPaths($event->reveal());
+        $this->versionSubscriber->rememberCheckoutUuids($event->reveal());
 
-        $this->assertEquals(['/path/to/node'], $this->checkoutPathsReflection->getValue($this->versionSubscriber));
+        $this->assertEquals(['123-123-13'], $this->checkoutPathsReflection->getValue($this->versionSubscriber));
     }
 
     public function testRememberCheckoutNodesWithoutVersionBehavior()
@@ -199,7 +199,7 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
 
         $event->getDocument()->willReturn($document);
 
-        $this->versionSubscriber->rememberCheckoutPaths($event->reveal());
+        $this->versionSubscriber->rememberCheckoutUuids($event->reveal());
 
         $this->assertEmpty($this->checkoutPathsReflection->getValue($this->versionSubscriber));
     }
@@ -216,12 +216,12 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
         $event->getDocument()->willReturn($document->reveal());
         $event->getOption('user')->willReturn(2);
 
-        $node->getPath()->willReturn('/path/to/node');
+        $node->getIdentifier()->willReturn('123-123-123');
 
         $this->versionSubscriber->rememberCreateVersion($event->reveal());
 
         $this->assertEquals(
-            [['path' => '/path/to/node', 'locale' => 'de', 'author' => 2]],
+            [['uuid' => '123-123-123', 'locale' => 'de', 'author' => 2]],
             $this->checkpointPathsReflection->getValue($this->versionSubscriber)
         );
     }
@@ -241,10 +241,22 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
         ClockMock::register(VersionSubscriber::class);
         ClockMock::withClockMock(true);
 
-        $this->checkoutPathsReflection->setValue($this->versionSubscriber, ['/node1', '/node2']);
+        $this->checkoutPathsReflection->setValue($this->versionSubscriber, ['1-1-1-1', '2-2-2-2']);
         $this->checkpointPathsReflection->setValue($this->versionSubscriber, [
-            ['path' => '/node3', 'locale' => 'de', 'author' => 1],
+            ['uuid' => '3-3-3-3', 'locale' => 'de', 'author' => 1],
         ]);
+
+        $node = $this->prophesize(NodeInterface::class);
+        $node->getPath()->willReturn('/node1');
+        $this->session->getNodeByIdentifier('1-1-1-1')->willReturn($node->reveal());
+
+        $node = $this->prophesize(NodeInterface::class);
+        $node->getPath()->willReturn('/node2');
+        $this->session->getNodeByIdentifier('2-2-2-2')->willReturn($node->reveal());
+
+        $node = $this->prophesize(NodeInterface::class);
+        $node->getPath()->willReturn('/node3');
+        $this->session->getNodeByIdentifier('3-3-3-3')->willReturn($node->reveal());
 
         $this->versionManager->isCheckedOut('/node1')->willReturn(false);
         $this->versionManager->isCheckedOut('/node2')->willReturn(true);
@@ -283,11 +295,19 @@ class VersionSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->checkpointPathsReflection->setValue(
             $this->versionSubscriber,
             [
-                ['path' => '/node1', 'locale' => 'de', 'author' => 2],
-                ['path' => '/node1', 'locale' => 'en', 'author' => 3],
-                ['path' => '/node2', 'locale' => 'en', 'author' => 1],
+                ['uuid' => '1-1-1-1', 'locale' => 'de', 'author' => 2],
+                ['uuid' => '1-1-1-1', 'locale' => 'en', 'author' => 3],
+                ['uuid' => '2-2-2-2', 'locale' => 'en', 'author' => 1],
             ]
         );
+
+        $node = $this->prophesize(NodeInterface::class);
+        $node->getPath()->willReturn('/node1');
+        $this->session->getNodeByIdentifier('1-1-1-1')->willReturn($node->reveal());
+
+        $node = $this->prophesize(NodeInterface::class);
+        $node->getPath()->willReturn('/node2');
+        $this->session->getNodeByIdentifier('2-2-2-2')->willReturn($node->reveal());
 
         $node1 = $this->prophesize(NodeInterface::class);
         $node1->getPropertyValueWithDefault('sulu:versions', [])->willReturn(['{"locale":"fr","version":"0","author":1,"authored":"2016-12-05T19:47:22+01:00"}']);

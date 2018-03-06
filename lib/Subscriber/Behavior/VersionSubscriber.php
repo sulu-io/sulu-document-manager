@@ -53,12 +53,12 @@ class VersionSubscriber implements EventSubscriberInterface
     /**
      * @var string[]
      */
-    private $checkoutPaths = [];
+    private $checkoutUuids = [];
 
     /**
      * @var string[]
      */
-    private $checkpointPaths = [];
+    private $checkpointUuids = [];
 
     public function __construct(SessionInterface $defaultSession, PropertyEncoder $propertyEncoder)
     {
@@ -75,7 +75,7 @@ class VersionSubscriber implements EventSubscriberInterface
         return [
             Events::PERSIST => [
                 ['setVersionMixin', 468],
-                ['rememberCheckoutPaths', -512],
+                ['rememberCheckoutUuids', -512],
             ],
             Events::PUBLISH => [
                 ['setVersionMixin', 468],
@@ -132,21 +132,21 @@ class VersionSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * Remember which paths need to be checked out after everything has been saved.
+     * Remember which uuids need to be checked out after everything has been saved.
      *
      * @param PersistEvent $event
      */
-    public function rememberCheckoutPaths(PersistEvent $event)
+    public function rememberCheckoutUuids(PersistEvent $event)
     {
         if (!$this->support($event->getDocument())) {
             return;
         }
 
-        $this->checkoutPaths[] = $event->getNode()->getPath();
+        $this->checkoutUuids[] = $event->getNode()->getIdentifier();
     }
 
     /**
-     * Remember for which paths a new version has to be created.
+     * Remember for which uuids a new version has to be created.
      *
      * @param PublishEvent $event
      */
@@ -157,8 +157,8 @@ class VersionSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $this->checkpointPaths[] = [
-            'path' => $event->getNode()->getPath(),
+        $this->checkpointUuids[] = [
+            'uuid' => $event->getNode()->getIdentifier(),
             'locale' => $document->getLocale(),
             'author' => $event->getOption('user'),
         ];
@@ -169,29 +169,35 @@ class VersionSubscriber implements EventSubscriberInterface
      */
     public function applyVersionOperations()
     {
-        foreach ($this->checkoutPaths as $path) {
+        foreach ($this->checkoutUuids as $uuid) {
+            $node = $this->defaultSession->getNodeByIdentifier($uuid);
+            $path = $node->getPath();
+
             if (!$this->versionManager->isCheckedOut($path)) {
                 $this->versionManager->checkout($path);
             }
         }
 
-        $this->checkoutPaths = [];
+        $this->checkoutUuids = [];
 
         /** @var NodeInterface[] $nodes */
         $nodes = [];
         $nodeVersions = [];
-        foreach ($this->checkpointPaths as $versionInformation) {
-            $version = $this->versionManager->checkpoint($versionInformation['path']);
+        foreach ($this->checkpointUuids as $versionInformation) {
+            $node = $this->defaultSession->getNodeByIdentifier($versionInformation['uuid']);
+            $path = $node->getPath();
 
-            if (!array_key_exists($versionInformation['path'], $nodes)) {
-                $nodes[$versionInformation['path']] = $this->defaultSession->getNode($versionInformation['path']);
-            }
-            $versions = $nodes[$versionInformation['path']]->getPropertyValueWithDefault(static::VERSION_PROPERTY, []);
+            $version = $this->versionManager->checkpoint($path);
 
-            if (!array_key_exists($versionInformation['path'], $nodeVersions)) {
-                $nodeVersions[$versionInformation['path']] = $versions;
+            if (!array_key_exists($path, $nodes)) {
+                $nodes[$path] = $this->defaultSession->getNode($path);
             }
-            $nodeVersions[$versionInformation['path']][] = json_encode(
+            $versions = $nodes[$path]->getPropertyValueWithDefault(static::VERSION_PROPERTY, []);
+
+            if (!array_key_exists($path, $nodeVersions)) {
+                $nodeVersions[$path] = $versions;
+            }
+            $nodeVersions[$path][] = json_encode(
                 [
                     'locale' => $versionInformation['locale'],
                     'version' => $version->getName(),
@@ -201,12 +207,12 @@ class VersionSubscriber implements EventSubscriberInterface
             );
         }
 
-        foreach ($nodes as $path => $node) {
-            $node->setProperty(static::VERSION_PROPERTY, $nodeVersions[$path]);
+        foreach ($nodes as $uuid => $node) {
+            $node->setProperty(static::VERSION_PROPERTY, $nodeVersions[$uuid]);
         }
 
         $this->defaultSession->save();
-        $this->checkpointPaths = [];
+        $this->checkpointUuids = [];
     }
 
     /**
