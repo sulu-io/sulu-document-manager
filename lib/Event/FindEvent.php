@@ -11,6 +11,7 @@
 
 namespace Sulu\Component\DocumentManager\Event;
 
+use PHPCR\SessionInterface;
 use Sulu\Component\DocumentManager\Exception\DocumentManagerException;
 
 class FindEvent extends AbstractEvent
@@ -31,6 +32,11 @@ class FindEvent extends AbstractEvent
      * @var object
      */
     private $document;
+
+    /**
+     * @var SessionInterface
+     */
+    private $session;
 
     /**
      * @param string $identifier
@@ -96,5 +102,38 @@ class FindEvent extends AbstractEvent
     public function setDocument($document)
     {
         $this->document = $document;
+    }
+
+    /**
+     * Get session.
+     *
+     * @return SessionInterface
+     *
+     * @throws DocumentManagerException
+     */
+    public function getSession()
+    {
+        if (!$this->session) {
+            throw new DocumentManagerException(sprintf(
+                'No session has been set for the findEvent for "%s". An event listener should have done this.',
+                $this->identifier
+            ));
+        }
+
+        return $this->session;
+    }
+
+    /**
+     * Set session.
+     *
+     * @param SessionInterface $session
+     *
+     * @return $this
+     */
+    public function setSession($session)
+    {
+        $this->session = $session;
+
+        return $this;
     }
 }
