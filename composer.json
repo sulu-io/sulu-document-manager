@@ -2,20 +2,20 @@
     "name": "sulu/document-manager",
     "description": "Sulu Document Manager",
     "require": {
-        "symfony/event-dispatcher": "~2.8 || ~3.0",
-        "symfony/dependency-injection": "~2.8 || ~3.0",
-        "symfony/config": "~2.8 || ~3.0",
-        "symfony/options-resolver": "~2.8 || ~3.0",
-        "symfony-cmf/slugifier-api": "~1.0",
-        "ocramius/proxy-manager": "~1.0 | ~2.0",
-        "aferrandini/urlizer": "~1.0.0"
+        "symfony/event-dispatcher": "^2.8 || ^3.0",
+        "symfony/dependency-injection": "^2.8 || ^3.0",
+        "symfony/config": "^2.8 || ^3.0",
+        "symfony/options-resolver": "^2.8 || ^3.0",
+        "symfony-cmf/slugifier-api": "^1.0 || ^2.0",
+        "ocramius/proxy-manager": "^1.0 | ^2.0",
+        "aferrandini/urlizer": "^1.0"
     },
     "require-dev": {
-        "jackalope/jackalope-doctrine-dbal": "~1.2.3",
-        "phpunit/phpunit": "^4.5",
+        "jackalope/jackalope-doctrine-dbal": "^1.2.3",
+        "phpunit/phpunit": ">=4.8, <5.4",
         "monolog/monolog": "^1.1",
-        "phpbench/phpbench": "0.10.*",
-        "symfony/phpunit-bridge": "~2.8 || ~3.0"
+        "phpbench/phpbench": "~0.11",
+        "symfony/phpunit-bridge": "^2.8 || ^3.0"
     },
     "license": "MIT",
     "authors": [

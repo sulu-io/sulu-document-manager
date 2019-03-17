@@ -119,9 +119,7 @@ class ProxyFactoryTest extends \PHPUnit_Framework_TestCase
         $options = ['test_option' => 'test'];
 
         $this->node->getParent()->willReturn($this->parentNode->reveal());
-        $this->metadataFactory->getMetadataForPhpcrNode($this->parentNode->reveal())->willReturn(
-            $this->metadata->reveal()
-        );
+        $this->metadataFactory->getMetadataForPhpcrNode($this->parentNode->reveal())->willReturn($this->metadata->reveal());
         $this->metadata->getClass()->willReturn(TestProxyDocumentProxy::class);
 
         $proxy = $this->factory->createProxyForNode($this->document, $this->parentNode->reveal(), $options);
@@ -129,9 +127,9 @@ class ProxyFactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(LazyLoadingInterface::class, $proxy);
 
         $this->dispatcher->dispatch(
-            'sulu_document_manager.hydrate',
+            Events::HYDRATE,
             Argument::that(
-                function ($event) use ($options) {
+                function (HydrateEvent $event) use ($options) {
                     return $event->getOptions() === $options;
                 }
             )
