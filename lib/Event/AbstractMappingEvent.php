@@ -12,7 +12,9 @@
 namespace Sulu\Component\DocumentManager\Event;
 
 use PHPCR\NodeInterface;
+use PHPCR\SessionInterface;
 use Sulu\Component\DocumentManager\DocumentAccessor;
+use Sulu\Component\DocumentManager\DocumentHelper;
 
 abstract class AbstractMappingEvent extends AbstractEvent
 {
@@ -73,6 +75,22 @@ abstract class AbstractMappingEvent extends AbstractEvent
     public function getLocale()
     {
         return $this->locale;
+    }
+
+    /**
+     * @return SessionInterface
+     */
+    public function getSession()
+    {
+        if (!$this->node) {
+            throw new \RuntimeException(sprintf(
+                'Trying to retrieve node when no node has been set. An event ' .
+                'listener should have set the node when persisting document "%s"',
+                DocumentHelper::getDebugTitle($this->document)
+            ));
+        }
+
+        return $this->node->getSession();
     }
 
     /**

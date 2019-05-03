@@ -26,33 +26,39 @@ class NodeManager
     /**
      * @var SessionInterface
      */
-    private $session;
+    private $defaultSession;
 
     /**
-     * @param SessionInterface $session
+     * @param SessionInterface $defaultSession
      */
-    public function __construct(SessionInterface $session)
+    public function __construct(SessionInterface $defaultSession)
     {
-        $this->session = $session;
+        $this->defaultSession = $defaultSession;
     }
 
     /**
      * Find a document with the given path or UUID.
      *
      * @param string $identifier UUID or path
+     * @param SessionInterface $session
      *
      * @return NodeInterface
      *
      * @throws DocumentNotFoundException
      */
-    public function find($identifier)
+    public function find($identifier, $session = null)
     {
+        if (null === $session) {
+            $session = $this->defaultSession;
+            $this->triggerSessionDeprecatedMessage();
+        }
+
         try {
             if (UUIDHelper::isUUID($identifier)) {
-                return $this->session->getNodeByIdentifier($identifier);
+                return $session->getNodeByIdentifier($identifier);
             }
 
-            return $this->session->getNode($identifier);
+            return $session->getNode($identifier);
         } catch (RepositoryException $e) {
             throw new DocumentNotFoundException(sprintf(
                 'Could not find document with ID or path "%s"', $identifier
@@ -65,15 +71,21 @@ class NodeManager
      * then if a node with the UUID exists.
      *
      * @param string $identifier
+     * @param SessionInterface $session
      *
      * @return bool
      */
-    public function has($identifier)
+    public function has($identifier, $session = null)
     {
-        $this->normalizeToPath($identifier);
+        if (null === $session) {
+            $session = $this->defaultSession;
+            $this->triggerSessionDeprecatedMessage();
+        }
+
+        $this->normalizeToPath($identifier, $session);
 
         try {
-            $this->find($identifier);
+            $this->find($identifier, $session);
 
             return true;
         } catch (DocumentNotFoundException $e) {
@@ -85,11 +97,17 @@ class NodeManager
      * Remove the document with the given path or UUID.
      *
      * @param string $identifier ID or path
+     * @param SessionInterface $session Session name
      */
-    public function remove($identifier)
+    public function remove($identifier, $session = null)
     {
-        $identifier = $this->normalizeToPath($identifier);
-        $this->session->removeItem($identifier);
+        if (null === $session) {
+            $session = $this->defaultSession;
+            $this->triggerSessionDeprecatedMessage();
+        }
+
+        $identifier = $this->normalizeToPath($identifier, $session);
+        $session->removeItem($identifier);
     }
 
     /**
@@ -99,16 +117,22 @@ class NodeManager
      * @param string $srcId
      * @param string $destId
      * @param string $name
+     * @param SessionInterface $session
      *
      * @deprecated Use NodeHelper::move instead
      */
-    public function move($srcId, $destId, $name)
+    public function move($srcId, $destId, $name, $session = null)
     {
-        $srcPath = $this->normalizeToPath($srcId);
-        $parentDestPath = $this->normalizeToPath($destId);
+        if (null === $session) {
+            $session = $this->defaultSession;
+            $this->triggerSessionDeprecatedMessage();
+        }
+
+        $srcPath = $this->normalizeToPath($srcId, $session);
+        $parentDestPath = $this->normalizeToPath($destId, $session);
         $destPath = $parentDestPath . '/' . $name;
 
-        $this->session->move($srcPath, $destPath);
+        $session->move($srcPath, $destPath);
     }
 
     /**
@@ -118,16 +142,22 @@ class NodeManager
      * @param string $srcId
      * @param string $destId
      * @param string $name
+     * @param SessionInterface $session
      *
      * @return string
      *
      * @deprecated Use NodeHelper::copy instead
      */
-    public function copy($srcId, $destId, $name)
+    public function copy($srcId, $destId, $name, $session = null)
     {
-        $workspace = $this->session->getWorkspace();
-        $srcPath = $this->normalizeToPath($srcId);
-        $parentDestPath = $this->normalizeToPath($destId);
+        if (null === $session) {
+            $session = $this->defaultSession;
+            $this->triggerSessionDeprecatedMessage();
+        }
+
+        $workspace = $session->getWorkspace();
+        $srcPath = $this->normalizeToPath($srcId, $session);
+        $parentDestPath = $this->normalizeToPath($destId, $session);
         $destPath = $parentDestPath . '/' . $name;
 
         $workspace->copy($srcPath, $destPath);
@@ -137,30 +167,49 @@ class NodeManager
 
     /**
      * Save all pending changes currently recorded in this Session.
+     *
+     * @param SessionInterface $session
      */
-    public function save()
+    public function save($session = null)
     {
-        $this->session->save();
+        if (null === $session) {
+            $session = $this->defaultSession;
+            $this->triggerSessionDeprecatedMessage();
+        }
+
+        $session->save();
     }
 
     /**
      * Clear the current session.
+     *
+     * @param SessionInterface $session
      */
-    public function clear()
+    public function clear($session = null)
     {
-        $this->session->refresh(false);
+        if (null === $session) {
+            $session = $this->defaultSession;
+            $this->triggerSessionDeprecatedMessage();
+        }
+
+        $session->refresh(false);
     }
 
     /**
      * Create a path.
      *
      * @param string $path
+     * @param SessionInterface $session
      *
      * @return NodeInterface
      */
-    public function createPath($path)
+    public function createPath($path, $session = null)
     {
-        $current = $this->session->getRootNode();
+        if (null === $session) {
+            $this->triggerSessionDeprecatedMessage();
+        }
+
+        $current = $session->getRootNode();
 
         $segments = preg_split('#/#', $path, null, PREG_SPLIT_NO_EMPTY);
         foreach ($segments as $segment) {
@@ -178,25 +227,41 @@ class NodeManager
 
     /**
      * Purge the workspace.
+     *
+     * @param SessionInterface $session
      */
-    public function purgeWorkspace()
+    public function purgeWorkspace($session = null)
     {
-        NodeHelper::purgeWorkspace($this->session);
+        if (null === $session) {
+            $session = $this->defaultSession;
+            $this->triggerSessionDeprecatedMessage();
+        }
+
+        NodeHelper::purgeWorkspace($session);
     }
 
     /**
      * Normalize the given path or ID to a path.
      *
      * @param string $identifier
+     * @param SessionInterface $session
      *
      * @return string
      */
-    private function normalizeToPath($identifier)
+    private function normalizeToPath($identifier, $session)
     {
         if (UUIDHelper::isUUID($identifier)) {
-            $identifier = $this->session->getNodeByIdentifier($identifier)->getPath();
+            $identifier = $session->getNodeByIdentifier($identifier)->getPath();
         }
 
         return $identifier;
+    }
+
+    /**
+     * Trigger session deprecated message.
+     */
+    private function triggerSessionDeprecatedMessage()
+    {
+        trigger_error('Calling the "NodeManager" without giving the session is deprecated!');
     }
 }

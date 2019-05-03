@@ -13,6 +13,7 @@ namespace Sulu\Component\DocumentManager\Subscriber\Behavior\Path;
 
 use PHPCR\ItemExistsException;
 use PHPCR\NodeInterface;
+use PHPCR\SessionInterface;
 use PHPCR\Util\PathHelper;
 use Sulu\Component\DocumentManager\DocumentHelper;
 use Sulu\Component\DocumentManager\Event\ConfigureOptionsEvent;
@@ -98,7 +99,7 @@ class ExplicitSubscriber implements EventSubscriberInterface
 
         if ($parentPath) {
             $event->setParentNode(
-                $this->resolveParent($parentPath, $options)
+                $this->resolveParent($parentPath, $options, $event->getNode()->getSession())
             );
         }
 
@@ -151,15 +152,15 @@ class ExplicitSubscriber implements EventSubscriberInterface
         $node->rename($nodeName);
     }
 
-    private function resolveParent($parentPath, array $options)
+    private function resolveParent($parentPath, array $options, SessionInterface $session)
     {
         $autoCreate = $options['auto_create'];
 
         if ($autoCreate) {
-            return $this->nodeManager->createPath($parentPath);
+            return $this->nodeManager->createPath($parentPath, $session);
         }
 
-        return $this->nodeManager->find($parentPath);
+        return $this->nodeManager->find($parentPath, $session);
     }
 
     private function validateOptions(array $options)

@@ -12,6 +12,7 @@
 namespace Sulu\Component\DocumentManager\Event;
 
 use PHPCR\NodeInterface;
+use PHPCR\SessionInterface;
 use Sulu\Component\DocumentManager\DocumentHelper;
 
 class PersistEvent extends AbstractMappingEvent
@@ -77,6 +78,16 @@ class PersistEvent extends AbstractMappingEvent
         }
 
         return $this->node;
+    }
+
+    /**
+     * @return SessionInterface
+     *
+     * @throws \RuntimeException
+     */
+    public function getSession()
+    {
+        return $this->getNode()->getSession();
     }
 
     /**
